@@ -1,0 +1,12 @@
+*.aux
+*.dvi
+*.fdb_latexmk
+*.fls
+*.lof
+*.lot
+*.out
+*.toc
+_minted-*/
+*.log
+*.pdf
+auto/
