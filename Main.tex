@@ -5,28 +5,26 @@
 
 % IMPORT SETTINGS
 \documentclass[12pt,a4paper,twoside,openright]{report}
-\input{include/settings/Settings}
+\input{include/settings}
 
-\newcommand{\oneLineTitle}{A Chalmers University of Technology Master's thesis template for \LaTeX}
-\newcommand{\multiLineTitle}[1]{A Chalmers University of Technology \\[#1]  Master's thesis template for \LaTeX}
+\newcommand{\oneLineTitle}{Modelling Agda's Sized Types in Agda}
+\newcommand{\multiLineTitle}[1]{Modelling Agda's Sized Types in Agda}
 % The term [#1] indicates that there will be 1 rowbreak to split the title into two pieces, first part before \\[#1] and second part after. If you have a very long title and need to split it up into 3 rows, just use \\[#1] multiple times.
-
-\newcommand{\oneLineSubtitle}{A Subtitle that can be Very Much Longer if Necessary}
 
 
 \begin{document} 
 
 % COVER PAGE, TITLE PAGE AND IMPRINT PAGE
 \pagenumbering{roman}			% Roman numbering (starting with i (one)) until first main chapter
-\input{include/frontmatter/Titlepage}
+\input{include/frontmatter/titlepage}
 
 % ABSTRACT
 \newpage
-\input{include/frontmatter/Abstract}
+\input{include/frontmatter/abstract}
 
 % ACKNOWLEDGEMENTS
 \newpage
-\input{include/frontmatter/Acknowledgements}
+\input{include/frontmatter/acknowledgements}
 
 
 % TABLE OF CONTENTS
@@ -50,25 +48,15 @@
 \pagenumbering{arabic}			% Arabic numbering starting from 1 (one)
 \setlength{\parskip}{0pt plus 1pt}
 
-% INTRODUCTION
-\input{include/Introduction}
-
-% THEORY
-\input{include/Theory}
-
-% METHODS
-\input{include/Methods}
-
-% RESULTS
-\input{include/Results}
-
-% CONCLUSION
-\input{include/Conclusion}
+\input{include/intro}
+\input{include/background}
+\input{include/dev}
+\input{include/conclusion}
 
 % REFERENCES / BIBLIOGRAPHY
 \cleardoublepage
 \addcontentsline{toc}{chapter}{Bibliography}
-\input{include/backmatter/References}
+\input{include/backmatter/references}
 
 % APPENDICES
 \cleardoublepage
@@ -76,7 +64,7 @@
 \setcounter{page}{1}
 \pagenumbering{Roman}			% Capitalized roman numbering starting from I (one)
 
-\input{include/backmatter/Appendix_1}
+\input{include/backmatter/appendix1}
 
 
 \end{document}
