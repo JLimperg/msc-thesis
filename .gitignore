@@ -10,4 +10,6 @@ _minted-*/
 *.log
 *.pdf
 *.xdv
+*.bbl
+*.blg
 auto/
