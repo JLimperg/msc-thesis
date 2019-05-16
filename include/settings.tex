@@ -3,13 +3,10 @@
 % BASIC SETTINGS
 \usepackage{moreverb}								% List settings
 \usepackage{textcomp}								% Fonts, symbols etc.
-\usepackage{lmodern}								% Latin modern font
-\usepackage{helvet}									% Enables font switching
-\usepackage[T1]{fontenc}							% Output settings
-\usepackage[english]{babel}							% Language settings
-\usepackage[utf8]{inputenc}							% Input settings
-\usepackage{amsmath}								% Mathematical expressions (American mathematical society)
-\usepackage{amssymb}								% Mathematical symbols (American mathematical society)
+\usepackage[british]{babel}							% Language settings
+\usepackage{fontspec}
+\usepackage{mathtools}
+\usepackage{unicode-math}
 \usepackage{graphicx}								% Figures
 \usepackage{subfig}									% Enables subfigures
 \numberwithin{equation}{chapter}					% Numbering order for equations
@@ -28,6 +25,13 @@
 \usepackage{float} 									% Enables object position enforcement using [H]
 \usepackage{parskip}								% Enables vertical spaces correctly 
 \usepackage{datetime} %date formatting tools
+
+
+% Fonts
+\setmainfont{XITS}
+\setmathfont{XITS Math}
+\setmonofont{DejaVu Sans Mono}
+
 
 
 % OPTIONAL SETTINGS (DELETE OR COMMENT TO SUPRESS)
