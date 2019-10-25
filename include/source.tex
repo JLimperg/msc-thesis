@@ -1,0 +1,58 @@
+\chapter{Source Language}
+
+\section{Source Language}
+
+Our source language, λST, is a simply-typed lambda calculus extended with sizes,
+bounded size quantification, sized natural numbers and a sized fixpoint
+combinator.
+
+
+\subsection{Syntax}
+
+The syntax of λST is summarised in Fig. \ref{fig:syntax}.
+
+\begin{figure}
+  \begin{displaymath}
+    \begin{array}{llcll}
+      \text{size} & i, j, k & ∷= & α & \text{(size variable)} \\
+      & & | & ↑ n & \text{(successor)} \\
+
+      \text{extended size} & n, m, o & ∷= & i & \text{(size)} \\
+      & & | & ∞ & \text{(infinity)} \\
+
+      \text{size context} & Δ & ∷= & () & \text{(empty context)}  \\
+      & & | & \ctx{Δ}{α<n} & \text{(context extension)} \\
+
+      \text{type} & T, U, V & ∷= & ℕ~n & \text{(sized natural numbers)} \\
+      & & | & T ⇒ U & \text{(functions)} \\
+      & & | & \all{x<n}{T} & \text{(size quantification)} \\
+
+      \text{type context} & Γ & ∷= & () & \text{(empty context)} \\
+      & & | & \ctx{Γ}{t \ty T} & \text{(context extension)} \\
+
+      \text{term} & t, u, v & ∷= & x & \text{(term variable)} \\
+      & & | & \lam{x \ty T}{t} & \text{(abstraction)} \\
+      & & | & t \ap u & \text{(application)} \\
+      & & | & \lam{x < n}{t} & \text{(size abstraction)} \\
+      & & | & t \ap n & \text{(size application)} \\
+      & & | & 0 & \text{(zero)} \\
+      & & | & \suc & \text{(successor)} \\
+      & & | & \case[T] & \text{(eliminator for ℕ)} \\
+      & & | & \fix[T] & \text{(sized fixpoint)} \\
+    \end{array}
+  \end{displaymath}
+
+  \caption{Syntax of λST}
+  \label{fig:syntax}
+\end{figure}
+
+
+\subsection{Typing}
+
+
+\section{Model}
+TODO
+
+
+\section{Formalisation}
+TODO
