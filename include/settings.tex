@@ -25,6 +25,8 @@
 %\usepackage{parskip}								% Enables vertical spaces correctly
 \usepackage{datetime} %date formatting tools
 \usepackage{amsthm} % theorem environments
+\usepackage{csquotes} % quoting
+\usepackage{fancyvrb} % needed to define environments containing minted
 
 
 % Fonts
@@ -35,27 +37,6 @@
 % Boxed floats
 \floatstyle{boxed}
 \restylefloat{figure}
-
-% Theorem environments
-\theoremstyle{definition}
-\newtheorem{definition}{Definition}[section]
-
-\theoremstyle{theorem}
-\newtheorem{theorem}{Theorem}[section]
-
-\theoremstyle{lemma}
-\newtheorem{lemma}[theorem]{Lemma}
-
-% Additional commands
-\newcommand*{\ty}{\ensuremath{\colon}}
-\newcommand*{\ap}{~}
-\newcommand*{\lam}[2]{\ensuremath{\mathrm{λ} \, #1.\; #2}}
-\newcommand*{\all}[2]{\ensuremath{∀ #1.\; #2}}
-\newcommand*{\ctx}[2]{\ensuremath{#1; \, #2}}
-\newcommand*{\suc}{\ensuremath{\mathrm{suc}}}
-\newcommand*{\case}{\ensuremath{\mathrm{caseℕ}}}
-\newcommand*{\fix}{\ensuremath{\mathrm{fix}}}
-
 
 
 % OPTIONAL SETTINGS (DELETE OR COMMENT TO SUPRESS)

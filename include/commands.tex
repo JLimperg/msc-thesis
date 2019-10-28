@@ -1,0 +1,27 @@
+% Code environment
+\newenvironment{code}
+  {\VerbatimEnvironment
+   \begin{minted}{Agda}}
+  {\end{minted}
+   \par}
+
+% Theorem environments
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+
+\theoremstyle{plain}
+\newtheorem{lemma}[theorem]{Lemma}
+
+% Additional commands
+\newcommand*{\icode}[1]{\texttt{#1}}
+\newcommand*{\ty}{\ensuremath{\colon}}
+\newcommand*{\ap}{~}
+\newcommand*{\lam}[2]{\ensuremath{\mathrm{λ} \, #1.\; #2}}
+\newcommand*{\all}[2]{\ensuremath{∀ #1.\; #2}}
+\newcommand*{\ctx}[2]{\ensuremath{#1; \, #2}}
+\newcommand*{\suc}{\ensuremath{\mathrm{suc}}}
+\newcommand*{\case}{\ensuremath{\mathrm{caseℕ}}}
+\newcommand*{\fix}{\ensuremath{\mathrm{fix}}}
