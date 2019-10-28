@@ -25,6 +25,7 @@
 \usepackage{float} 									% Enables object position enforcement using [H]
 \usepackage{parskip}								% Enables vertical spaces correctly 
 \usepackage{datetime} %date formatting tools
+\usepackage{amsthm} % theorem environments
 
 
 % Fonts
@@ -35,6 +36,16 @@
 % Boxed floats
 \floatstyle{boxed}
 \restylefloat{figure}
+
+% Theorem environments
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+
+\theoremstyle{theorem}
+\newtheorem{theorem}{Theorem}[section]
+
+\theoremstyle{lemma}
+\newtheorem{lemma}[theorem]{Lemma}
 
 % Additional commands
 \newcommand*{\ty}{\ensuremath{\colon}}
