@@ -4,11 +4,15 @@
 % Adjustments with the help of Gustav Örtenberg 2019
 
 % COVER PAGE
+
+\begingroup
+\setlength{\parindent}{0pt}
+
 \begin{titlepage}
 \newgeometry{top=3cm, bottom=3cm,
-			left=2.25 cm, right=2.25cm}	% Temporarily change margins		
-			
-% Cover page background 
+			left=2.25 cm, right=2.25cm}	% Temporarily change margins
+
+% Cover page background
 \AddToShipoutPicture*{\backgroundpic{-4}{56.7}{figure/auxiliary/frontpage_gu_eng_vec_m2.pdf}}
 \addtolength{\voffset}{2cm}
 
@@ -17,7 +21,7 @@
 \vfill
 \renewcommand{\familydefault}{\sfdefault} \normalfont % Set cover page font
 
-\textbf{\Huge \multiLineTitle{0.2cm}} 
+\textbf{\Huge \multiLineTitle{0.2cm}}
 \\[0.5cm]
 
 %{\Large A Subtitle that can be Very Much Longer if Necessary}\\[0.5cm]
@@ -49,15 +53,15 @@ Gothenburg, Sweden \the\year
 	\textsc{\large Master's thesis \the\year}\\[4cm]		% Report number is currently not in use
 	\textbf{\Large \multiLineTitle{0.2cm}} \\[1cm]
 	{\large Jannis Limperg}
-	
-	\vfill	
-	% Logotype on titlepage	
+
+	\vfill
+	% Logotype on titlepage
 	\begin{figure}[H]
 	\centering
 	% Remove the following line to remove the titlepage logotype
 	\includegraphics[width=0.25\pdfpagewidth]{figure/auxiliary/ChGULogoHog.pdf}
-	\end{figure}	\vspace{5mm}	
-	
+	\end{figure}	\vspace{5mm}
+
 	Department of Computer Science and Engineering\\
 	\textsc{Chalmers University of Technology} \\
 	\textsc{University of Gothenburg} \\
@@ -77,7 +81,7 @@ Jannis Limperg \setlength{\parskip}{1cm}
 Supervisor: Andreas Abel, Department of Computer Science\\
 Examiner: John Hughes, Department of Computer Science \setlength{\parskip}{1cm}
 
-Master's Thesis \the\year\\	% Report number currently not in use 
+Master's Thesis \the\year\\	% Report number currently not in use
 Department of Computer Science and Engineering\\
 Chalmers University of Technology and University of Gothenburg\\
 SE-412 96 Gothenburg\\
@@ -89,3 +93,4 @@ Telephone +46 31 772 1000 \setlength{\parskip}{0.5cm}
 Typeset in \LaTeX \\
 Gothenburg, Sweden \the\year
 
+\endgroup
