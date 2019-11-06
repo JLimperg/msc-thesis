@@ -1,58 +1,617 @@
 \chapter{Source Language}
+\label{sec:source}
 
-\section{Source Language}
+The inconsistency mentioned at the end of the previous chapter provides a
+motivation to investigate sized types more carefully. This thesis takes a small
+step in that direction by defining a calculus, λST, which transplants the sized
+types of Agda into a very simple setting, the simply-typed lambda calculus. In
+this chapter, we define λST and establish some of its syntactic properties.
 
-Our source language, λST, is a simply-typed lambda calculus extended with sizes,
-bounded size quantification, sized natural numbers and a sized fixpoint
-combinator.
+
+\section{Overview}
+\label{sec:source:overview}
+
+Before we dive into the technicalities of λST, let me give an overview of the
+calculus by example, to show what it is capable of. Those who prefer their
+exposition top-down may skip to Sec. \ref{sec:source:sizes} and return to this
+section later.
+
+λST, unlike Agda, does not feature subtyping (though I conjecture that this
+could easily be added). To get around this limitation, we first define a
+function that lifts a sized natural number to a larger size:
+\begin{code}
+  liftℕ : ∀ n < ⋆. ∀ m < n. ℕ m → ℕ n
+  liftℕ ≔ Λ n < ⋆. Λ m < n. λ i : ℕ n.
+          caseℕ[ℕ n] m i
+            (zero n)
+            (λ k < m. λ j : ℕ k. suc n k j)
+\end{code}
+
+\icode{liftℕ} already showcases most of the features of λST. Size variables are
+introduced at the type level by size quantification \icode{∀ n < m. T} and at
+the term level by the binder \icode{Λ n < m. t}. Each variable has an upper
+bound, here \icode{m}, corresponding to the Agda type \icode{Size<~m}. However,
+in λST we don't have \icode{∞~<~∞}, so in \icode{∀~n~<~∞.~T}, \icode{n} cannot
+be instantiated with \icode{∞}. Since we do sometimes want to quantify over
+every size including \icode{∞}, we introduce the size \icode{⋆} with
+\icode{∞~<~⋆} so that we can form the type \icode{∀~n~<~⋆.~T}. This is
+equivalent to Agda's \icode{(n~:~Size<~∞) → T}.
+
+λST also features a type of sized natural numbers \icode{ℕ~n} with constructors
+\icode{zero} and \icode{suc} and eliminator \icode{caseℕ[T]} (where \icode{T} is
+an arbitrary type). The types of the constructors and eliminator are those one
+would get if one were to define sized natural numbers in Agda:
+\begin{code}
+  zero     : ∀ n < ⋆. ℕ n
+  suc      : ∀ n < ⋆. ∀ m < n. ℕ m → ℕ n
+  caseℕ[T] : ∀ n < ⋆. ℕ n → T → (∀ m < n. ℕ m → T) → T
+\end{code}
+The \icode{caseℕ[T]} eliminator performs case analysis: If its first (non-size)
+argument is zero, it returns the second argument; otherwise it applies the
+function given as the third argument to the predecessor of the first argument.
+Thus, \icode{liftℕ} is the identity function up to sizes.
+
+Using \icode{liftℕ}, we define our first recursive function, \icode{half},
+which divides its input by two (rounding down if the input is odd).
+\begin{code}
+  half : ∀ n < ⋆. ℕ n → ℕ n
+  half ≔ Λ n < ⋆. fix[∀ m < ⋆. ℕ m → ℕ m]
+    (Λ n < ⋆. λ rec ∶ (Λ m < n. ℕ m → ℕ m). λ (i : ℕ n).
+      caseℕ
+    )
+    n
+\end{code}
+
+TODO better plus?
+\begin{code}
+  plus : ∀ n < ⋆. ℕ n → ℕ n → ℕ n
+  plus ≔ Λ n < ⋆. fix[∀ m < ⋆. ℕ m → ℕ n → ℕ m]
+    (Λ n < ⋆. λ rec : (Λ m < n. ℕ m → ℕ n → ℕ m).
+      λ i : ℕ n. λ j : ℕ n. caseℕ[ℕ n] n i
+        j
+        (Λ m < n. λ i′ : ℕ m. suc n m (rec m i′ j)))
+    n
+\end{code}
 
 
-\subsection{Syntax}
+\section{Sizes}
+\label{sec:source:sizes}
 
-The syntax of λST is summarised in Fig. \ref{fig:syntax}.
+In the following sections we define λST. All definitions and lemmas are
+annotated with the name of the corresponding definition in the Agda
+formalisation (if any). This section corresponds to the Agda file
+\icode{Source/Size.agda}.
+
+\begin{definition}[Sizes, size variables, size contexts (\icode{Size, Var, Ctx})]
+  Sizes and size contexts are defined by the grammar in Fig.
+  \ref{fig:syntax:sizes}. Size variables are de Bruijn indices; we write $v_x$
+  for the x-th variable. (The examples in the previous sections instead used
+  named variables for clarity.)
+\end{definition}
 
 \begin{figure}
   \begin{displaymath}
     \begin{array}{llcll}
-      \text{size} & i, j, k & ∷= & α & \text{(size variable)} \\
-      & & | & ↑ n & \text{(successor)} \\
-
-      \text{extended size} & n, m, o & ∷= & i & \text{(size)} \\
-      & & | & ∞ & \text{(infinity)} \\
-
-      \text{size context} & Δ & ∷= & () & \text{(empty context)}  \\
-      & & | & \ctx{Δ}{α<n} & \text{(context extension)} \\
-
-      \text{type} & T, U, V & ∷= & ℕ~n & \text{(sized natural numbers)} \\
-      & & | & T ⇒ U & \text{(functions)} \\
-      & & | & \all{x<n}{T} & \text{(size quantification)} \\
-
-      \text{type context} & Γ & ∷= & () & \text{(empty context)} \\
-      & & | & \ctx{Γ}{t \ty T} & \text{(context extension)} \\
-
-      \text{term} & t, u, v & ∷= & x & \text{(term variable)} \\
-      & & | & \lam{x \ty T}{t} & \text{(abstraction)} \\
-      & & | & t \ap u & \text{(application)} \\
-      & & | & \lam{x < n}{t} & \text{(size abstraction)} \\
-      & & | & t \ap n & \text{(size application)} \\
+      \text{size} & n, m, o & \bnfdef & v_x & \text{(size variable)} \\
       & & | & 0 & \text{(zero)} \\
-      & & | & \suc & \text{(successor)} \\
-      & & | & \case[T] & \text{(eliminator for ℕ)} \\
-      & & | & \fix[T] & \text{(sized fixpoint)} \\
+      & & | & \ssuc{n} & \text{(successor)} \\
+      & & | & ∞ & \text{(infinity)} \\
+      & & | & ⋆ & \text{(star)} \\
+
+      \text{size context} & Δ, Ω & \bnfdef & () & \text{(empty context)} \\
+      & & | & \ctx{Δ}{n} & \text{(context extension)}
     \end{array}
   \end{displaymath}
 
-  \caption{Syntax of λST}
-  \label{fig:syntax}
+  \caption{Syntax of sizes, size variables and size contexts}
+  \label{fig:syntax:sizes}
 \end{figure}
 
+Our size grammar is essentially that of Agda (although of course Agda does not
+have a separate grammatical category for sizes). We only add two sizes that
+could easily be added to Agda as well: $0$ and $⋆$. Both are needed because λST,
+unlike Agda, does not admit the rule $∞ < ∞$. For $⋆$ in particular we will have
+$∞ < ⋆$, so a constraint of the form $x < ⋆$ corresponds to the Agda type
+\icode{Size<~∞}.
 
-\subsection{Typing}
+\begin{definition}[Weakening (\icode{wk})]
+  The weakening of a size $n$, $\wk(n)$, is $n$ with all variables incremented
+  once.
+\end{definition}
+
+\begin{definition}[Validity of sizes and contexts]
+  The typing judgments for sizes are mutually inductively generated by the rules
+  in Fig. \ref{fig:typing:sizes}.
+\end{definition}
+
+\begin{figure}
+  \begin{mathpar}
+    \fbox{$Δ ⊢ v_x < n$} \\
+
+    \inferrule{Δ ⊢ n}{\ctx{Δ}{n} ⊢ v_0 < n}
+
+    \inferrule{Δ ⊢ v_x < n \\ Δ ⊢ m}{\ctx{Δ}{m} ⊢ v_{x + 1} < \wk(n)} \\
+
+    \fbox{$Δ ⊢ n$} \\
+
+    \inferrule{Δ ⊢ v_x < n}{Δ ⊢ v_x}
+
+    \inferrule{⊢ Δ}{Δ ⊢ 0 \\ Δ ⊢ ∞ \\ Δ ⊢ ⋆}
+
+    \inferrule{Δ ⊢ n}{Δ ⊢ \ssuc{n}} \\
+
+    \fbox{$⊢ Δ$} \\
+
+    \inferrule{ }{⊢ ()}
+
+    \inferrule{Δ ⊢ n}{⊢ \ctx{Δ}{n}}
+
+  \end{mathpar}
+
+  \caption{Typing rules for sizes and size contexts}
+  \label{fig:typing:sizes}
+\end{figure}
+
+The typing rules merely ensure that sizes, variables and contexts are
+scope-safe. Contexts are telescopes, so in the context $\ctx{Δ}{n}$, the
+bound $n$ may involve variables in $Δ$. In the formalisation, scope safety is
+already part of the definition of sizes/variables/contexts, so we do not need
+separate typing judgments.
+
+\begin{lemma}
+  $Δ ⊢ v_x < n$ implies $Δ ⊢ n$. $Δ ⊢ n$ implies $⊢ Δ$.
+\end{lemma}
+
+\begin{proof}
+  By induction on the derivation of the respective premise.
+\end{proof}
+
+Similar lemmas also hold for all the other judgments we define below. Their
+statements and proofs are entirely mechanical, so I will henceforth use them
+implicitly. From now on, I also entirely omit proofs if they require nothing
+more than a straightforward induction.
+
+\begin{definition}[Size comparison (\icode{\_<\_})]
+  \label{def:source:<}
+  The rules in Fig. \ref{fig:typing:order} inductively generate a relation $<$
+  on sizes (in the same context).
+\end{definition}
+
+\begin{figure}
+  \begin{mathpar}
+    \fbox{$Δ ⊢ n < m$} \\
+
+    \inferrule{Δ ⊢ v_x < n}{Δ ⊢ v_x < n}
+
+    \inferrule{Δ ⊢ n < ∞}{Δ ⊢ n < \ssuc{n}}
+
+    \inferrule{⊢ Δ}{Δ ⊢ 0 < ∞}
+
+    \inferrule{Δ ⊢ n < ∞}{Δ ⊢ \ssuc{n} < ∞}
+
+    \inferrule{⊢ Δ}{Δ ⊢ ∞ < ⋆}
+
+    \inferrule{Δ ⊢ n < m \\ Δ ⊢ m < o}{Δ ⊢ n < o}
+  \end{mathpar}
+
+  \caption{Size comparison}
+  \label{fig:typing:order}
+\end{figure}
+
+The rules of $<$ are all supported by the intuition that sizes roughly
+correspond to the natural numbers (TODO what about ∞/⋆?). (The first rule is not
+circular; its premise refers to the judgment $Δ ⊢ v_x < n$ from Fig.
+\ref{fig:typing:sizes}.) However, our $<$ differs from Agda's in two significant ways.
+
+First, Agda admits the rule $∞ < ∞$ while we do not. This deviation is probably
+necessary considering that $∞ < ∞$ seems to be the root cause of multiple
+inconsistencies in Agda (see Sec. \ref{sec:background:sized}).
+
+Second, we have $n < \ssuc{n}$ only if $n < ∞$ while Agda does not require this
+premise. So in particular, we do not admit $∞ < \ssuc{∞}$ or $\ssuc{∞} <
+\ssuc{\ssuc{∞}}$. Agda, on the other hand, does admit these rules but also
+identifies $∞$ with $\ssuc{\dots\ssuc{∞}}$, which leads to another proof of $∞ <
+∞$.
+
+In λST, we do not identify $∞$ with $\ssuc{∞}$. However, our definition of $<$
+renders sizes of the form $\ssuc{\dots\ssuc{∞}}$ essentially useless: They are
+not less than any other size and therefore cannot be used in most contexts. (The
+same goes for $\ssuc{\dots\ssuc{⋆}}$.) This means that we can get away with
+leaving these sizes effectively uninterpreted in the model. We could
+alternatively disallow them via the size typing rules, but that would add much
+tedious code to the formalisation.
+
+\begin{lemma}[Weakening preserves typing and $<$ (\icode{wk-resp-<})]
+  If $Δ ⊢ n$ and $Δ ⊢ m$ then $\ctx{Δ}{m} ⊢ \wk(n)$. If $Δ ⊢ o$ and $Δ ⊢ n < m$
+  then $\ctx{Δ}{o} ⊢ \wk(n) < \wk(m)$.
+\end{lemma}
 
 
-\section{Model}
-TODO
+\section{Size Substitutions}
+\label{sec:source:sub}
+
+(TODO intro)
+
+\begin{definition}[Size substitutions (\icode{Sub, \_∶\_⇒\_})]
+  A size substitution is a list of sizes. We write $()$ for the empty
+  substitution and $\ssub{σ}{n}$ for the extension of $σ$ with a size $n$. The
+  application of a substitution to a size, $\sub{n}{σ}$, is defined by recursion
+  on $n$:
+  \begin{Align*}
+      \sub{v_x}{()} &≔& v_x \\
+      \sub{v_0}{\ssub{σ}{n}} &≔& n \\
+      \sub{(v_{x + 1})}{\ssub{σ}{n}} &≔& \sub{v_x}{σ} \\
+      \sub{0}{σ} &≔& 0 \\
+      \sub{(\ssuc{n})}{σ} & ≔ & \ssuc{\sub{n}{σ}} \\
+      \sub{∞}{σ} &≔& ∞ \\
+      \sub{⋆}{σ} &≔& ⋆ \\
+  \end{Align*}
+  Fig. \ref{fig:typing:ssub} gives the typing rules for size substitutions.
+  The first equation above is impossible if $σ$ and $n$ are well-typed.
+\end{definition}
+
+\begin{figure}
+  \begin{mathpar}
+    \fbox{$σ ∶ Δ ⇒ Ω$} \\
+
+    \inferrule{⊢ Δ}{() ∶ Δ ⇒ ()} \\
+
+    \inferrule{σ ∶ Δ ⇒ Ω \\ Δ ⊢ n \\ Ω ⊢ m \\ Δ ⊢ n < \sub{m}{σ}}{\ssub{σ}{n} ∶ Δ ⇒ \ctx{Ω}{m}}
+  \end{mathpar}
+
+  \caption{Typing rules for size substitutions}
+  \label{fig:typing:ssub}
+\end{figure}
+
+Size substitutions and their properties are formalised in
+\icode{Source/\allowbreak Size/\allowbreak Substitution/\allowbreak Canonical.agda}.
+The typing rules ensure that if we have $σ ∶ Δ ⇒ Ω$ then $σ$ maps every variable
+$v_x$ in $Ω$ to a size $n$ such that $n$ contains only variables in $Δ$ and $n$
+respects the bound declared for $v_x$ in $Ω$. Note that we write $σ ∶ Δ ⇒ Ω$ even
+though substitution with $σ$ transforms an object in $Ω$ into an object in $Δ$
+-- the notation is inspired by the model, where $Δ$ and $Ω$ will be particular
+types and $σ$ a function between them.
+
+(TODO say why this design for substitutions is good, in particular that
+substitutions are canonical.)
+
+\begin{lemma}[Size substitutions preserve typing and $<$]
+  If $σ ∶ Δ ⇒ Ω$ and $Ω ⊢ n$ then $Δ ⊢ \sub{n}{σ}$. If $σ ∶ Δ ⇒ Ω$ and $Ω ⊢ n <
+  m$ then $\sub{n}{σ} < \sub{m}{σ}$.
+\end{lemma}
+
+\begin{proof}
+  (TODO mention \icode{sub-Snoc}.)
+\end{proof}
+
+In the following, we will need some particular substitutions whose theory we now
+develop.
+
+\begin{definition}[Weakening substitution (\icode{Weaken, Weaken⊢})]
+  Given a substitution $σ$ we define the weakening of $σ$, $\Weaken(σ)$, as
+  \begin{Align*}
+    \Weaken(()) &≔& () \\
+    \Weaken(\ssub{σ}{n}) &≔& \ssub{\Weaken(σ)}{\wk(n)}.
+  \end{Align*}
+  If $σ ∶ Δ ⇒ Ω$ and $Δ ⊢ m$ then $\Weaken(σ) ∶ \ctx{Δ}{m} ⇒ Ω$.
+\end{definition}
+
+A weakened substitution $\Weaken(σ)$ is the same as $σ$, only with each variable
+incremented once. The following lemma makes this precise.
+
+\begin{lemma}[Application of $\Weaken$ (\icode{sub-Weaken})]
+  For all $n$ and $σ$, $\sub{n}{\Weaken(σ)} = \wk(\sub{n}{σ})$.
+\end{lemma}
+
+\begin{definition}[Lifting substitution (\icode{Lift, Lift⊢})]
+  Given a substitution $σ$ we define the lifting of $σ$, $\Lift(σ)$, as
+  \begin{displaymath}
+    \Lift(σ) ≔ \ssub{\Weaken(σ)}{v_0}.
+  \end{displaymath}
+  If $σ ∶ Δ ⇒ Ω$ and $Ω ⊢ n$ then $\Lift(σ) ∶ \ctx{Δ}{n[σ]} ⇒ \ctx{Ω}{n}$.
+\end{definition}
+
+When applied, the lifted substitution $\Lift(σ)$ maps $v_0$ to $v_0$ and
+$v_{x+1}$ to $\sub{v_x}{σ}$. In this sense, it is $σ$ \enquote*{lifted} to a
+larger context.
+
+\begin{definition}[Identity substitution (\icode{Id, Id⊢})]
+  The identity substitution for a size context $Δ$, $\Id_Δ$, is defined by
+  recursion on $Δ$:
+  \begin{Align*}
+    \Id_{()} &≔& () \\
+    \Id_{\ctx{Δ}{n}} &≔& \Lift(\Id_Δ)
+  \end{Align*}
+  We will omit the index $Δ$ where it can be inferred from the context. Provided
+  that $⊢ Δ$ we have $\Id_Δ ∶ Δ ⇒ Δ$.
+\end{definition}
+
+\begin{lemma}[Application of $\Id$ (\icode{sub-Id})]
+  For any size $n$, $\sub{n}{\Id} = n$.
+\end{lemma}
+
+\begin{definition}[Composition of substitutions (\icode{\_>>\_, >>⊢})]
+  Given substitutions $σ$ and $τ$, we define their forward composition $σ \fcomp
+  τ$ by recursion on $τ$:
+  \begin{Align*}
+    σ \fcomp () &≔& () \\
+    σ \fcomp (\ssub{τ}{n}) &≔& \ssub{(σ \fcomp τ)}{\sub{n}{σ}}
+  \end{Align*}
+  If $σ ∶ Δ ⇒ Δ′$ and $τ ∶ Δ′ ⇒ Δ″$ then $σ \fcomp τ ∶ Δ ⇒ Δ″$.
+\end{definition}
+
+\begin{lemma}[Application of $σ \fcomp τ$ (\icode{sub->>})]
+  For any substitutions $σ$, $τ$ and size $n$, $\sub{n}{σ \fcomp τ} = \sub{\sub{n}{τ}}{σ}$.
+\end{lemma}
+
+Well-typed substitutions are the arrows of a category whose objects are size
+contexts, with identity arrows $\Id_Δ$ and (flipped) composition $\fcomp$. It is
+easy to verify that $\fcomp$ is associative with identity $\Id$. (The proof
+relies on Lemma (TODO ref) below.)
+
+\begin{definition}[TODO \icode{Wk, Wk⊢}]
+  $\Wk$ is the substitution
+  \begin{displaymath}
+    \Wk ≔ \Weaken(\Id).
+  \end{displaymath}
+  Assuming $Δ ⊢ n$, we have $\Wk ∶ \ctx{Δ}{n} ⇒ Δ$.
+\end{definition}
+
+\begin{definition}[Filling substitution (\icode{Fill, Fill⊢})]
+  $\Fill(n)$ is the substitution
+  \begin{displaymath}
+    \Fill(n) ≔ \ssub{\Id}{n}.
+  \end{displaymath}
+  Assuming that $Δ ⊢ n < m$, we have $\Fill(n) ∶ Δ ⇒ \ctx{Δ}{m}$.
+\end{definition}
+
+When applied, $\Fill(n)$ replaces the zeroth variable with $n$ and leaves all other
+variables as they are.
+
+\begin{definition}[Skipping substitution (\icode{Skip, Skip⊢})]
+  $\Skip(n)$ is the substitution
+  \begin{displaymath}
+    \Skip(n) ≔ \ssub{\Weaken(\Wk)}{v_0}.
+  \end{displaymath}
+  Assuming that $Δ ⊢ n$, we have $\Skip ∶ \ctx{\ctx{Δ}{n}}{v_0} ⇒ \ctx{Δ}{n}$.
+\end{definition}
+
+(TODO what is the meaning of $\Skip(n)$?)
+
+(TODO lemmas about how the substitutions interact.)
+
+\section{Types}
+\label{sec:source:types}
+
+We move on to the type-level expressions of λST. This section is formalised in
+\icode{Source/\allowbreak Type.agda}.
+
+\begin{definition}[Types and contexts (\icode{Type}, \icode{Ctx})]
+  Type and context expressions are generated by the grammar in Fig.
+  \ref{fig:syntax:types}. The rules for type and context validity appear in Fig.
+  \ref{fig:typing:types}.
+\end{definition}
+
+\begin{figure}
+  \begin{displaymath}
+    \begin{array}{llcll}
+      \text{type} & T, U, V & \bnfdef & \Nat{n} & \text{(sized naturals)} \\
+      & & | & \Stream{n} & \text{(sized streams)} \\
+      & & | & T → U & \text{(function space)} \\
+      & & | & \All{n}{T} & \text{(size quantification)} \\
+
+      \text{context} & Γ, Ψ & \bnfdef & () & \text{(empty context)} \\
+      & & | & \Ctx{Γ}{T} \\
+    \end{array}
+  \end{displaymath}
+
+  \caption{Syntax of types and contexts}
+  \label{fig:syntax:types}
+\end{figure}
+
+\begin{figure}
+  \begin{mathpar}
+    \fbox{$Δ ⊢ T$} \\
+
+    \inferrule{Δ ⊢ n}{Δ ⊢ \Nat{n} \\ Δ ⊢ \Stream{n}}
+
+    \inferrule{Δ ⊢ T \\ Δ ⊢ U}{Δ ⊢ T → U}
+
+    \inferrule{\ctx{Δ}{n} ⊢ T}{Δ ⊢ \All{n}{T}}
+    \\
+
+    \fbox{$Δ ⊢ Γ$} \\
+
+    \inferrule{⊢ Δ}{Δ ⊢ ()}
+
+    \inferrule{Δ ⊢ Γ \\ Δ ⊢ T}{Δ ⊢ \ctx{Δ}{T}}
+  \end{mathpar}
+
+  \caption{Validity of types and contexts}
+  \label{fig:typing:types}
+\end{figure}
+
+λST features two base types: $\Nat{n}$, the type of sized natural numbers, and
+$\Stream{n}$, the type of sized streams. We will discuss these in more detail
+when we get to the terms of λST. As for non-base types, λST has a non-dependent
+function space $T → U$ and size quantification $\All{n}{T}$. Note that $n$ is
+not a variable, as the notation may suggest, but the bound of the zeroth de
+Bruijn index. Size quantification functions essentially like quantification in
+System F if we think of the bound $n$ as the \enquote*{type} of a size variable.
+Contexts are maps from variables to types.
+
+The typing rules for types and contexts ensure scope-safety relative to some
+size context. In the formalisation, scope safety is again built into the data
+types representing types and contexts, so there are no separate typing
+judgments.
+
+\begin{definition}[Size substitution in types and contexts (\icode{sub})]
+  The application of a size substitution to a type, $\sub{T}{σ}$, is defined
+  by recursion over the type:
+  \begin{Align*}
+    \sub{(\Nat{n})}{σ} &≔& \Nat{\sub{n}{σ}} \\
+    \sub{(\Stream{n})}{σ} &≔& \Stream{\sub{n}{σ}} \\
+    \sub{(T → U)}{σ} &≔& \sub{T}{σ} → \sub{U}{σ} \\
+    \sub{(\All{n}{T})}{σ} &≔& \All{n}{\sub{T}{\Lift(σ)}}
+  \end{Align*}
+  This substitution operation is extended pointwise to contexts.
+\end{definition}
+
+The only interesting case of the above definition is that for size
+quantification. Here, we must recurse with $\Lift(σ)$ rather than $σ$ because
+$T$ is a type in $\ctx{Δ}{n}$ while $\All{n}{T}$ is a type in $Δ$. Recall that
+$\Lift(σ)$ is the substitution that leaves the zeroth variable untouched and
+acts like $σ$ on the other variables, which is exactly what we need.
 
 
-\section{Formalisation}
+\section{Terms}
+\label{sec:source:terms}
+
+In this section, we define the terms of λST and their typing rules. The
+corresponding file in the formalisation is \icode{Source/\allowbreak Term.agda}.
+
+\begin{definition}[Term syntax (\icode{Term})]
+  The terms of λST are generated by the grammar in Fig. \ref{fig:syntax:terms}.
+  Term variables are again natural numbers serving as de Bruijn indices.
+\end{definition}
+
+\begin{figure}
+  \begin{displaymath}
+    \begin{array}{llcll}
+      \text{term} & t, u, v & \bnfdef & v_x & \text{(variable)} \\
+      & & | & \lam{T}{t} & \text{(abstraction)} \\
+      & & | & \app{t}{u} & \text{(application)} \\
+      & & | & \slam{n}{t} & \text{(size abstraction)} \\
+      & & | & \sapp{t}{n} & \text{(size application)} \\
+      & & | & \zero{n} & \text{(zero)} \\
+      & & | & \suc{n}{m}{t} & \text{(successor)} \\
+      & & | & \case{T}{n}{t}{u}{v} & \text{(case analysis for $\Nat{n}$)} \\
+      & & | & \cons{t}{n}{u} & \text{(stream construction)} \\
+      & & | & \head{n}{t} & \text{(stream head)} \\
+      & & | & \tail{n}{t}{m} & \text{(stream tail)} \\
+      & & | & \fix{T}{t}{n} & \text{(sized fixpoint)}
+    \end{array}
+  \end{displaymath}
+
+  \caption{Syntax of terms}
+  \label{fig:syntax:terms}
+\end{figure}
+
+The first three term constructions are those of the simply-typed lambda
+calculus: variables, abstraction and application. The next two are size
+abstraction and size application, which respectively introduce and eliminate a
+size quantification. They are analogous to System F's type abstraction and type
+application.
+
+The other terms are conceptually constants, though we introduce them as term
+formers to simplify the model (and particularly the formalisation). If they were
+constants, they would have the following types (with explicit variables for
+convenience):
+\begin{Align*}
+  \mathrm{zero} &∶& \AllE{x}{⋆}{\Nat{x}} \\
+  \mathrm{suc} &∶& \AllE{x}{⋆}{\AllE{y}{x}{\Nat{y} → \Nat{x}}} \\
+  \mathrm{caseNat}[T] &∶& \AllE{x}{⋆}{\Nat{x} → T → (\AllE{y}{x}{T}) → T} \\
+  \mathrm{cons} &∶& \Nat{∞} → \AllE{x}{⋆}{(\AllE{y}{x}{\Stream{y}}) → \Stream{x}} \\
+  \mathrm{head} &:& \AllE{x}{⋆}{\Stream{x} → \Nat{∞}} \\
+  \mathrm{tail} &:& \AllE{x}{⋆}{\Stream{x} → \AllE{y}{x}{\Stream{y}}} \\
+  \mathrm{fix}[T \ap ∙] &:& (\AllE{x}{⋆}{(\AllE{y}{x}{T \ap y}) → T \ap x}) → \AllE{x}{⋆}{T \ap x}
+\end{Align*}
+The terms $\mathrm{zero}$ and $\mathrm{suc}$ serve as constructors of $\Nat{n}$.
+The type $\Nat{n}$ may be thought of as the set of natural numbers less than or
+equal to $n$. As such, 0 is a member of $\Nat{n}$ for any $n$, as the type of
+$\mathrm{zero}$ indicates. Similarly, if we have a natural number $≤ n$, its
+successor is $≤ m$ for any $m > n$, which justifies the type of $\mathrm{suc}$.
+$\mathrm{caseNat}[T]$ is an eliminator for $\Nat{n}$ (into some arbitrary type
+$T$) which performs case analysis on its first non-size argument. In the zero
+case, it returns its second argument; in the successor case, it returns the
+result of applying the function given as the third argument to the predecessor
+of the given natural. That predecessor, of course, has some smaller size $m <
+n$.
+
+For $\Stream{n}$, the size $n$ has the opposite meaning: Where $\Nat{n}$
+contains naturals up to \emph{at most} $n$, $\Stream{n}$ is roughly speaking the
+type of lists of naturals with \emph{at least} $n$ elements. This is because
+$\Nat{n}$ is an inductive type while $\Stream{n}$ is coinductive. More
+precisely, a value of $\Stream{n}$ is a function which maps any $m ≤ n$ to a
+natural number. $\Stream{∞}$ is then the type of functions $ℕ → ℕ$, which is
+isomorphic to the coinductively defined type of infinite streams of naturals.
+The constructor $\mathrm{cons}$ and the destructors $\mathrm{head}$ and
+$\mathrm{tail}$ again reflect this understanding. The first destructor,
+$\mathrm{head}$, extracts the element at index 0 from a $\Stream{n}$ (which
+always exists since $0 ≤ n$). The second destructor, $\mathrm{tail}$, when given
+a $\Stream{n}$, returns its tail, which has one less element and is therefore in
+$\Stream{m}$ for any $m < n$. The constructor $\mathrm{cons}$ takes a function
+which generates a $\Stream{m}$ for any $m < n$ and prepends an element,
+returning a bigger $\Stream{n}$.\footnote{Another plausible type for
+  $\mathrm{cons}$ would be $\Nat{∞} → \AllE{x}{⋆}{\AllE{y}{x}{\Stream{y} →
+      \Stream{x}}}$, replacing the family of streams with a single stream (TODO
+  unclear?). I chose not to use this simpler type because if we define sized
+  streams in Agda, $\mathrm{cons}$ has the type given in the main text.}
+
+The final term, $\mathrm{fix}[T]$, is at the heart of λST: It is a size-based
+fixpoint combinator that allows us to recurse over sized natural numbers and
+build sized streams corecursively. It is parameterised by a type $T$ with one
+free size variable or \enquote*{hole}, as the notation $T \ap ∙$ suggests. The
+type of $\mathrm{fix}[T]$ is essentially the principle of induction over sizes:
+If from an object of size $m$ we can construct an object of size $n > m$, then
+we can construct an object of any size.
+
+\begin{definition}[Term typing (\icode{\_,\_⊢\_∶\_})]
+  The typing rules for terms appear in Fig. \ref{fig:typing:terms}.
+\end{definition}
+
+\begin{figure}
+  \begin{mathpar}
+    \fbox{$Δ; Γ ⊢ t ∶ T$} \\
+
+    \inferrule{Δ ⊢ Γ \\ Δ ⊢ T}{Δ; \Ctx{Γ}{T} ⊢ v_0 ∶ T}
+
+    \inferrule{Δ; Γ ⊢ v_x ∶ T \\ Δ ⊢ U}{Δ; \Ctx{Γ}{U} ⊢ v_{x + 1} ∶ T}
+
+    \inferrule{Δ; \Ctx{Γ}{T} ⊢ t ∶ U}{Δ; Γ ⊢ \lam{T}{t} ∶ T → U}
+
+    \inferrule{Δ; Γ ⊢ t ∶ T → U \\ Δ; Γ ⊢ u ∶ T}{Δ; Γ ⊢ \app{t}{u} ∶ U}
+
+    \inferrule{\ctx{Δ}{n}; \sub{Γ}{\Wk} ⊢ t ∶ T \\ Δ ⊢ Γ}{Δ; Γ ⊢ \slam{n}{t} ∶ \All{n}{T}}
+
+    \inferrule{Δ; Γ ⊢ t ∶ \All{n}{T} \\ Δ ⊢ m < n}
+      {Δ; Γ ⊢ \sapp{t}{m} ∶ \sub{T}{\Fill(m)}}
+
+    \inferrule{Δ ⊢ n < ⋆ \\ Δ ⊢ Γ}{Δ; Γ ⊢ \zero{n} ∶ \Nat{n}}
+
+    \inferrule{Δ ⊢ n < ⋆ \\ Δ ⊢ m < n \\ Δ; Γ ⊢ i ∶ \Nat{m}}
+      {Δ; Γ ⊢ \suc{n}{m}{i} ∶ \Nat{n}}
+
+    \inferrule{Δ ⊢ T \\ Δ ⊢ n < ⋆ \\ Δ; Γ ⊢ i ∶ \Nat{n} \\ Δ; Γ ⊢ z ∶ T \\
+      Δ; Γ ⊢ s ∶ \All{n}{\Nat{v_0} → \sub{T}{\Wk}}}
+      {Δ; Γ ⊢ \case{T}{n}{i}{z}{s} ∶ T}
+
+    \inferrule{Δ ⊢ n < ⋆ \\ Δ; Γ ⊢ i ∶ \Nat{∞} \\
+      Δ; Γ ⊢ \V{is} ∶ \All{n}{\Stream{v_0}}}
+      {Δ; Γ ⊢ \cons{n}{i}{\V{is}} ∶ \Stream{n}}
+
+    \inferrule{Δ ⊢ n < ⋆ \\ Δ; Γ ⊢ \V{is} ∶ \Stream{n}}
+      {Δ; Γ ⊢ \head{n}{\V{is}} ∶ \Nat{∞}}
+
+    \inferrule{Δ ⊢ n < ⋆ \\ Δ; Γ ⊢ \V{is} ∶ \Stream{n} \\ Δ ⊢ m < n}
+      {Δ; Γ ⊢ \tail{n}{\V{is}}{m} ∶ \Stream{m}}
+
+    \inferrule{\ctx{Δ}{x}{⋆} ⊢ T \\
+      Δ; Γ ⊢ t ∶ \All{⋆}{(\All{v_0}{\sub{T}{\Skip}}) → T} \\ Δ ⊢ n < ⋆}
+      {Δ; Γ ⊢ \fix{T}{t}{n} ∶ T[\Fill(n)]}
+  \end{mathpar}
+
+  \caption{Typing rules for terms}
+  \label{fig:typing:terms}
+\end{figure}
+
+The typing rules follow from the previous discussion, only with constants
+replaced by equivalent term formers and some size-related bookkeeping.
+
+TODO size substitutions, term substitutions
+
+
+\section{Operational Semantics}
+\label{sec:source:opsem}
+
 TODO

@@ -5,23 +5,81 @@
   {\end{minted}
    \par}
 
+
 % Theorem environments
+
 \theoremstyle{definition}
-\newtheorem{definition}{Definition}[section]
+\newtheorem{definition}{Definition}[chapter]
+\newtheorem{theorem}[definition]{Theorem}
+\newtheorem{lemma}[definition]{Lemma}
 
-\theoremstyle{plain}
-\newtheorem{theorem}{Theorem}[section]
+\theoremstyle{remark}
+\newtheorem{remark}[definition]{Remark}
 
-\theoremstyle{plain}
-\newtheorem{lemma}[theorem]{Lemma}
+
+% crude replacement for align
+\newenvironment{Align*}
+{\begin{displaymath}\begin{array}{lcl}}
+{\end{array}\end{displaymath}}
+
+\newenvironment{AlignAnnot*}
+{\begin{displaymath}\begin{array}{lcll}}
+{\end{array}\end{displaymath}}
+
 
 % Additional commands
+\DeclarePairedDelimiter{\brackets}{[}{]}
+\DeclarePairedDelimiter{\anglebrackets}{⟨}{⟩}
+
+\newcommand*{\bnfdef}{\ensuremath{\Coloneqq}}
 \newcommand*{\icode}[1]{\texttt{#1}}
-\newcommand*{\ty}{\ensuremath{\colon}}
-\newcommand*{\ap}{~}
-\newcommand*{\lam}[2]{\ensuremath{\mathrm{λ} \, #1.\; #2}}
-\newcommand*{\all}[2]{\ensuremath{∀ #1.\; #2}}
-\newcommand*{\ctx}[2]{\ensuremath{#1; \, #2}}
-\newcommand*{\suc}{\ensuremath{\mathrm{suc}}}
-\newcommand*{\case}{\ensuremath{\mathrm{caseℕ}}}
-\newcommand*{\fix}{\ensuremath{\mathrm{fix}}}
+
+\newcommand*{\ssuc}[1]{\ensuremath{\mathop{↑} #1}}
+\newcommand*{\ctx}[2]{\ensuremath{#1,\, #2}}
+\newcommand*{\ssub}[2]{\ensuremath{#1, #2}}
+\newcommand*{\sub}[2]{\ensuremath{#1\brackets*{#2}}}
+  % TODO The brackets* resizes the substitution brackets according to the size
+  % of the object between them. Does this end up looking better or worse, on balance?
+\newcommand*{\fcomp}{\ensuremath{\mathbin{\gg}}}
+
+\newcommand*{\Nat}[1]{\ensuremath{\mathrm{Nat}~#1}}
+\newcommand*{\Stream}[1]{\ensuremath{\mathrm{Stream}~#1}}
+\newcommand*{\Ctx}[2]{\ensuremath{#1,\, #2}}
+\newcommand*{\All}[2]{\ensuremath{∀ #1.\; #2}}
+\newcommand*{\AllE}[3]{\ensuremath{∀ #1 < #2.\; #3}}
+
+\newcommand*{\ap}{\ensuremath{\;}}
+\newcommand*{\lam}[2]{\ensuremath{\mathop{λ} #1.\; #2}}
+\newcommand*{\app}[2]{\ensuremath{#1 \ap #2}}
+\newcommand*{\slam}[2]{\ensuremath{\mathop{λ} #1.\; #2}}
+\newcommand*{\sapp}[2]{\ensuremath{#1 \ap #2}}
+\newcommand*{\zero}[1]{\ensuremath{\mathrm{zero} \ap #1}}
+\newcommand*{\suc}[3]{\ensuremath{\mathrm{suc} \ap #1 \ap #2 \ap #3}}
+\newcommand*{\case}[5]{\ensuremath{\mathrm{caseNat}[#1] \ap #2 \ap #3 \ap #4
+    \ap #5}}
+\newcommand*{\cons}[3]{\ensuremath{\mathrm{cons} \ap #1 \ap #2 \ap #3}}
+\newcommand*{\head}[2]{\ensuremath{\mathrm{head} \ap #1 \ap #2}}
+\newcommand*{\tail}[3]{\ensuremath{\mathrm{tail} \ap #1 \ap #2 \ap #3}}
+\newcommand*{\fix}[3]{\ensuremath{\mathrm{fix}[#1] \ap #2 \ap #3}}
+
+\newcommand*{\V}[1]{\ensuremath{\mathit{#1}}}
+\newcommand*{\SizeLt}{\ensuremath{\mathop{\text{Size<}}}}
+
+\DeclareMathOperator{\Type}{Type}
+\DeclareMathOperator{\refl}{refl}
+\DeclareMathOperator{\id}{id}
+\DeclareMathOperator{\PRGraphs}{PRGraphs}
+\DeclareMathOperator{\PRGraphFams}{PRGraphFams}
+\DeclareMathOperator{\Ap}{Ap}
+\DeclareMathOperator{\curry}{curry}
+\DeclareMathOperator{\eval}{eval}
+\DeclareMathOperator{\Size}{Size}
+\DeclareMathOperator{\wk}{wk}
+\DeclareMathOperator{\Weaken}{Weaken}
+\DeclareMathOperator{\Lift}{Lift}
+\DeclareMathOperator{\Wk}{Wk}
+\DeclareMathOperator{\Id}{Id}
+\DeclareMathOperator{\Skip}{Skip}
+\DeclareMathOperator{\Fill}{Fill}
+\DeclareMathOperator{\mssuc}{ssuc}
+\DeclareMathOperator{\Param}{Param}
