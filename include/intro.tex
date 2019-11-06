@@ -1,2 +1,25 @@
 \chapter{Introduction}
+
 TODO
+
+CONTRABUSHONS (TODO words):
+
+\begin{itemize}
+\item I define a calculus, λST, that extends the simply-typed lambda calculus
+  with sized types (TODO ref). The calculus, lacking dependent types and
+  inductive families, is quite far removed from Agda proper, but its sized types
+  are reasonably similar to Agda's. As such, studying λST may reveal issues
+  specific to sized types in an otherwise simple setting. The calculus could
+  also form the basis of future work which better approximates Agda.
+\item I give a model of λST in terms of (a slight variation of) reflexive graphs
+  (TODO ref). The model suggests (TODO can I get away w/ sth stronger here?)
+  that λST is size-irrelevant, meaning that size expressions could safely be
+  erased at runtime.
+\item I have fully formalised both λST and the reflexive graph model in Agda.
+  This presents some technical difficulties which I detail, along with their
+  solutions, in (TODO ref)'
+\item I briefly describe two approaches to modeling λST that initially looked
+  promising but turned out to be inadequate (TODO ref). I also discuss some
+  issues that present themselves when trying to extend the model to a calculus
+  with infinitely branching sized types (TODO ref).
+\end{itemize}
