@@ -17,8 +17,8 @@ ref).
 \label{sec:model:rgraph}
 
 This section introduces the categories of reflexive graphs and families of
-reflexive graphs. The first part of this section is formalised in the file
-\icode{Model/\allowbreak RGraph.agda}.
+reflexive graphs. The first part of this section is formalised in
+\icode{Model.\allowbreak RGraph}.
 
 \begin{definition}[Reflexive Graph]
   A reflexive graph is a tuple $(Δ, ≈_Δ, \refl_Δ)$ where $Δ$ is a type, $≈_Δ$ a
@@ -74,8 +74,8 @@ $f(\refl_Δ(δ)) = \refl_Ω(f(δ))$.
 \end{definition}
 
 Next, we discuss families of PRGraphs, which will be used to interpret types.
-The following results are formalised in \icode{Model/\allowbreak
-  Type/\allowbreak Core.agda}.
+The following results are formalised in \icode{Model.\allowbreak
+  Type.\allowbreak Core}.
 
 \begin{definition}[Families of PRGraphs (TODO ref)]
   A (propositional) family over a PRGraph $Δ$ is a tuple
@@ -157,8 +157,8 @@ admits these constructions.
 \end{definition}
 
 With a terminal object and binary products, we can encode any finite product.
-Next, we consider exponentials, which are formalised in \icode{Model/\allowbreak
-Exponential.agda}.
+Next, we consider exponentials, which are formalised in \icode{Model.\allowbreak
+Exponential}.
 
 \begin{definition}[Application of PRGraphs (\icode{Ap})]
   Given a family of PRGraphs $T$ and an object $δ$ of a PRGraph $Δ$, we define
@@ -203,7 +203,7 @@ Exponential.agda}.
 
 In the next sections, I give a simple model of λST based on (families of)
 PRGraphs. We start with sizes, whose interpretation is formalised in
-\icode{Model/\allowbreak Size.agda}.
+\icode{Model.\allowbreak Size}.
 
 \begin{definition}[Sizes and their comparison (\icode{Size, \_<\_, \_≤\_, Size<})]
   A size is either a natural number or $∞$ or $⋆$. We define a strict order $<$
@@ -505,8 +505,8 @@ application, are also standard.
 \label{sec:model:terms:quantification}
 
 To interpret size quantification, we must consider size abstractions and size
-applications. They are formalised in \icode{Model/\allowbreak
-Quantification.agda}.
+applications. They are formalised in \icode{Model.\allowbreak
+Quantification}.
 
 For size abstractions, recall the typing rule:
 \begin{displaymath}
@@ -575,7 +575,7 @@ pattern.
 The sized natural number type $\Nat{n}$ has constructors zero and successor and
 eliminator $\mathrm{caseNat}$. Their typing rules are reproduced in Fig.
 \ref{fig:typing:nat} for reference. Their interpretations are formalised in
-\icode{Model/\allowbreak Stream.agda}. Recall that $\Nat{n}$ is modelled by the
+\icode{Model.\allowbreak Stream}. Recall that $\Nat{n}$ is modelled by the
 type of sizes less than or equal to $n$.
 
 \begin{figure}
@@ -631,9 +631,9 @@ type of sizes less than or equal to $n$.
 The terms related to the sized stream type -- $\mathrm{cons}$, $\mathrm{head}$
 and $\mathrm{\tail}$, whose typing rules are shown again in Fig.
 \ref{fig:typing:stream} -- also have straightforward interpretations. They are
-formalised in \icode{Model/\allowbreak Stream.agda}. Recall that the
-interpretation of $\Stream{n}$ is the type of functions from naturals less than
-or equal to $n$ to naturals.
+formalised in \icode{Model.\allowbreak Stream}. Recall that the interpretation
+of $\Stream{n}$ is the type of functions from naturals less than or equal to $n$
+to naturals.
 
 \begin{definition}[Interpretation of $\mathrm{cons}$]
 
