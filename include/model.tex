@@ -320,8 +320,8 @@ weakening.
 
 This concludes the interpretation of sizes. Next, we interpret size
 substitutions as functions between the interpretations of size contexts. For
-reasons explained in Chapter \ref{sec:formalisation} (TODO more precise ref),
-the results presented here are not exactly those formalised.
+reasons explained in \secref{formalisation:sub}, the results presented here are
+not exactly those formalised.
 
 Let $σ ∶ Δ ⇒ Ω$ be a well-typed substitution. The interpretation of $σ$ is a
 function from $⟦Δ⟧$ to $⟦Ω⟧$ defined by recursion on the derivation of $σ ∶ Δ ⇒
@@ -345,12 +345,12 @@ recursive.)
 \end{lemma}
 
 We will also need to know the interpretations of some of the specific
-substitutions from Sec. \ref{sec:source:sub}. The following lemma tells us what
-they do when applied to an inhabitant of a size context. (TODO words)
+substitutions from \secref{source:sub}. The following lemma tells us what they
+do when applied to an inhabitant of a size context. (TODO words)
 
 \begin{lemma}[Interpretation of specific size substitutions]
   \label{lem:sub-app}
-  Assume $(ω, m, k) ∶ ⟦\ctx{Ω}{n}{v_0}⟧$, $σ ∶ Δ → Ω$ and $τ ∶ Ω → Ω′$. Then we have
+  Assume $(ω, m, k) ∶ ⟦\ctx{\ctx{Ω}{n}}{v_0}⟧$, $σ ∶ Δ → Ω$ and $τ ∶ Ω → Ω′$. Then we have
   \begin{AlignAnnot*}
     ⟦\Id⟧(ω) &=& ω \\
     ⟦σ \fcomp τ⟧(ω) &=& ⟦τ⟧(⟦σ⟧(ω)) \\
@@ -391,7 +391,7 @@ Streams are interpreted in a similar fashion. The interpretation of $Δ ⊢
 Here, $=$ means extensional equality of functions.
 
 The function space is interpreted by the exponential of PRGraph families from
-Sec. \ref{sec:model:exponential}:
+\secref{model:exponential}:
 \begin{displaymath}
   ⟦T → U⟧ ≔ ⟦T⟧ ↝ ⟦U⟧.
 \end{displaymath}
@@ -430,7 +430,7 @@ of $Δ ⊢ Γ$ is defined by recursion over the derivation:
   ⟦\Ctx{Γ}{T}⟧ &≔& ⟦Γ⟧ × ⟦T⟧.
 \end{Align*}
 $⊤$ is the terminal PRGraph family and $×$ is the product of PRGraph families,
-both defined in Sec. \ref{sec:model:product}.
+both defined in \secref{model:product}.
 
 (TODO move subT here?)
 
@@ -521,7 +521,7 @@ can be defined in any category with products.
 
 To interpret size quantification, we must consider size abstractions and size
 applications. They are formalised in \icode{Model.\allowbreak Quantification}.
-Their typing rules are reproduced in Fig. \ref{fig:typing:quantification} for
+Their typing rules are reproduced in \figref{typing:quantification} for
 reference.
 
 \begin{figure}
@@ -583,10 +583,10 @@ is a morphism of PRGraph families because $⟦t⟧$ is.
 \label{sec:model:terms:nat}
 
 The sized natural number type $\Nat{n}$ has constructors zero and successor and
-eliminator $\mathrm{caseNat}$. Their typing rules are reproduced in Fig.
-\ref{fig:typing:nat} for reference. Their interpretations are formalised in
-\icode{Model.\allowbreak Stream}. Recall that $\Nat{n}$ is modelled by the
-type of sizes below $n$.
+eliminator $\mathrm{caseNat}$. Their typing rules are reproduced in
+\figref{typing:nat} for reference. Their interpretations are formalised in
+\icode{Model.\allowbreak Stream}. Recall that $\Nat{n}$ is modelled by the type
+of sizes below $n$.
 
 \begin{figure}
   \begin{mathpar}
@@ -636,8 +636,8 @@ Note that in the second branch, $⟦n⟧(δ)$ cannot be zero because $⟦i⟧_δ
 
 Sized streams are constructed by the term $\mathrm{cons}$ and eliminated by
 $\mathrm{head}$ and $\mathrm{tail}$. The typing rules of these terms are
-reproduced in Fig. \ref{fig:typing:stream}. Their interpretations are formalised
-in \icode{Model.\allowbreak Stream}. Recall that the model of $\Stream{n}$ is
+reproduced in \figref{typing:stream}. Their interpretations are formalised in
+\icode{Model.\allowbreak Stream}. Recall that the model of $\Stream{n}$ is
 functions from naturals below $n$ to naturals.
 
 \begin{figure}
@@ -746,8 +746,8 @@ concerning size parametricity, preservation of relations and so on. However, one
 of these obligations is actually nontrivial: In the definition of the auxiliary
 function $f$, we use $f$ recursively as a size-parametric function. This means
 that we must prove $f$ size-parametric \emph{mutually recursively} with its own
-definition. The full, somewhat gory details of this construction appear in Sec.
-\ref{sec:formalisation:fixpoint}.
+definition. The full, somewhat gory details of this construction appear in
+\secref{formalisation:fixpoint}.
 
 
 \section{Reduction}
