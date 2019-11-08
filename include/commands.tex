@@ -10,6 +10,8 @@
 
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}[chapter]
+
+\theoremstyle{plain}
 \newtheorem{theorem}[definition]{Theorem}
 \newtheorem{lemma}[definition]{Lemma}
 
@@ -33,6 +35,7 @@
 
 \newcommand*{\bnfdef}{\ensuremath{\Coloneqq}}
 \newcommand*{\icode}[1]{\texttt{#1}}
+\newcommand*{\Def}[1]{\emph{#1}}
 
 \newcommand*{\ssuc}[1]{\ensuremath{\mathop{↑} #1}}
 \newcommand*{\ctx}[2]{\ensuremath{#1,\, #2}}
@@ -63,7 +66,6 @@
 \newcommand*{\fix}[3]{\ensuremath{\mathrm{fix}[#1] \ap #2 \ap #3}}
 
 \newcommand*{\V}[1]{\ensuremath{\mathit{#1}}}
-\newcommand*{\SizeLt}{\ensuremath{\mathop{\text{Size<}}}}
 
 \DeclareMathOperator{\Type}{Type}
 \DeclareMathOperator{\refl}{refl}
