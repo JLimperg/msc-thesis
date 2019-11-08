@@ -265,7 +265,7 @@ model-level successor. We thus define the \Def{successor} of a size $n$ as
 This successor is not quite well-behaved with respect to the strict order: we
 have $\mssuc(∞) = ∞$ and thus not necessarily $n < \mssuc(n)$. However, we do
 have $n < \mssuc(n)$ if $n < ∞$ (which is equivalent to $n ∈ ℕ$), so we can
-interpret the successor rule from Def. \ref{def:source:<}. Our size successor
+interpret the successor rule of the syntactic $<$ relation. Our size successor
 also preserves the relations $<$ and $≤$.
 
 This is all the infrastructure we need to model sizes. A size context $Δ$ is
@@ -542,7 +542,7 @@ When interpreting size quantification, we may assume a morphism $⟦t⟧ ∶
 \begin{AlignAnnot*}
   ⟦t⟧_{(δ,n)} &∶& ⟦\sub{Γ}{\Wk}⟧(δ, n) → ⟦T⟧(δ, n) \\
     &=& \sub{⟦Γ⟧}{⟦\Wk⟧}(δ, n) → ⟦T⟧(δ, n) &\quad \text{(by Lemma \ref{lem:⟦subT⟧})} \\
-    &=& ⟦Γ⟧(⟦\Wk⟧(δ, n)) → ⟦T⟧(δ, n) &\quad \text{(by Def. \ref{def:subT})} \\
+    &=& ⟦Γ⟧(⟦\Wk⟧(δ, n)) → ⟦T⟧(δ, n) &\quad \text{(by definition)} \\
     &=& ⟦Γ⟧(δ) → ⟦T⟧(δ, n) &\quad \text{(by Lemma \ref{lem:sub-app}).}
 \end{AlignAnnot*}
 We then define
