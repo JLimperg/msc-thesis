@@ -204,7 +204,7 @@ evaluation morphisms. Given a morphism of PRGraph families $f ∶ T × U → V$,
 define
 \begin{gather*}
   \curry(f) ∶ T → U ↝ V \\
-  \curry(f)_δ(t) ≔ λ u.\; f(t, u).
+  \curry(f)_δ(t) ≔ \fun{u}{f(t, u)}.
 \end{gather*}
 It is easy to check that $\curry(f)_δ(t)$ is a PRGraph morphism from
 $\Ap(U, δ)$ to $\Ap(V, δ)$ and that $\curry(f)$ is a morphism of PRGraph
@@ -548,7 +548,7 @@ When interpreting size quantification, we may assume a morphism $⟦t⟧ ∶
 We then define
 \begin{gather*}
   ⟦\slam{n}{t}⟧ ∶ ⟦Γ⟧ → ⟦\All{n}{T}⟧ \\
-  ⟦\slam{n}{t}⟧_δ(γ) ≔ λ\, m < ⟦n⟧(δ).\; ⟦t⟧_{(δ,m)}(γ).
+  ⟦\slam{n}{t}⟧_δ(γ) ≔ \fun{m < ⟦n⟧(δ)}{⟦t⟧_{(δ,m)}(γ)}.
 \end{gather*}
 This definition is valid due to the following observations:
 \begin{itemize}
@@ -726,7 +726,7 @@ $⟦\Skip⟧(δ, n, m)$ to $(δ, m)$ according to Lemma \ref{lem:sub-app}.
 Given such a $⟦t⟧$, we first define the following auxiliary function:
 \begin{gather*}
   f ∶ ⟦Γ⟧(δ) → (n ∶ \Size_{<⋆}) → ⟦T⟧(δ, n) \\
-  f(γ)(n) ≔ ⟦t⟧(γ)(n)(λ\, m.\; f(γ)(m))
+  f(γ)(n) ≔ ⟦t⟧(γ)(n)(\fun{m}{f(γ)(m)})
 \end{gather*}
 % TODO calling convention: f(x)(y) or f(x, y)?
 This function is a standard fixpoint combinator. It terminates because the
