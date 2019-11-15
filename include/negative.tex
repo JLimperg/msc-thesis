@@ -1,2 +1,194 @@
 \chapter{Negative Results}
-TODO
+\label{sec:negative}
+
+Before developing the reflexive graph model of λST, I explored two other
+modelling approaches which turned out, for different reasons, to be unsuited to
+the task at hand. They are both based on the idea of interpreting size contexts
+as categories, types as functors from a size context category into the category
+of sets and terms as natural transformation between such functors. A model like
+this would yield a form of size irrelevance in the form of the naturality of
+term interpretations: If the interpretation of a term in size context $Δ$ is
+natural in $⟦Δ⟧$ then $⟦Δ⟧$ must be essentially irrelevant.
+
+In the next two sections, I briefly describe these potential models and why they
+do not, in fact, model λST. After that, we take a look at an extension of λST
+with infinitely branching types and some problems that arise when we try to
+model them.
+
+
+\section{Covariant Presheaf Model}
+\label{sec:negative:covariant}
+
+Our first potential model starts with the observation that size contexts have a
+natural interpretation as categories. Recall our previous interpretation of size
+contexts as types:
+\begin{Align*}
+  ⟦()⟧ &=& ⊤ \\
+  ⟦\ctx{Δ}{n}⟧ &=& \Sigma_{δ ∈ ⟦Δ⟧} \Size_{<⟦n⟧(δ)}.
+\end{Align*}
+We can extend this interpretation from types to categories: $⟦()⟧$ is the
+terminal category (whose object type is $⊤$) and $⟦\ctx{Δ}{n}⟧$ is the
+Grothendieck category of the functor $F ∶ ⟦Δ⟧ → \Cats$ with $F(δ) ≔
+\Sizes_{<⟦n⟧(δ)}$. ($\Cats$ is the category of small categories.) Sizes are
+modelled as functors $⟦n⟧ ∶ ⟦Δ⟧ → \Sizes$, where $\Sizes$ is the category of
+sizes ordered by the preorder $≤$ and $\Sizes_{<n}$ is the subcategory of
+$\Sizes$ which contains only sizes less than $n$. The objects of $⟦Δ⟧$ are then
+telescopes of sizes, as before, and an arrow $f ∶ δ → δ′$ in $⟦Δ⟧$ is a proof
+that the sizes in $δ$ are pointwise less than or equal to the sizes in $δ′$.
+The judgment $⟦Δ ⊢ n < m⟧$ is modelled by a proof that $⟦n⟧(δ) < ⟦m⟧(δ)$ for
+arbitrary $δ ∶ ⟦Δ⟧$.
+
+Continuing the categorical interpretation, we model types in a size context $Δ$
+as functors from $⟦Δ⟧$ to $\Sets$, the category of sets (or rather, since we work
+in type theory, types). These are \enquote*{covariant presheaves}, meaning
+presheaves over the opposite category of $⟦Δ⟧$, $\Op{⟦Δ⟧}$.
+
+One problem with this approach becomes apparent already at this stage: The type
+$\Stream{n}$ of sized streams has no natural interpretation as a covariant
+functor from $⟦Δ⟧$ to $\Sets$. We would like to define, as before,
+\begin{displaymath}
+  ⟦\Stream{n}⟧(δ) ≔ \Size_{<⟦n⟧(δ)} → ℕ
+\end{displaymath}
+but this is no functor: For $δ ≤ δ′$ we have $⟦n⟧(δ) ≤ ⟦n⟧(δ′)$ by functoriality
+of $⟦n⟧$, but there is no appropriate function from $\Size_{<⟦n⟧(δ)} → ℕ$ to
+$\Size_{<⟦n⟧(δ′)} → ℕ$. (TODO is this correct?) The root of this issue is that
+$δ$ occurs in a contravariant position in $⟦Stream{n}⟧(δ)$, so $⟦\Stream{n}⟧$ is
+naturally a contravariant, but not a covariant functor.
+
+Still, let us ignore this problem and move on to discover more fundamental
+issues. The other types of λST have more or less natural interpretations:
+\begin{Align*}
+  ⟦\Nat{n}⟧(δ) &≔& ℕ_{≤⟦n⟧(δ)} \\
+  ⟦T → U⟧(δ) &≔& \All{σ ≥ δ}{⟦T⟧(σ) → ⟦U⟧(σ)} \\
+  ⟦\All{n}{T}⟧(δ) &≔& \All{δ′ ≥ δ}{\All{m < ⟦n⟧(δ′)}{⟦T⟧(δ′, m)}}.
+\end{Align*}
+Sized natural numbers $\Nat{n}$ are interpreted as before. The function space $T
+→ U$ is modelled by the exponential of presheaves, which ensures that we can
+also model abstractions and applications. The exponential is defined using a
+monotonisation \enquote*{trick}: The function space $⟦T⟧(δ) → ⟦U⟧(δ)$ would not
+be functorial due to the negative occurrence of $δ$, but we can force
+functoriality by quantifying over $δ′ ≥ δ$. The same approach also allows us to
+interpret size quantification, where again the natural interpretation without
+monotonisation would not be functorial.
+
+Unfortunately, while this monotonisation trick works for the exponential, it
+does not yield an appropriate model of size quantification. This is not very
+surprising: In the above interpretation of $\All{n}{T}$, the size that we
+introduce in the model, $m$, is not, in general, smaller than $⟦n⟧(δ)$. The
+bound $m < ⟦n⟧(δ′)$ does not actually restrict the range of $m$ since $δ′ ≥ δ$
+and thus $⟦n⟧(δ′) ≥ ⟦n⟧(δ)$. The reader is invited to check that this prevents
+us from interpreting the fixpoint term $\mathrm{fix}$.
+
+
+\section{Contravariant Presheaf Model}
+\label{sec:negative:contravariant}
+
+Seeing that the major problem with the previous model was the need to
+force-monotonise the interpretation of size quantification, we now consider a
+model based on \emph{contravariant} presheaves (also known as just presheaves).
+Size quantification is naturally contravariant, so no trickery is necessary to
+interpret it. Indeed, this approach leads to a more satisfactory interpretation
+of types (sizes, size contexts etc.\ are modelled as before):
+\begin{Align*}
+  ⟦\Stream{n}⟧(δ) &≔& ℕ_{≤⟦n⟧(δ)} → ℕ \\
+  ⟦T → U⟧(δ) &≔& \All{σ ≤ δ}{⟦T⟧(σ) → ⟦U⟧(σ)} \\
+  ⟦\All{n}{T}⟧(δ) &≔& \All{m < ⟦n⟧(σ)}{⟦T⟧(σ, m)}.
+\end{Align*}
+With the switch to contravariant functors, we lose the ability to model sized
+natural numbers, but gain the ability to model sized streams. The function space
+is interpreted as an exponential of presheaves, as before. Size quantification
+does not require monotonisation any more, and indeed this approach appears, on
+the surface, to support natural interpretations of all terms including
+$\mathrm{fix}$. (The above interpretation of size quantification is not quite
+accurate: To successfully model λST, we would need to restrict it to allow only
+size-parametric functions, as in the reflexive graph model. However, this is
+unimportant for the rest of the discussion.)
+
+Alas, the contravariant presheaf approach still fails, this time due to a more
+subtle problem: The substitution lemma for size substitution in types does not
+hold. This means that, in general, we have
+\begin{displaymath}
+  ⟦\sub{T}{σ}⟧ ≠ \sub{⟦T⟧}{⟦σ⟧}.
+\end{displaymath}
+
+To see why, we first consider the interpretation of substitutions. Recall that
+in the reflexive graph model, a well-typed substitution $σ ∶ Δ ⇒ Ω$ was
+interpreted as a function between the types $⟦Δ⟧$ and $⟦Ω⟧$. Here, we upgrade
+this interpretation to a functor between the categories $⟦Δ⟧$ and $⟦Ω⟧$, but the
+underlying function remains the same. Model-level substitution is composition:
+Given a type $T$ in size context $Ω$, whose interpretation is a functor from
+$⟦Ω⟧$ to $\Sizes$, we define
+\begin{displaymath}
+  \sub{⟦T⟧}{⟦σ⟧} ≔ ⟦T⟧ ∘ ⟦σ⟧.
+\end{displaymath}
+
+Now consider the substitution which assigns to the zeroth variable (in an
+otherwise empty context) the size $1$:
+\begin{displaymath}
+  σ ≔ \Fill(\ssuc{0}) ∶ () → \ctx{(),∞}.
+\end{displaymath}
+Its interpretation is $⟦σ⟧(()) = ((), 1)$, where $()$ is the sole inhabitant of
+the unit type. Further, let $T$ be the following type (in the context
+$\ctx{()}{∞}$) of functions from streams to an arbitrary closed type $U$:
+\begin{displaymath}
+  T ≔ \Stream{v_0} → U.
+\end{displaymath}
+Then we have
+\begin{align*}
+  ⟦\sub{T}{σ}⟧(())
+    &= ⟦\Stream{1} → U⟧(()) \\
+    &= \All{() ≤ ()}{⟦\Stream{1}⟧(()) → ⟦U⟧(())} \\
+    &= \All{() ≤ ()}{(\All{k ≤ 1}{ℕ}) → ⟦U⟧(())} \\
+    &≅ (\All{k ≤ 1}{ℕ}) → ⟦U⟧(())
+  \\
+  \sub{⟦T⟧}{⟦σ⟧}(())
+    &= ⟦T⟧(⟦σ⟧(())) \\
+    &= ⟦\Stream{v_0} → U⟧((), 1) \\
+    &= \All{m ≤ 1}{⟦\Stream{v_0}⟧((), m) → ⟦U⟧((), m)} \\
+    &= \All{m ≤ 1}{(\All{k ≤ m}{ℕ}) → ⟦U⟧(())}.
+\end{align*}
+These two types are not isomorphic (TODO double-check), so substitutions do not
+have the desired semantics.
+
+
+\section{Infinitely Branching Types}
+\label{sec:negative:infinitely-branching}
+
+An interesting extension of the work presented in this thesis would be sized
+infinitely branching data types. An infinitely branching data type is a tree
+whose nodes can have infinitely many children. For example, the following Agda
+type is similar to a binary tree, only that each node has not two but countably
+infinite children:
+\begin{code}
+data ℕTree (A : Set) : Set where
+  leaf : A → ℕTree A
+  node : (ℕ → ℕTree A) → ℕTree A
+\end{code}
+
+Such data types are interesting in the context of sized types because their
+height is not a natural number. For finitely branching sized inductive types, we
+think of the size as an upper bound of the height of a tree, i.e. the greatest
+number of constructors in any path to a leaf. This height is a computable
+natural number. For infinitely branching types such as \icode{ℕTree}, however,
+we cannot compute the height as a natural number, for to determine the height of
+a \icode{node} we would have to take the maximum of infinitely many child tree
+heights.
+
+Thus, in the presence of infinitely branching types, sizes are better thought of
+as ordinals. I therefore investigated one particular class of ordinals, the
+\enquote*{plump} ordinals (TODO ref) as presented in (TODO ref), as a possible model of
+sizes, but they unfortunately fall short in one crucial respect. The following
+results are formalised in \icode{Ordinal.\allowbreak Shulman}.
+
+A \emph{plump ordinal} is a potentially infinitely branching tree whose
+branching factor can be different for each node:
+\begin{code}
+data Ord : Set₁ where
+  limSuc : (I : Set) (els : I → Ord) → Ord
+\end{code}
+The constructor is called \icode{limSuc} because it is the limit of the
+successors of \icode{els}, an \icode{I}-indexed family of ordinals. \icode{Ord}
+as defined above is universe-monomorphic for simplicity, but the formalisation
+is based on a universe-polymorphic version.
+
+(TODO finish or kill)
