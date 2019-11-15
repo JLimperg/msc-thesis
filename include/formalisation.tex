@@ -1,4 +1,236 @@
 \chapter{Formalisation}
 \label{sec:formalisation}
 
-TODO
+All results from the previous sections (TODO update if non-formalised stuff is
+in) are formalised in the dependently typed proof assistant and programming
+language Agda. The formalisation is freely available online (TODO link) and
+follows the informal discussion in this thesis quite closely, so in this chapter
+I do not give a full account of it. Instead, I only discuss the major design
+decision that shape it.
+
+
+\section{Metatheory}
+\label{sec:formalisation:metatheory}
+
+λST is formalised in Agda (TODO ref), a proof assistant based loosely on Luo's
+UTT (TODO ref). I use version 2.6.0.1 of Agda with axiom K disabled via the
+\icode{--without-K} flag, but no other extensions. In particular, this
+configuration disables Agda's sized types, so we don't reason circularly.
+
+I do, however, extend the metatheory in one major way: I postulate the axiom of
+univalence (TODO ref). Type theory with univalence has a model in cubical sets
+(TODO ref), so this should be safe (as long as axiom K, which contradicts
+univalence, is disabled). Univalence allows us to avoid some of the boilerplate
+that is often needed when interpreting set-theoretical mathematics in type
+theory. In particular, with univalence, propositional equality is the correct
+notion of equality for all the constructions we work with, such as streams and
+reflexive graphs. Without univalence, we would have to define custom equivalence
+relations for these structures, which would in turn force us to parameterise the
+definitions of reflexive graphs and families of reflexive graphs by an
+equivalence relation. This is doable -- and I conjecture that the formalisation
+could be adapted more or less mechanically to a type theory without univalence
+-- but the resulting complications would significantly obscure the
+constructions.
+
+As an alternative to postulated univalence, we could also work in Cubical Agda
+(TODO ref), an extension of Agda that admits univalence as a theorem. Compared
+to postulated univalence, Cubical Agda has the advantage that more equations
+hold definitionally rather than just propositionally. However, in our particular
+case, we would not use these additional definitional equalities much. On the
+other hand, switching to Cubical Agda would complicate the use of Agda's
+standard library, which does not use the cubical primitives.
+
+To benefit from univalence, I reimplement some basic definitions and results
+from Homotopy Type Theory (TODO ref) such as H-Levels, the theory of
+equivalences and the derivation of functional extensionality from univalence.
+Much of this code is inspired by Martín Escardó's implementation of Homotopy
+Type Theory in Agda (TODO ref).
+
+
+\section{Size Substitutions}
+\label{sec:formalisation:sub}
+
+The one instance where the formalisation departs somewhat from the account in
+this thesis concerns size substitutions. If we were to stick exactly to the
+text, we would face the following problem: When we apply the interpretation of
+the weakening substitution $\Wk$ to a size valuation $(δ, n)$, we would get
+$⟦\Wk⟧(δ, n) = δ$ as a \emph{propositional} equality, but not as a
+\emph{definitional} equality (and similar for the other substitutions). This
+matters because $⟦\Wk⟧(δ, n)$ sometimes appears in types, in which case we would
+have to use the transport operator \icode{subst} to define terms of these types.
+This, in turn, makes it hard to prove facts about these terms.
+
+To avoid this issue, we use a universe construction, formalised in
+\icode{Source.\allowbreak Size.\allowbreak Substitution.\allowbreak Universe}.
+We define a data type \icode{Sub} that has a constructor for each of the
+particular substitutions we need ($\Wk$, $\Fill$ etc.). We then define an
+interpretation function which maps each value of this datatype to the
+corresponding \enquote*{canonical} substitution from \secref{source:sub}. The
+application of a substitution in \icode{Sub} to a size/type/context/term is then
+defined simply as the application of its canonical interpretation.
+
+This setup gives us the best of both worlds: All lemmas about canonical
+substitutions are easily transferred to the universe construction, but when we
+model substitutions in \icode{Sub} as PRGraph morphisms, we can \emph{define}
+$⟦\Wk⟧(δ, n) ≔ n$. This is exactly the definitional equality we wanted.
+
+
+\section{Interpretation of the Fixpoint}
+\label{sec:formalisation:fixpoint}
+
+When we discussed the model of the term $\mathrm{fix}$ in
+\secref{model:terms:fixpoint}, I mentioned that its interpretation is not quite
+as simple as it appeared. Recall that the typing rule of $\mathrm{fix}$ lets us
+assume a morphism $⟦t⟧$ with components
+\begin{displaymath}
+  ⟦t⟧_δ ∶ ⟦Γ⟧(δ) → (n ∶ \Size_{<⋆}) → ((m ∶ \Size_{<n}) → ⟦T⟧(δ, m)) → ⟦T⟧(δ, n).
+\end{displaymath}
+We then defined the following fixpoint of $⟦t⟧$:
+\begin{gather*}
+  f ∶ ⟦Γ⟧(δ) → (n ∶ \Size_{<⋆}) → ⟦T⟧(δ, n) \\
+  f(γ)(n) ≔ ⟦t⟧(γ)(n)(\fun{m}{f(γ)(m)}).
+\end{gather*}
+
+This definition is easily replicated in Agda using the well-known technique of
+well-founded recursion (TODO ref). We will use a variation of this technique, so
+let us recall the basics first.
+
+Well-founded recursion encodes the idea that given a well-founded relation $<$,
+a recursive definition which decreases this relation with every recursive call
+must terminate -- for if it did not, we would have an infinite descending chain
+$n₀ > n₁ > \dots$ and \enquote{well-founded} means precisely that no such chain
+exists. Our definition of $f$ above follows this scheme: The recursive call is
+applied to $m < n$, so if $<$ is well-founded (which it is), the recursion must
+eventually stop.
+
+To represent this idea in Agda, we first define what it means for a relation to
+be well-founded. To that end, we introduce the auxiliary concept of
+\Def{accessibility} in the form of the \icode{Acc} data type (which, along with
+the rest of the code in this section, can be found in \icode{Util.\allowbreak
+  Induction.\allowbreak WellFounded} (TODO this is a lie), though we present a
+slightly simplified version):
+\begin{code}
+data Acc (_<_ : A → A → Set) (x : A) : Set where
+  acc : (∀ y → y < x → Acc _<_ y) → Acc _<_ x
+\end{code}
+This definition says that a term $x ∶ A$ is accessible with respect to the
+relation $<$ if any $y < x$ is also accessible. \icode{Acc} is inductively
+defined, which means that a proof of accessibility can \enquote*{stack} only
+finitely many \icode{acc} constructors. Therefore, when a term is accessible,
+any descending chain starting from that term must eventually end. This justifies
+the following definition of well-foundedness: A relation $<$ on some type $A$ is
+well-founded if every element of $A$ is accessible with respect to $<$.
+\begin{code}
+WellFounded : (A → A → Set) → Set
+WellFounded _<_ = ∀ x → Acc _<_ x
+\end{code}
+
+With this definition of well-foundedness, it is easy to encode the principle of
+well-founded induction. First, we need a helper function:
+\begin{code}
+wfInd-acc : (P : A → Set)
+  → (∀ x → (∀ y → y < x → P y) → P x)
+  → ∀ x → Acc _<_ x → P x
+wfInd-acc P f x (acc rs) = f x (λ y y<x → wfInd-acc P f y (rs y y<x))
+\end{code}
+The definition of \icode{wfInd-acc} passes Agda's termination checker because it
+recurses on the argument \icode{Acc~\_<\_~x}: in the recursive call, that argument
+is \icode{rs~y~y<x}, which counts as a syntactic subterm of \icode{acc~rs}.
+Bona fide well-founded induction is a direct consequence of \icode{wfInd-acc}:
+\begin{code}
+wfInd : WellFounded _<_
+  → (P : A → Set γ)
+  → (∀ x → (∀ y → y < x → P y) → P x)
+  → ∀ x → P x
+wfInd <-wf P f x = wfInd-acc P f x (<-wf x)
+\end{code}
+The reader is invited to check that our earlier definition of the fixpoint $f$
+is an instance of this recursion scheme.
+
+However, that earlier definition is built on a white lie: The type of $⟦t⟧$ is
+really more complex than advertised. Specifically, its argument of type $(m ∶
+\Size_{<n}) → ⟦T⟧(δ, m)$ must be size-parametric. In the definition of $f$, that
+argument is the function $\fun{m}{f(γ)(m)}$ -- so to define $f$, we must prove
+that $f$ is size-parametric. Our well-founded induction combinator \icode{wfInd}
+is too weak for this situation.
+
+We therefore need to construct a variation of \icode{wfInd} that allows us to
+prove properties of a defined function while defining it. We call this variation
+\icode{wfIndΣ}. Like \icode{wfInd}, it is an instance of a helper function,
+\icode{wfIndΣ-acc}, which does most of the heavy lifting. That helper, and a
+mutually defined proof about it, is shown in \figref{wfIndΣ}.
+
+\begin{figure}
+  \centering
+\begin{code}
+mutual
+  wfIndΣ-acc : (P : A → Set) (Q : ∀ x y → P x → P y → Set)
+    → (f : ∀ x
+        → (g : ∀ y → y < x → P y)
+        → (∀ y y<x z z<x → Q y z (g y y<x) (g z z<x))
+        → P x)
+    → (∀ x g g-resp y h h-resp
+        → (∀ z z<x z′ z′<y → Q z z′ (g z z<x) (h z′ z′<y))
+        → Q x y (f x g g-resp) (f y h h-resp))
+    → ∀ x → Acc _<_ x → P x
+  wfIndΣ-acc P Q f f-resp x (acc rs)
+    = f x
+      (λ y y<x → wfIndΣ-acc P Q f f-resp y (rs y y<x))
+      (λ y y<x z z<x
+          → wfIndΣ-acc-resp P Q f f-resp y (rs y y<x) z (rs z z<x))
+
+  wfIndΣ-acc-resp : (P : A → Set) (Q : ∀ x y → P x → P y → Set)
+    → (f : ∀ x
+        → (g : ∀ y → y < x → P y)
+        → (∀ y y<x z z<x → Q y z (g y y<x) (g z z<x))
+        → P x)
+    → (f-resp : ∀ x g g-resp y h h-resp
+        → (∀ z z<x z′ z′<y → Q z z′ (g z z<x) (h z′ z′<y))
+        → Q x y (f x g g-resp) (f y h h-resp))
+    → ∀ x x-acc y y-acc
+    → Q x y
+        (wfIndΣ-acc P Q f f-resp x x-acc)
+        (wfIndΣ-acc P Q f f-resp y y-acc)
+  wfIndΣ-acc-resp P Q f f-resp x (acc rsx) y (acc rsy)
+    = f-resp _ _ _ _ _ _ λ z z<x z′ z′<y
+        → wfIndΣ-acc-resp P Q f f-resp z (rsx z z<x) z′ (rsy z′ z′<y)
+\end{code}
+
+  \caption{Implementation of wfIndΣ-acc and wfIndΣ-acc-resp}
+  \label{fig:wfIndΣ}
+\end{figure}
+
+Compared to \icode{wfInd-acc}, the type of \icode{wfIndΣ-acc} has changed as
+follows:
+\begin{itemize}
+  \item \icode{Q} is a heterogeneous relation on the (dependent) type that we
+    are constructing, \icode{P}. In our use case, \icode{Q} will be instantiated
+    with the statement that the constructed terms are equal up to sizes.
+  \item The function \icode{f}, which defines the computational behaviour of the
+    fixpoint, continues to receive as an argument a function \icode{g} which
+    stands for a recursive call on a smaller argument. Additionally, \icode{f}
+    now receives a proof that for any two smaller sizes \icode{y} and \icode{z},
+    the recursive calls \icode{g~y} and \icode{g~z} are related by \icode{Q}. In
+    our case, this means that \icode{g} is size-parametric. This is precisely
+    the ingredient we were previously missing.
+  \item The next argument to \icode{wfIndΣ-acc} is also new. It demands a proof
+    that \icode{f} preserves relatedness by \icode{Q}.
+\end{itemize}
+
+Mutually with \icode{wfIndΣ-acc}, we define a lemma about it,
+\icode{wfIndΣ-acc-resp}. This just says that any two terms constructed by
+\icode{wfIndΣ-acc} are related by \icode{Q} -- which in our case means that
+\icode{wfIndΣ-acc} constructs a size-parametric function. As with
+\icode{wfInd-acc}, the implementations of \icode{wfIndΣ-acc} and
+\icode{wfIndΣ-acc-resp} are straightforward.
+
+It is now easy to define the fixpoint combinator \icode{wfIndΣ} based on
+\icode{wfIndΣ-acc}. Defining $f$ in terms of it is also conceptually simple, but
+the details are a bit gnarly. For the full picture, see module
+\icode{Model.\allowbreak Term} of the formalisation.
+
+
+\section{Reduction}
+\label{sec:formalisation:reduction}
+
+TODO do we want to discuss this stuff?
