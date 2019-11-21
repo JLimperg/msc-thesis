@@ -9,9 +9,8 @@ function is parametric in the size -- i.e., the result of $⟦f⟧$ is independe
 in an appropriate sense, of which $n$ we apply it to.
 
 To develop this model, we first introduce its central structure, (propositional)
-reflexive graphs and their families (TODO ref). We then show how to interpret
-each construct of λST -- sizes (TODO ref), types (TODO ref) and terms (TODO
-ref).
+reflexive graphs and their families. We then show how to interpret each
+construct of λST -- sizes, types and terms.
 
 
 \section{Propositional Reflexive Graphs}
@@ -39,10 +38,10 @@ interpretations of a size context should be considered equal up to sizes.
 
 \begin{remark}
   Each reflexive graph is isomorphic to a presheaf over a particular category.
-  Thus, reflexive graphs form a category with families (TODO ref), i.e. a model
-  of Martin-Löf type theory. It is thus not surprising that λST also admits a
-  reflexive graph model. Moreover, many of the following results are direct
-  consequences of the theory of presheaves, but to keep the presentation
+  Thus, reflexive graphs form a category with families \cite{dybjer1995}, i.e. a
+  model of Martin-Löf type theory. It is thus not surprising that λST also
+  admits a reflexive graph model. Moreover, many of the following results are
+  direct consequences of the theory of presheaves, but to keep the presentation
   elementary, I prefer to make the constructions explicit.
 \end{remark}
 
@@ -79,10 +78,8 @@ category $\mathit{PRGraphs}$.
 
 To interpret types and type contexts, which are indexed by some size context, we
 need to move from PRGraphs to \emph{families} of PRGraphs. These may be thought
-of as PRGraphs indexed by PRGraphs. (TODO analogy with models of type theory
-where we move from some CCC C to the category of families over C(?)) The results
-in this section are formalised in \icode{Model.\allowbreak Type.\allowbreak
-Core}.
+of as PRGraphs indexed by PRGraphs. The results in this section are formalised
+in \icode{Model.\allowbreak Type.\allowbreak Core}.
 
 A \Def{family of PRGraphs} over a given PRGraph $Δ$ is a tuple $(T, ≈_{T,p},
 \refl_T)$ where
@@ -135,8 +132,6 @@ The last equation is not immediately well-typed: $\refl_T(x)$ proves $x
 ≈_{T,\refl_Δ(σ(δ))} x$ (assuming $x ∶ T(σ(δ))$) whereas we need to prove $x
 ≈_{T,σ(\refl_Δ(δ))} x$. However, since $≈_Δ$ is propositional, $\refl_Δ(σ(δ))$
 and $σ(\refl_Δ(δ))$ are, in fact, equal.
-
-(TODO do we need subt?)
 
 
 \section{Properties of PRGraphFams}
@@ -242,7 +237,7 @@ prove.
   \label{lem:<-props}
   For arbitrary sizes $n$, $m$, $o$, we have:
   \begin{enumerate}
-    \item $<$ and $≤$ are transitive. (TODO ref)
+    \item $<$ and $≤$ are transitive.
     \item If $n ≤ m$ and $m < o$ then $n < o$. If $n < m$ and $m ≤ o$ then $n < o$.
     \item If $n, m ∈ ℕ$ and $n ≤_ℕ m$ then $n ≤ m$.
     \item $0 ≤ n$.
@@ -433,8 +428,6 @@ of $Δ ⊢ Γ$ is defined by recursion over the derivation:
 $⊤$ is the terminal PRGraph family and $×$ is the product of PRGraph families,
 both defined in \secref{model:product}.
 
-(TODO move subT here?)
-
 With this, we have interpreted all type-level constructs of λST. What remains is
 to prove a substitution lemma stating that syntax-level and model-level
 substitution agree. To that end, we need some additional lemmas about
@@ -484,10 +477,8 @@ contexts.
 
 Well-typed terms (or, more precisely, judgments $Δ;Γ ⊢ t ∶ T$) are interpreted
 as morphisms between the PRGraph families $⟦Γ⟧$ and $⟦T⟧$. In this section, we
-show that there is a natural interpretation for each of the terms of λST,
-grouped by type. Where not otherwise noted, these interpretations are formalised
-in the definition \icode{Model.\allowbreak Term.\allowbreak ⟦\_⟧t}.
-(TODO move these definitions around in the code.)
+show a natural interpretation of each of the terms of λST. Formalisations of
+these definitions can be found in \icode{Model.\allowbreak Term}.
 
 \subsection{Functions}
 \label{sec:model:terms:functions}

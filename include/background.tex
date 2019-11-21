@@ -78,7 +78,7 @@ lexicographic termination measures, nested inductive datatypes like our rose
 trees and so on. As a result, the termination checkers of both Coq and Agda have
 become quite complex, and with complexity come bugs: Both Coq and Agda have
 shipped versions with errors in their termination checkers that made the systems
-inconsitent. (TODO ref)
+inconsitent \cite{coqbug2013,agdabug2013}.
 
 The final problem with structural recursion is that it does not easily
 accommodate coinductive datatypes and corecursive definitions. Corecursive
@@ -89,7 +89,7 @@ Instead, we must demand that the function is \emph{productive}, meaning that it
 generates any finite prefix of its output in finite time. In other words, any
 finite observation of an infinite stream must terminate. There are syntactic
 methods, analogous to structural recursion, to ensure productivity, but they are
-highly inflexible and Coq's even breaks subject reduction (TODO ref).
+highly inflexible.
 
 To address these problems of structural termination checkers, we look to
 alternative forms of termination checking and in particular to sized types.
@@ -106,13 +106,13 @@ constructor tree. For coinductive types, the size denotes the maximum depth to
 which the term may be inspected. With this setup, checking a recursive
 definition becomes easy: A recursive call is justified if the size of its
 argument decreases. A corecursive call is justified if it increases the maximum
-observation depth of its result (TODO is this accurate?).
+observation depth of its result.
 
-Various type systems based on these principles, which vary considerably in the
-details (TODO words), have been proposed and investigated (TODO ref). This
-thesis investigates a calculus that is closely modeled on Agda's sized types, so
-the remainder of this section gives a brief overview of Agda's system. More
-details and examples can be found in Agda's user guide and in (TODO ref).
+Various type systems based on these principles have been proposed (see the
+references in \secref{conclusion:related}). This thesis investigates a calculus
+that is closely modeled on Agda's sized types, so the remainder of this section
+gives a brief overview of Agda's system. More details and examples can be found
+in Agda's manual \cite{agdamanual} and in \cite{abel2016}.
 
 A size is a term of type \icode{Size< n}, where \icode{n} is also a size.
 Primitive sizes are variables, the successor of a size \icode{↑ n} and
@@ -176,17 +176,17 @@ system.\footnote{I say \enquote{mostly} because Agda's current implementation
   necessary to prevent nonterminating programs from getting through. Agda also
   has a sophisticated size inference engine (so we could actually leave all the
   sizes in our example code implicit), but this engine is not part of the
-  trusted computing base.} And sized types, when combined with copatterns (TODO
-ref), yield an elegant productivity checking mechanism for corecursive
-definitions. Thus, we have addressed all the problems with structural
-termination checking that we had identified in
+  trusted computing base.} And sized types, when combined with copatterns
+\cite{abel2016}, yield an elegant productivity checking mechanism for
+corecursive definitions. Thus, we have addressed all the problems with
+structural termination checking that we had identified in
 \secref{background:termination}.
 
-Unfortunately, such convenience usually comes at a price; in Agda's case, the
-ultimate price: Agda's implementation of sized types is, and has been for some
-time, inconsistent. The culprit seems to be the highly dubious rule \icode{n <
-  ∞}, in particular \icode{∞ < ∞}. This rule makes the \icode{<} relation
-obviously non-well-founded (meaning there is an infinite descending chain
-\icode{∞ < ∞ < ...}) but Agda assumes that \icode{<} is well-founded. This
-assumption can be exploited in different ways (TODO ref) to sneak
+Unfortunately, such convenience currently comes at the ultimate price: Agda's
+implementation of sized types is, and has been for some time, inconsistent. The
+culprit seems to be the highly dubious rule \icode{n < ∞}, in particular
+\icode{∞ < ∞}. This rule makes the \icode{<} relation obviously non-well-founded
+(meaning there is an infinite descending chain \icode{∞ < ∞ < ...}) but Agda
+assumes that \icode{<} is well-founded. This assumption can be exploited in
+different ways \cite{agdabug2015,agdabug2016,agdabug2017,agdabug2018} to sneak
 non-terminating programs past the termination checker.

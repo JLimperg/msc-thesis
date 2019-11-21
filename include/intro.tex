@@ -10,7 +10,7 @@ heuristics based on a simple syntactic criterion for termination, the principle
 of structural recursion.
 
 Despite its simplicity, structural recursion is surprisingly powerful in
-practice. Still, it suffers from a few flaws that are directly related to its
+practice. Still, it suffers from some flaws that are directly related to its
 syntactic nature. It makes type checking non-compositional: We cannot always
 replace a term by another term of the same type because some terms have special
 meaning to the termination checker. It does not play well with more complex data
@@ -24,23 +24,23 @@ and its shortcomings, see \secref{background:termination}.
 To address the problems with structural recursion, several other termination
 checking regimes have been proposed. One of these is \emph{sized types}, an
 umbrella term for a family of broadly similar type systems that use type
-annotations to ensure termination (TODO ref). In such type systems, inductive
-types are annotated with a size: $\Nat{n}$, for example, is the type of natural
-numbers with size $n$. For the moment, we can view the size $n$ as a natural
-number and say that $\Nat{n}$ contains only natural numbers $m ≤ n$. This
-interpretation suggests a simple termination criterion: If, in a recursive
-definition, we receive an input in $\Nat{n}$ and only recurse on terms in
-$\Nat{m}$ for some $m < n$, then the recursion must stop when it reaches the
-size zero (at the latest).
+annotations to ensure termination. In such type systems, inductive types are
+annotated with a size: $\Nat{n}$, for example, is the type of natural numbers
+with size $n$. For the moment, we can view the size $n$ as a natural number and
+say that $\Nat{n}$ contains only natural numbers $m ≤ n$. This interpretation
+suggests a simple termination criterion: If, in a recursive definition, we
+receive an input in $\Nat{n}$ and only recurse on terms in $\Nat{m}$ for some $m
+< n$, then the recursion must stop when it reaches the size zero (at the
+latest).
 
 Since this termination check is based entirely on type-level information, it
 avoids the non-compositionality of syntactic approaches. It also handles nested
-inductive data types well and, when combined with copatterns (TODO ref), can be
-used to check productivity of corecursive definitions in a similarly natural
-way. The dependently typed language Agda contains an implementation of sized
-types that demonstrates these advantages (though see \secref{background:sized}
-for some problems of this implementation, as well as more details on Agda's
-sized types).
+inductive data types well and, when combined with copatterns \cite{abel2016},
+can be used to check productivity of corecursive definitions in a similarly
+natural way. The dependently typed language Agda contains an implementation of
+sized types that demonstrates these advantages (though see
+\secref{background:sized} for some problems of this implementation, as well as
+more details on Agda's sized types).
 
 Motivated by the desirable properties of sized types, this thesis investigates a
 custom lambda calculus with sized types called λST, defined in \chapref{source}.
@@ -53,30 +53,20 @@ language.
 Of these properties, two are of special interest. The first is normalisation:
 The type system should ensure that all programs do actually terminate. This is
 the raison d'être of sized types and thus the focus of existing work on sized
-types (TODO ref). The second property we are interested in is size irrelevance:
-Sizes should only be used during type checking to ensure
-termination/productivity and should not affect the runtime behaviour of
-programs. This means that sizes can be erased at runtime, which is good for
-performance.
+types. The second property we are interested in is size irrelevance: Sizes
+should only be used during type checking to ensure termination/productivity and
+should not affect the runtime behaviour of programs. This means that sizes can
+be erased at runtime, which is good for performance.
 
 In \chapref{model}, I focus on size irrelevance as the less-studied of the two
-properties. I demonstrate that λST is size-irrelevant using a (slight variation
-of a) reflexive graph model. This is a technique which is usually used to
-establish parametricity results, which fits the problem well: Size irrelevance
-just means that any term which depends on a size is parametric in that size. The
-model is fully formalised in Agda (without sized types); \chapref{formalisation}
-discusses the formalisation and some of its technical challenges.
+properties. I demonstrate that λST is size-irrelevant using a reflexive graph
+model. This is a technique which is usually used to establish parametricity
+results, which fits the problem well: Size irrelevance just means that any term
+which depends on a size is parametric in that size. The model is fully
+formalised in Agda (without sized types); \chapref{formalisation} discusses the
+formalisation and some of its technical challenges.
 
 Before I settled on the reflexive graph approach, I also investigated two
 category-theoretical modelling approaches which looked promising, but turned out
 to be inadequate. \chapref{negative} briefly discusses these models and their
 problems.
-
-In summary, this thesis makes the following contributions:
-
-\begin{itemize}
-\item I define λST, a simple calculus that approximates Agda's sized types.
-\item I show that λST is size-irrelevant, using a fully formalised reflexive
-  graph model.
-\item I discuss two failed category-theoretical attempts to model λST.
-\end{itemize}
