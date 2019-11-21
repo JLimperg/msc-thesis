@@ -1,4 +1,5 @@
 \chapter{Reflexive Graph Model}
+\label{sec:model}
 
 I now present a reflexive graph model of λST. The model is very similar to the
 standard set-theoretic models of (dependent) type theories, but it additionally
@@ -533,7 +534,7 @@ reference.
       {Δ; Γ ⊢ \sapp{t}{m} ∶ \sub{T}{\Fill(m)}}
   \end{mathpar}
 
-  \caption{Typing rules of terms related to size quantification}
+  \caption{Typing rules for terms related to size quantification}
   \label{fig:typing:quantification}
 \end{figure}
 
@@ -599,7 +600,7 @@ of sizes below $n$.
       Δ; Γ ⊢ s ∶ \All{n}{\Nat{v_0} → \sub{T}{\Wk}}}
     {Δ; Γ ⊢ \case{T}{n}{i}{z}{s} ∶ T}
   \end{mathpar}
-  \caption{Typing rules of terms related to $\Nat{n}$}
+  \caption{Typing rules for terms related to $\Nat{n}$}
   \label{fig:typing:nat}
 \end{figure}
 
@@ -652,7 +653,7 @@ functions from naturals below $n$ to naturals.
     \inferrule{Δ ⊢ n < ⋆ \\ Δ; Γ ⊢ \V{is} ∶ \Stream{n} \\ Δ ⊢ m < n}
     {Δ; Γ ⊢ \tail{n}{\V{is}}{m} ∶ \Stream{m}}
   \end{mathpar}
-  \caption{Typing rules of terms related to $\Stream{n}$}
+  \caption{Typing rules for terms related to $\Stream{n}$}
   \label{fig:typing:stream}
 \end{figure}
 
@@ -725,8 +726,8 @@ $⟦\Skip⟧(δ, n, m)$ to $(δ, m)$ according to Lemma \ref{lem:sub-app}.
 
 Given such a $⟦t⟧$, we first define the following auxiliary function:
 \begin{gather*}
-  f ∶ ⟦Γ⟧(δ) → (n ∶ \Size_{<⋆}) → ⟦T⟧(δ, n) \\
-  f(γ)(n) ≔ ⟦t⟧(γ)(n)(\fun{m}{f(γ)(m)})
+  f_δ ∶ ⟦Γ⟧(δ) → (n ∶ \Size_{<⋆}) → ⟦T⟧(δ, n) \\
+  f_δ(γ)(n) ≔ ⟦t⟧_δ(γ)(n)(\fun{m}{f_δ(γ)(m)})
 \end{gather*}
 % TODO calling convention: f(x)(y) or f(x, y)?
 This function is a standard fixpoint combinator. It terminates because the
@@ -738,7 +739,7 @@ then just a matter of applying $f$:
   ⟦\fix{T}{t}{n}⟧_δ
     &∶& ⟦Γ⟧(δ) → ⟦\sub{T}{\Fill{n}}⟧(δ) \\
     &=& ⟦Γ⟧(δ) → ⟦T⟧(δ, ⟦n⟧(δ)) \\
-  ⟦\fix{T}{t}{n}⟧_δ(γ) &≔& f(γ)(⟦n⟧(δ)).
+  ⟦\fix{T}{t}{n}⟧_δ(γ) &≔& f_δ(γ)(⟦n⟧(δ)).
 \end{Align*}
 
 In the above argument, we have, as usual, glossed over various proof obligations
@@ -749,8 +750,4 @@ that we must prove $f$ size-parametric \emph{mutually recursively} with its own
 definition. The full, somewhat gory details of this construction appear in
 \secref{formalisation:fixpoint}.
 
-
-\section{Reduction}
-\label{sec:model:reduction}
-
-TODO
+% TODO add conclusion of this section

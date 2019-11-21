@@ -1,18 +1,12 @@
-\chapter{Source Language}
+\chapter{Object Language}
 \label{sec:source}
 
-The inconsistency mentioned at the end of the previous chapter provides a
-motivation to investigate sized types more carefully. This thesis takes a small
-step in that direction by defining a calculus, λST, which transplants the sized
-types of Agda into a very simple setting, the simply-typed lambda calculus.
-(TODO words) In this chapter, we define λST and establish some syntactic
-properties.
+We now define λST, the calculus that will be the object of study for the
+remainder of this thesis.
 
 
 \section{Overview}
 \label{sec:source:overview}
-
-(TODO rewrite all that shit)
 
 Before we dive into the technicalities of λST, let me give an overview of the
 calculus by example, to show what it is capable of. Those who prefer their
@@ -21,69 +15,113 @@ later.
 
 λST, unlike Agda, does not feature subtyping (though I conjecture that this
 could easily be added). To get around this limitation, we first define a
-function that lifts a sized natural number to a larger size:
+helper function that lifts a sized natural number to a larger size:
 \begin{code}
-  liftℕ : ∀ n < ⋆. ∀ m < n. ℕ m → ℕ n
-  liftℕ ≔ Λ n < ⋆. Λ m < n. λ i : ℕ n.
-          caseℕ[ℕ n] m i
-            (zero n)
-            (λ k < m. λ j : ℕ k. suc n k j)
+  liftNat : ∀ n < ⋆. ∀ m < n. Nat m → Nat n
+  liftNat ≔ Λ n < ⋆. Λ m < n. λ i : Nat n.
+              caseNat[Nat n] m i
+                (zero n)
+                (λ k < m. λ j : Nat k. suc n k j)
 \end{code}
 
-\icode{liftℕ} already showcases most of the features of λST. Size variables are
-introduced at the type level by size quantification \icode{∀ n < m. T} and at
-the term level by the binder \icode{Λ n < m. t}. Each variable has an upper
-bound, here \icode{m}, corresponding to the Agda type \icode{Size<~m}. However,
-in λST we don't have \icode{∞~<~∞}, so in \icode{∀~n~<~∞.~T}, \icode{n} cannot
-be instantiated with \icode{∞}. Since we do sometimes want to quantify over
-every size including \icode{∞}, we introduce the size \icode{⋆} with
-\icode{∞~<~⋆} so that we can form the type \icode{∀~n~<~⋆.~T}. This is
-equivalent to Agda's \icode{(n~:~Size<~∞) → T}.
+\icode{liftNat} already showcases most of the features of λST. Size variables
+are introduced at the type level by size quantification \icode{∀ n < m} and at
+the term level by the binder \icode{Λ n < m}. Each variable has an upper bound,
+here \icode{m}, corresponding to the Agda type \icode{Size<~m}. However, in λST
+we do not have \icode{∞~<~∞}, so a variable \icode{n < ∞} cannot be instantiated
+with \icode{∞}. Since we do sometimes want to quantify over every size including
+\icode{∞}, we introduce the size \icode{⋆} with \icode{∞~<~⋆} so that we can
+form the type \icode{∀~n~<~⋆.~T}. This is equivalent to Agda's
+\icode{(n~:~Size<~∞) → T}.
 
-λST also features a type of sized natural numbers \icode{ℕ~n} with constructors
-\icode{zero} and \icode{suc} and eliminator \icode{caseℕ[T]} (where \icode{T} is
-an arbitrary type). The types of the constructors and eliminator are those one
-would get if one were to define sized natural numbers in Agda:
+λST also features a type of sized natural numbers \icode{Nat~n} with
+constructors \icode{zero} and \icode{suc} and eliminator \icode{caseNat[T]}
+(where \icode{T} is an arbitrary type). The types of the constructors and
+eliminator are those one would get if one were to define sized natural numbers
+in Agda:
 \begin{code}
-  zero     : ∀ n < ⋆. ℕ n
-  suc      : ∀ n < ⋆. ∀ m < n. ℕ m → ℕ n
-  caseℕ[T] : ∀ n < ⋆. ℕ n → T → (∀ m < n. ℕ m → T) → T
+  zero     : ∀ n < ⋆. Nat n
+  suc      : ∀ n < ⋆. ∀ m < n. Nat m → Nat n
+  caseℕ[T] : ∀ n < ⋆. Nat n → T → (∀ m < n. Nat m → T) → T
 \end{code}
-The \icode{caseℕ[T]} eliminator performs case analysis: If its first (non-size)
+The \icode{caseNat[T]} eliminator performs case analysis: If its first non-size
 argument is zero, it returns the second argument; otherwise it applies the
-function given as the third argument to the predecessor of the first argument.
-Thus, \icode{liftℕ} is the identity function up to sizes.
+function given as the third argument to the predecessor of the first argument
+(which has a smaller size). Thus, \icode{liftNat} is the identity function up to
+sizes: If the input is zero, it returns zero; otherwise it returns the successor
+of the input's predecessor.
 
-Using \icode{liftℕ}, we define our first recursive function, \icode{half},
-which divides its input by two (rounding down if the input is odd).
+Using \icode{liftNat}, we define the function \icode{half}, which divides its
+input by two (rounding down if the input is odd):
 \begin{code}
-  half : ∀ n < ⋆. ℕ n → ℕ n
-  half ≔ Λ n < ⋆. fix[∀ m < ⋆. ℕ m → ℕ m]
-    (Λ n < ⋆. λ rec ∶ (Λ m < n. ℕ m → ℕ m). λ (i : ℕ n).
-      caseℕ
-    )
-    n
+  half : ∀ n < ⋆. Nat n → Nat n
+  half ≔ fix[Nat ∙ → Nat ∙]
+          (Λ n < ⋆. λ rec ∶ (∀ m < n. Nat m → Nat m). λ i : Nat n.
+            caseNat[Nat n] n i
+              (zero n)
+              (λ m < n. λ j : Nat m. caseNat[Nat n] m j
+                (zero n)
+                (λ o < m. λ k : Nat o. liftNat n o (rec o k))))
+\end{code}
+The definition of \icode{half} is recursive, so we need the centrepiece of λST:
+the size-based fixpoint operator \icode{fix} of type
+\begin{code}
+  fix[T ∙] : (∀ n < ⋆. (∀ m < n. T m) → T n) → ∀ n < ⋆. T n
+\end{code}
+Here, \icode{T} is an arbitrary type with one free size variable denoted by the
+\enquote{hole} \icode{∙}. The type of \icode{fix} corresponds to a recursion
+scheme over sizes: If from an element of \icode{T} with size \icode{m} we can
+construct an element of \icode{T} with a greater size \icode{n} then we can
+construct an element of \icode{T} with any size.
+
+In \icode{half}, we use \icode{fix} to construct a function from \icode{i :
+  Nat~n} to \icode{Nat~n}. If \icode{i} is zero, we return zero. Otherwise, we
+consider the predecessor \icode{j} of \icode{i}, which has some size \icode{m <
+  n}. If \icode{j} is zero, we again return zero. Otherwise, we call the
+function \icode{rec} provided by \icode{fix}, which represents a recursive call
+of \icode{half}, with the predecessor of \icode{j} (i.e. \icode{i - 2}). This
+has size \icode{o}, so we must use \icode{liftNat} to lift it to size \icode{n}.
+
+Besides natural numbers -- the prototypical inductive type, λST also features
+the prototypical coinductive type: sized streams (of natural numbers). They have
+one constructor, \icode{cons}, which prepends an element to a stream, and two
+destructors, \icode{head} and \icode{tail}, which respectively extract the first
+element and the rest of a stream. These have the following types, again analogous
+to those one would obtain in Agda:
+\begin{code}
+  cons : ∀ n < ⋆. Nat ∞ → (∀ m < n. Stream m) → Stream n
+  head : ∀ n < ⋆. Stream n → Nat ∞
+  tail : ∀ n < ⋆. Stream n → ∀ m < n. Stream m
 \end{code}
 
-TODO better plus?
+Using these primitives, we can define, for example, the stream of zeros:
 \begin{code}
-  plus : ∀ n < ⋆. ℕ n → ℕ n → ℕ n
-  plus ≔ Λ n < ⋆. fix[∀ m < ⋆. ℕ m → ℕ n → ℕ m]
-    (Λ n < ⋆. λ rec : (Λ m < n. ℕ m → ℕ n → ℕ m).
-      λ i : ℕ n. λ j : ℕ n. caseℕ[ℕ n] n i
-        j
-        (Λ m < n. λ i′ : ℕ m. suc n m (rec m i′ j)))
-    n
+  zeros : ∀ n < ⋆. Stream n
+  zeros ≔ fix[Stream ∙]
+            (Λ n < ⋆. λ rec : (∀ m < n. Stream m).
+              cons (zero ∞) n rec)
 \end{code}
+Slightly more interestingly, λST also admits the standard mapping function for
+streams:
+\begin{code}
+  map : (Nat ∞ → Nat ∞) → ∀ n < ⋆. Stream n → Stream n
+  map ≔ λ f : Nat ∞ → Nat ∞. fix[Stream ∙ → Stream ∙]
+          (Λ n < ⋆. λ rec : (Λ m < n. Stream m → Stream m). λ xs : Stream n.
+            cons (f (head n xs)) n (Λ m < n. rec m (tail n xs m)))
+\end{code}
+Note that according to its type, \icode{map} is size-preserving: If we apply it
+to a stream with at least \icode{n} defined elements, its result also has at
+least \icode{n} defined elements. The same applies to \icode{half}, whose type
+indicates that its output is no greater than its input. As we saw with the rose
+tree example in \secref{background:sized}, such preservation properties are very
+useful.
 
 
 \section{Sizes}
 \label{sec:source:sizes}
 
-In the following sections we define λST. All definitions and lemmas are
-annotated with the name of the corresponding definition in the Agda
-formalisation (if any). This section corresponds to the Agda module
-\icode{Source.\allowbreak Size}.
+In the following sections we define λST. This section corresponds to the Agda
+module \icode{Source.\allowbreak Size}.
 
 \Def{Sizes} and \Def{size contexts} are defined by the grammar in
 \figref{syntax:sizes}. Size variables are de Bruijn indices; we write $v_x$ for
@@ -334,52 +372,12 @@ size $Δ ⊢ m$ and substitutions $σ ∶ Δ ⇒ Ω$, $τ ∶ Ω ⇒ Ω′$):
 
 The first five of these substitutions are standard. The filling substitution
 $\Fill(n)$ instantiates the zeroth variable with $n$ while leaving everything
-else as it is. The skipping substitution is a bit more specific; it is perhaps
-best understood by switching to explicit variables for a moment: Given a size
-$n$ in the context $Δ,\, x < m$, $\sub{n}{\Skip}$ lives in the context $Δ,\, x <
-m, y < x$ and all occurrences of $x$ in $n$ are replaced by $y$. In this sense,
-$\sub{n}{\Skip}$ \enquote*{skips} the variable $x$.
+else as it is. The skipping substitution is perhaps easier to understand if we
+switch to explicit variables for a moment: Given a size $n$ in the context $Δ,\,
+x < m$, $\sub{n}{\Skip}$ lives in the context $Δ,\, x < m, y < x$ and all
+occurrences of $x$ in $n$ are replaced by $y$. In this sense, $\sub{n}{\Skip}$
+\enquote*{skips} $x$.
 
-(TODO rewrite the rest of this section)
-
-A weakened substitution $\Weaken(σ)$ is the same as $σ$, only with each variable
-incremented once. The following lemma makes this precise.
-
-\begin{lemma}[Application of $\Weaken$ (\icode{sub-Weaken})]
-  For all $n$ and $σ$, $\sub{n}{\Weaken(σ)} = \wk(\sub{n}{σ})$.
-\end{lemma}
-
-When applied, the lifted substitution $\Lift(σ)$ maps $v_0$ to $v_0$ and
-$v_{x+1}$ to $\sub{v_x}{σ}$. In this sense, it is $σ$ \enquote*{lifted} to a
-larger context.
-
-\begin{lemma}[Application of $\Id$ (\icode{sub-Id})]
-  For any size $n$, $\sub{n}{\Id} = n$.
-\end{lemma}
-
-\begin{lemma}[Application of $σ \fcomp τ$ (\icode{sub->>})]
-  For any substitutions $σ$, $τ$ and size $n$, $\sub{n}{σ \fcomp τ} = \sub{\sub{n}{τ}}{σ}$.
-\end{lemma}
-
-Well-typed substitutions are the arrows of a category whose objects are size
-contexts, with identity arrows $\Id_Δ$ and (flipped) composition $\fcomp$. It is
-easy to verify that $\fcomp$ is associative with identity $\Id$. (The proof
-relies on Lemma (TODO ref) below.)
-
-When applied, $\Fill(n)$ replaces the zeroth variable with $n$ and leaves all other
-variables as they are.
-
-\begin{definition}[Skipping substitution (\icode{Skip, Skip⊢})]
-  $\Skip(n)$ is the substitution
-  \begin{displaymath}
-    \Skip(n) ≔ \ssub{\Weaken(\Wk)}{v_0}.
-  \end{displaymath}
-  Assuming that $Δ ⊢ n$, we have $\Skip ∶ \ctx{\ctx{Δ}{n}}{v_0} ⇒ \ctx{Δ}{n}$.
-\end{definition}
-
-(TODO what is the meaning of $\Skip(n)$?)
-
-(TODO lemmas about how the substitutions interact.)
 
 \section{Types}
 \label{sec:source:types}
@@ -425,7 +423,7 @@ The types and contexts of λST are generated by the grammar in
     \inferrule{Δ ⊢ Γ \\ Δ ⊢ T}{Δ ⊢ \ctx{Δ}{T}}
   \end{mathpar}
 
-  \caption{Validity of types and contexts}
+  \caption{Typing rules for types and contexts}
   \label{fig:typing:types}
 \end{figure}
 
@@ -599,11 +597,3 @@ size substitutions.
   \caption{Typing rules for terms}
   \label{fig:typing:terms}
 \end{figure}
-
-TODO size substitutions, term substitutions
-
-
-\section{Operational Semantics}
-\label{sec:source:opsem}
-
-TODO

@@ -2,23 +2,22 @@
 \label{sec:formalisation}
 
 All results from the previous sections (TODO update if non-formalised stuff is
-in) are formalised in the dependently typed proof assistant and programming
-language Agda. The formalisation is freely available online (TODO link) and
-follows the informal discussion in this thesis quite closely, so in this chapter
-I do not give a full account of it. Instead, I only discuss the major design
-decision that shape it.
+in) are formalised in the dependently typed proof assistant Agda. The
+formalisation is freely available online (TODO link) and closely follows the
+informal discussion in this thesis, so in this chapter I only discuss the major
+design decision that shape it.
 
 
 \section{Metatheory}
 \label{sec:formalisation:metatheory}
 
 λST is formalised in Agda (TODO ref), a proof assistant based loosely on Luo's
-UTT (TODO ref). I use version 2.6.0.1 of Agda with axiom K disabled via the
-\icode{--without-K} flag, but no other extensions. In particular, this
-configuration disables Agda's sized types, so we don't reason circularly.
+UTT (TODO ref). I use version 2.6.0.1 with axiom K disabled via the
+\icode{--without-K} flag. This configuration disables Agda's sized types, so we
+do not reason circularly.
 
-I do, however, extend the metatheory in one major way: I postulate the axiom of
-univalence (TODO ref). Type theory with univalence has a model in cubical sets
+I extend the metatheory in one major way: I postulate the axiom of univalence
+(TODO ref) (TODO words). Type theory with univalence has a model in cubical sets
 (TODO ref), so this should be safe (as long as axiom K, which contradicts
 univalence, is disabled). Univalence allows us to avoid some of the boilerplate
 that is often needed when interpreting set-theoretical mathematics in type
@@ -34,17 +33,18 @@ constructions.
 
 As an alternative to postulated univalence, we could also work in Cubical Agda
 (TODO ref), an extension of Agda that admits univalence as a theorem. Compared
-to postulated univalence, Cubical Agda has the advantage that more equations
+with postulated univalence, Cubical Agda has the advantage that more equations
 hold definitionally rather than just propositionally. However, in our particular
 case, we would not use these additional definitional equalities much. On the
-other hand, switching to Cubical Agda would complicate the use of Agda's
-standard library, which does not use the cubical primitives.
+other hand, switching to Cubical Agda would complicate our interoperation with
+Agda's standard library, which does not use the cubical primitives (specifically
+the cubical identity type).
 
 To benefit from univalence, I reimplement some basic definitions and results
-from Homotopy Type Theory (TODO ref) such as H-Levels, the theory of
-equivalences and the derivation of functional extensionality from univalence.
-Much of this code is inspired by Martín Escardó's implementation of Homotopy
-Type Theory in Agda (TODO ref).
+from Homotopy Type Theory such as H-Levels, the theory of equivalences and the
+derivation of functional extensionality from univalence. For reference, see the
+Homotopy Type Theory book (TODO ref). Much of my code is inspired by Martín
+Escardó's implementation of Homotopy Type Theory in Agda (TODO ref).
 
 
 \section{Size Substitutions}
@@ -228,9 +228,3 @@ It is now easy to define the fixpoint combinator \icode{wfIndΣ} based on
 \icode{wfIndΣ-acc}. Defining $f$ in terms of it is also conceptually simple, but
 the details are a bit gnarly. For the full picture, see module
 \icode{Model.\allowbreak Term} of the formalisation.
-
-
-\section{Reduction}
-\label{sec:formalisation:reduction}
-
-TODO do we want to discuss this stuff?
