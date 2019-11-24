@@ -27,15 +27,15 @@ equivalence relations for these structures, which would in turn force us to
 parameterise the definitions of reflexive graphs and families of reflexive
 graphs by an equivalence relation. This is doable -- and I conjecture that the
 formalisation could be adapted more or less mechanically to a type theory
-without univalence -- but the resulting complications would significantly
-obscure the constructions.
+without univalence -- but the resulting complications would obscure the
+constructions.
 
 As an alternative to postulated univalence, we could also work in Cubical Agda
 \cite{vezzosi2019}, an extension of Agda that admits univalence as a theorem.
 Compared with postulated univalence, Cubical Agda has the advantage that more
 equations hold definitionally rather than just propositionally. However, in our
 particular case, we would not use these additional definitional equalities much.
-On the other hand, switching to Cubical Agda would complicate our interoperation
+On the other hand, switching to Cubical Agda would complicate the interoperation
 with Agda's standard library, which does not use the cubical primitives
 (specifically the cubical identity type).
 
@@ -59,8 +59,8 @@ matters because $⟦\Wk⟧(δ, n)$ sometimes appears in types, in which case we 
 have to use the transport operator \icode{subst} to define terms of these types.
 This, in turn, makes it hard to prove facts about these terms.
 
-To avoid this issue, we use a universe construction, formalised in
-\icode{Source.\allowbreak Size.\allowbreak Substitution.\allowbreak Universe}.
+To avoid this issue, we use a universe of size substitutions, formalised in
+\texttt{Source.\allowbreak Size.\allowbreak Substitution.\allowbreak Universe}.
 We define a data type \icode{Sub} that has a constructor for each of the
 particular substitutions we need ($\Wk$, $\Fill$ etc.). We then define an
 interpretation function which maps each value of this datatype to the
@@ -106,9 +106,9 @@ eventually stop.
 To represent this idea in Agda, we first define what it means for a relation to
 be well-founded. To that end, we introduce the auxiliary concept of
 \Def{accessibility} in the form of the \icode{Acc} data type. This type can be
-found in the module \icode{Induction.\allowbreak WellFounded}; the remainder of
-this section is located either in the same module or in my
-\icode{Util.\allowbreak Induction.\allowbreak WellFounded}.
+found in the module \texttt{Induction.\allowbreak WellFounded} from Agda's
+standard library; the remainder of this section is located either in the same
+module or in my \texttt{Util.\allowbreak Induction.\allowbreak WellFounded}.
 \begin{code}
 data Acc (_<_ : A → A → Set) (x : A) : Set where
   acc : (∀ y → y < x → Acc _<_ y) → Acc _<_ x

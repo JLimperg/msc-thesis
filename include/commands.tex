@@ -37,7 +37,7 @@
 \DeclarePairedDelimiter{\anglebrackets}{⟨}{⟩}
 
 \newcommand*{\bnfdef}{\ensuremath{\Coloneqq}}
-\newcommand*{\icode}[1]{\texttt{#1}}
+\newcommand*{\icode}[1]{\mbox{\texttt{#1}}}
 \newcommand*{\Def}[1]{\emph{#1}}
 
 \newcommand*{\ssuc}[1]{\ensuremath{\mathop{↑} #1}}
@@ -90,10 +90,8 @@
 \DeclareMathOperator{\Fill}{Fill}
 \DeclareMathOperator{\mssuc}{ssuc}
 \DeclareMathOperator{\Param}{Param}
+\DeclareMathOperator{\Cats}{Cats}
+\DeclareMathOperator{\Sets}{Sets}
+\DeclareMathOperator{\Sizes}{Sizes}
 
-% TODO boldface is a bit heavy.
-\newcommand*{\category}[1]{\ensuremath{\mathord{\mathbf{#1}}}}
-\newcommand*{\Cats}{\category{Cats}}
-\newcommand*{\Sets}{\category{Sets}}
-\newcommand*{\Sizes}{\category{Sizes}}
 \newcommand*{\Op}[1]{#1^{\mathord{\mathrm{op}}}}

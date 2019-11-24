@@ -1,23 +1,35 @@
 % CREATED BY DAVID FRISK, 2016
 
+\thispagestyle{plain}			% Supress header
+
 \begingroup
 \setlength{\parindent}{0pt}
 
 \oneLineTitle\\
 Jannis Limperg\\
 Department of Computer Science and Engineering\\
-Chalmers University of Technology and University of Gothenburg\setlength{\parskip}{0.5cm}
+Chalmers University of Technology and University of Gothenburg
 
 \endgroup
 
-\thispagestyle{plain}			% Supress header
-\setlength{\parskip}{0pt plus 1.0pt}
 \section*{Abstract}
-Abstract text about your project in  Computer Science and Engineering.
+
+Sized types are a type-based termination checking mechanism for dependently
+typed languages. Compared to current syntactic termination checkers, sized types
+make termination checking more compositional and allow for an elegant treatment
+of coinductive types.
+
+In this thesis, I investigate λST, a simply-typed lambda calculus with sized
+types similar to those of Agda, a dependently typed proof assistant. My primary
+contribution is a relationally parametric reflexive graph model which
+demonstrates that the sizes of λST are irrelevant at runtime. The calculus and
+model are fully formalised in Agda (without sized types).
+
+
 
 % KEYWORDS (MAXIMUM 10 WORDS)
-\vfill
-Keywords: computer, science, computer science, engineering, project, thesis.
+% \vfill
+% Keywords: computer, science, computer science, engineering, project, thesis.
 
 \newpage				% Create empty back of side
 \thispagestyle{empty}

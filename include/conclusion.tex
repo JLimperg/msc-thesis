@@ -45,22 +45,22 @@ forth).
 This thesis is only concerned with one of the two interesting properties of λST,
 size irrelevance. The other is normalisation, which is arguably even more
 important (but also better covered in related work). In the case of λST, one
-would have to be careful with the definition of normalisation since the
-inhabitants of $\Stream{∞}$ are infinite by design.
+would have to be careful with the definition of normalisation since its streams
+are infinite by design.
 
 
 \paragraph{Syntactic Size Irrelevance}
 
-The critical reader will have noticed that this thesis does not, in fact, prove
+As mentioned in \secref{model:conclusion}, this thesis does not, in fact, prove
 any interesting properties of λST -- only of its model. To connect the model
 with a syntactic notion of size irrelevance, one might proceed as follows:
 \begin{enumerate}
-  \item Give an operational semantics for λST (easy).
-  \item Prove that if two terms are β-equal, their models are equal
-    (conceptually easy, but fraught with many technical difficulties).
-  \item Give a notion of syntactic equality up to sizes (easy).
+  \item Give an operational semantics for λST.
+  \item Prove that if two terms are β-equal, their models are equal. (This is
+    almost trivial informally but surprisingly difficult formally.)
+  \item Give a notion of syntactic equality up to sizes.
   \item Prove a lemma that allows us to conclude syntactic equality up to sizes
-    from model-level equality.
+    from semantic equality.
 \end{enumerate}
 
 I have done much of the work for steps 1--3 already, but did not have time to
@@ -77,11 +77,11 @@ equal up to sizes.
 
 \paragraph{Infinitely Branching Data Types}
 
-Natural numbers and streams are finitely branching if we look at them as
-constructor trees: Each constructor has a finite number of subterms (one or zero
-in the case of natural numbers; one in the case of streams). However, Agda and
-other dependently typed languages also feature infinitely branching types such
-as this one:
+Natural numbers and streams, viewed as constructor trees, are finitely
+branching: Each constructor has a finite number of subterms (one or zero in the
+case of natural numbers; one in the case of streams). However, Agda and other
+dependently typed languages also feature infinitely branching types such as this
+one:
 \begin{code}
   data ℕTree (A : Set) : Set where
     leaf : A → ℕTree A
@@ -107,8 +107,7 @@ ordinals have most of the properties we expect of a model of sizes, they do not
 admit the seemingly straightforward lemma that for ordinals $n < m$ and $n′ <
 m$, their supremum $n ⊔ n′$ is also less than $m$. More precisely, this lemma is
 equivalent to classical logic -- but then again, it is not clear that we need it
-to interpret a hypothetical $λST∞$ with infinitely branching types. I
-unfortunately did not have time to investigate these issues further.
+to interpret a hypothetical $λST∞$ with infinitely branching types.
 
 
 \section{Conclusion}
@@ -116,5 +115,5 @@ unfortunately did not have time to investigate these issues further.
 
 We have seen a calculus, λST, which approximates Agda's sized types in a
 simply-typed setting. This calculus has a model in terms of reflexive graphs
-which demonstrates that the sizes of λST are irrelevant. Both λST and the model
-are fully formalised.
+which demonstrates, in an informal sense, that the sizes of λST are irrelevant.
+Both λST and the model are fully formalised.

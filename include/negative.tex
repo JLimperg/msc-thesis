@@ -1,19 +1,18 @@
 \chapter{Negative Results}
 \label{sec:negative}
 
+(TODO ref Veltri19)
+
 Before developing the reflexive graph model of λST, I explored two other
 modelling approaches which turned out, for different reasons, to be unsuited to
 the task at hand. They are both based on the idea of interpreting size contexts
-as categories, types as functors from a size context category into the category
-of sets and terms as natural transformation between such functors. A model like
-this would yield a form of size irrelevance in the form of the naturality of
-term interpretations: If the interpretation of a term in size context $Δ$ is
-natural in $⟦Δ⟧$ then $⟦Δ⟧$ must be essentially irrelevant.
-
-In the next two sections, I briefly describe these potential models and why they
-do not, in fact, model λST. After that, we take a look at an extension of λST
-with infinitely branching types and some problems that arise when we try to
-model them.
+as preorder categories, types as functors from a size context category into the
+category of sets and terms as natural transformation between such functors. A
+model like this would yield a sort of size irrelevance in the form of the
+naturality of term interpretations: If the interpretation of a term in size
+context $Δ$ is natural in $⟦Δ⟧$ then $⟦Δ⟧$ must be essentially irrelevant. In
+the next two sections, I briefly describe these potential models and why they do
+not, in fact, model λST.
 
 
 \section{Covariant Presheaf Model}
@@ -30,8 +29,8 @@ We can extend this interpretation from types to categories: $⟦()⟧$ is the
 terminal category (whose object type is $⊤$) and $⟦\ctx{Δ}{n}⟧$ is the
 Grothendieck category of the functor $F ∶ ⟦Δ⟧ → \Cats$ with $F(δ) ≔
 \Sizes_{<⟦n⟧(δ)}$. ($\Cats$ is the category of small categories.) Sizes are
-modelled as functors $⟦n⟧ ∶ ⟦Δ⟧ → \Sizes$, where $\Sizes$ is the category of
-sizes ordered by the preorder $≤$ and $\Sizes_{<n}$ is the subcategory of
+modelled as functors $⟦n⟧ ∶ ⟦Δ⟧ → \Sizes$ where $\Sizes$ is the category of
+sizes ordered by the preorder $≤$; $\Sizes_{<n}$ is the subcategory of
 $\Sizes$ which contains only sizes less than $n$. The objects of $⟦Δ⟧$ are then
 telescopes of sizes, as before, and an arrow $f ∶ δ → δ′$ in $⟦Δ⟧$ is a proof
 that the sizes in $δ$ are pointwise less than or equal to the sizes in $δ′$.
@@ -51,9 +50,8 @@ functor from $⟦Δ⟧$ to $\Sets$. We would like to define, as before,
 \end{displaymath}
 but this is no functor: For $δ ≤ δ′$ we have $⟦n⟧(δ) ≤ ⟦n⟧(δ′)$ by functoriality
 of $⟦n⟧$, but there is no appropriate function from $\Size_{<⟦n⟧(δ)} → ℕ$ to
-$\Size_{<⟦n⟧(δ′)} → ℕ$. (TODO is this correct?) The root of this issue is that
-$δ$ occurs in a contravariant position in $⟦Stream{n}⟧(δ)$, so $⟦\Stream{n}⟧$ is
-naturally a contravariant, but not a covariant functor.
+$\Size_{<⟦n⟧(δ′)} → ℕ$. (TODO is this correct?) The root cause of this issue is
+⟦\Stream{n}⟧(δ) is naturally contravariant in $δ$.
 
 Still, let us ignore this problem and move on to discover more fundamental
 issues. The other types of λST have more or less natural interpretations:
@@ -107,7 +105,7 @@ $\mathrm{fix}$.\footnote{The above interpretation of size quantification is not 
 
 Alas, the contravariant presheaf approach still fails, this time due to a more
 subtle problem: The substitution lemma for size substitution in types does not
-hold. This means that, in general, we have
+hold. This means that in general we have
 \begin{displaymath}
   ⟦\sub{T}{σ}⟧ ≠ \sub{⟦T⟧}{⟦σ⟧}.
 \end{displaymath}
@@ -116,7 +114,7 @@ To see why, we first consider the interpretation of substitutions. Recall that
 in the reflexive graph model, a well-typed substitution $σ ∶ Δ ⇒ Ω$ was
 interpreted as a function between the types $⟦Δ⟧$ and $⟦Ω⟧$. Here, we upgrade
 this interpretation to a functor between the categories $⟦Δ⟧$ and $⟦Ω⟧$, but the
-underlying function remains the same. Model-level substitution is composition:
+underlying function remains the same. Semantic substitution is composition:
 Given a type $T$ in size context $Ω$, whose interpretation is a functor from
 $⟦Ω⟧$ to $\Sizes$, we define
 \begin{displaymath}

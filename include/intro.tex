@@ -24,20 +24,19 @@ and its shortcomings, see \secref{background:termination}.
 To address the problems with structural recursion, several other termination
 checking regimes have been proposed. One of these is \emph{sized types}, an
 umbrella term for a family of broadly similar type systems that use type
-annotations to ensure termination. In such type systems, inductive types are
+annotations to ensure termination. In these systems, inductive types are
 annotated with a size: $\Nat{n}$, for example, is the type of natural numbers
-with size $n$. For the moment, we can view the size $n$ as a natural number and
-say that $\Nat{n}$ contains only natural numbers $m ≤ n$. This interpretation
-suggests a simple termination criterion: If, in a recursive definition, we
-receive an input in $\Nat{n}$ and only recurse on terms in $\Nat{m}$ for some $m
-< n$, then the recursion must stop when it reaches the size zero (at the
-latest).
+with size $n$. For the moment, we can view $n$ as a natural number and say that
+$\Nat{n}$ contains only natural numbers $m ≤ n$. This interpretation suggests a
+simple termination criterion: If, in a recursive definition, we receive an input
+in $\Nat{n}$ and only recurse on terms in $\Nat{m}$ for some $m < n$, then the
+recursion must stop when it reaches the size zero (at the latest).
 
 Since this termination check is based entirely on type-level information, it
 avoids the non-compositionality of syntactic approaches. It also handles nested
 inductive data types well and, when combined with copatterns \cite{abel2016},
 can be used to check productivity of corecursive definitions in a similarly
-natural way. The dependently typed language Agda contains an implementation of
+natural way. The dependently typed language Agda features an implementation of
 sized types that demonstrates these advantages (though see
 \secref{background:sized} for some problems of this implementation, as well as
 more details on Agda's sized types).
@@ -52,11 +51,11 @@ language.
 
 Of these properties, two are of special interest. The first is normalisation:
 The type system should ensure that all programs do actually terminate. This is
-the raison d'être of sized types and thus the focus of existing work on sized
-types. The second property we are interested in is size irrelevance: Sizes
-should only be used during type checking to ensure termination/productivity and
-should not affect the runtime behaviour of programs. This means that sizes can
-be erased at runtime, which is good for performance.
+the raison d'être of sized types and thus the focus of existing work . The
+second property we are interested in is size irrelevance: Sizes should only be
+used during type checking to ensure termination/productivity and should not
+affect the runtime behaviour of programs. This means that sizes can be erased at
+runtime, which is good for performance.
 
 In \chapref{model}, I focus on size irrelevance as the less-studied of the two
 properties. I demonstrate that λST is size-irrelevant using a reflexive graph
