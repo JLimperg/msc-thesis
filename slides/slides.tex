@@ -1,0 +1,470 @@
+\documentclass[xetex]{beamer}
+\usepackage[british]{babel}
+\usepackage{fontspec}
+\usepackage{mathtools}
+\usepackage{unicode-math}
+\usepackage{minted}
+\usepackage{csquotes}
+\usepackage{mathpartir}
+
+\setmainfont{DejaVu Serif}
+\setsansfont{DejaVu Sans}
+\setmathfont{XITS Math}
+% Alternatively:
+% \setmathfont{DejaVu Math TeX Gyre}
+\setmonofont{DejaVu Sans Mono}
+
+\beamertemplatenavigationsymbolsempty
+\setbeamertemplate{itemize item}[square]
+\setbeamertemplate{itemize subitem}[square]
+\setbeamertemplate{itemize subsubitem}[square]
+
+% Code environment
+\newenvironment{code}
+{\VerbatimEnvironment
+  \begin{minted}{Agda}}
+  {\end{minted}
+  \par}
+
+% crude replacement for align
+\newenvironment{Align*}
+{\begin{displaymath}\begin{array}{lcl}}
+{\end{array}\end{displaymath}}
+
+\newenvironment{AlignAnnot*}
+{\begin{displaymath}\begin{array}{lcll}}
+{\end{array}\end{displaymath}}
+
+% Additional commands
+\newcommand*{\secref}[1]{Sec.\ \ref{sec:#1}}
+\newcommand*{\figref}[1]{Fig.\ \ref{fig:#1}}
+\newcommand*{\chapref}[1]{Ch.\ \ref{sec:#1}}
+\DeclarePairedDelimiter{\brackets}{[}{]}
+\DeclarePairedDelimiter{\anglebrackets}{⟨}{⟩}
+
+\newcommand*{\bnfdef}{\ensuremath{\Coloneqq}}
+\newcommand*{\icode}[1]{\mbox{\texttt{#1}}}
+\newcommand*{\Def}[1]{\emph{#1}}
+
+\newcommand*{\ssuc}[1]{\ensuremath{\mathop{↑} #1}}
+\newcommand*{\ctx}[2]{\ensuremath{#1,\, #2}}
+\newcommand*{\ctxE}[3]{\ensuremath{#1,\, #2 < #3}}
+\newcommand*{\ssub}[2]{\ensuremath{#1, #2}}
+\newcommand*{\sub}[2]{\ensuremath{#1\brackets*{#2}}}
+  % TODO The brackets* resizes the substitution brackets according to the size
+  % of the object between them. Does this end up looking better or worse, on balance?
+\newcommand*{\fcomp}{\ensuremath{\mathbin{\gg}}}
+
+\newcommand*{\Nat}[1]{\ensuremath{\mathrm{Nat}~#1}}
+\newcommand*{\Stream}[1]{\ensuremath{\mathrm{Stream}~#1}}
+\newcommand*{\Ctx}[2]{\ensuremath{#1,\, #2}}
+\newcommand*{\CtxE}[3]{\ensuremath{#1,\, #2 ∶ #3}}
+\newcommand*{\All}[2]{\ensuremath{∀ #1.\; #2}}
+\newcommand*{\AllE}[3]{\ensuremath{∀ #1 < #2.\; #3}}
+
+\newcommand*{\ap}{\ensuremath{\;}}
+\newcommand*{\fun}[2]{\ensuremath{\mathop{λ} #1.\; #2}}
+
+\newcommand*{\lam}[2]{\fun{#1}{#2}}
+\newcommand*{\lamE}[3]{\fun{#1 ∶ #2}{#3}}
+\newcommand*{\app}[2]{\ensuremath{#1 \ap #2}}
+\newcommand*{\slam}[2]{\fun{#1}{#2}}
+\newcommand*{\slamE}[3]{\fun{#1 < #2}{#3}}
+\newcommand*{\sapp}[2]{\ensuremath{#1 \ap #2}}
+\newcommand*{\zero}[1]{\ensuremath{\mathrm{zero} \ap #1}}
+\newcommand*{\suc}[3]{\ensuremath{\mathrm{suc} \ap #1 \ap #2 \ap #3}}
+\newcommand*{\case}[5]{\ensuremath{\mathrm{caseNat}[#1] \ap #2 \ap #3 \ap #4
+    \ap #5}}
+\newcommand*{\cons}[3]{\ensuremath{\mathrm{cons} \ap #1 \ap #2 \ap #3}}
+\newcommand*{\head}[2]{\ensuremath{\mathrm{head} \ap #1 \ap #2}}
+\newcommand*{\tail}[3]{\ensuremath{\mathrm{tail} \ap #1 \ap #2 \ap #3}}
+\newcommand*{\fix}[3]{\ensuremath{\mathrm{fix}[#1] \ap #2 \ap #3}}
+
+\newcommand*{\V}[1]{\ensuremath{\mathit{#1}}}
+
+\DeclareMathOperator{\Type}{Type}
+\DeclareMathOperator{\refl}{refl}
+\DeclareMathOperator{\id}{id}
+\DeclareMathOperator{\PRGraphs}{PRGraphs}
+\DeclareMathOperator{\PRGraphFam}{PRGraphFam}
+\DeclareMathOperator{\PRGraphFams}{PRGraphFams}
+\DeclareMathOperator{\Ap}{Ap}
+\DeclareMathOperator{\curry}{curry}
+\DeclareMathOperator{\eval}{eval}
+\DeclareMathOperator{\Size}{Size}
+\DeclareMathOperator{\wk}{wk}
+\DeclareMathOperator{\Weaken}{Weaken}
+\DeclareMathOperator{\Lift}{Lift}
+\DeclareMathOperator{\Wk}{Wk}
+\DeclareMathOperator{\Id}{Id}
+\DeclareMathOperator{\Skip}{Skip}
+\DeclareMathOperator{\Fill}{Fill}
+\DeclareMathOperator{\mssuc}{ssuc}
+\DeclareMathOperator{\Param}{Param}
+\DeclareMathOperator{\Cats}{Cats}
+\DeclareMathOperator{\Sets}{Sets}
+\DeclareMathOperator{\Sizes}{Sizes}
+
+\newcommand*{\Op}[1]{#1^{\mathord{\mathrm{op}}}}
+
+
+\begin{document}
+
+\title[A Reflexive Graph Model of Sized Types]
+  {A Reflexive Graph Model of Sized Types \\ (M.Sc. thesis)}
+\author{Jannis Limperg}
+\date{28 November 2019}
+\institute{Chalmers University Göteborg}
+\maketitle
+
+\begin{frame}
+  \tableofcontents
+\end{frame}
+
+
+\AtBeginSection[]{
+  \begin{frame}
+    \vfill
+    \begin{beamercolorbox}{title}
+      \centering
+      \usebeamerfont{title}
+      \insertsectionhead
+    \end{beamercolorbox}
+    \vfill
+  \end{frame}
+}
+
+
+\section{Sized Types}
+
+% \begin{frame}[fragile]
+%   \frametitle{Structural recursion}
+
+% \begin{code}
+% data ℕ : Set where
+%   zero : ℕ
+%   suc : ℕ → ℕ
+
+% half : ℕ → ℕ
+% half zero = zero
+% half (suc zero) = zero
+% half (suc (suc i)) = suc (half i)
+% \end{code}
+% \end{frame}
+
+
+\begin{frame}[fragile]
+  \frametitle{Size recursion}
+
+\begin{code}
+data ℕₛ (n : Size) : Set where
+  zero : ℕₛ n
+  suc : (m : Size< n) → ℕₛ m → ℕₛ n
+
+halfₛ : ∀ n → ℕₛ n → ℕₛ n
+halfₛ n zero = zero
+halfₛ n (suc m zero) = zero
+halfₛ n (suc m (suc k i)) = suc k (halfₛ k i)
+\end{code}
+\end{frame}
+
+
+% \begin{frame}
+%   \frametitle{Evaluation of sized types}
+%   \begin{block}{Advantages}
+%     \begin{itemize}
+%       \item Modularity
+%       \item Natural support for coinduction
+%       \item Easy to implement (in principle)
+%     \end{itemize}
+%   \end{block}
+
+%   \begin{block}{Disadvantages}
+%     \begin{itemize}
+%       \item Currently inconsistent in Agda
+%       \item Require changes to data types
+%     \end{itemize}
+%   \end{block}
+% \end{frame}
+
+
+\section{Object Language: λST}
+
+\begin{frame}
+  \frametitle{Sizes}
+
+  \begin{Align*}
+    n & \bnfdef & x \\
+      & |       & 0 \\
+      & |       & \ssuc{n} \\
+      & |       & ∞ \\
+      & |       & ⋆
+  \end{Align*}
+
+  \pause
+
+  \begin{displaymath}
+    0 < \ssuc{0} < \dots < ∞ < ⋆
+  \end{displaymath}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Types}
+
+  \begin{Align*}
+    T, U
+      & \bnfdef & \Nat{n} \\
+      & | & (\Stream{n}) \\
+      & | & T → U \\
+      & | & \AllE{x}{n}{T} \\
+    \\
+    Δ, Ω
+      & \bnfdef & () \\
+      & | & \ctxE{Δ}{x}{n} \\
+    \\
+    Γ, Ψ
+      & \bnfdef & () \\
+      & | & \CtxE{Γ}{x}{T}
+  \end{Align*}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Terms I}
+
+  \begin{Align*}
+    t, u, z, s
+      & \bnfdef & x \\
+      & | & \lamE{x}{T}{t} \\
+      & | & \app{t}{u} \\
+      \\
+      & | & \slamE{x}{n}{t} \\
+      & | & \sapp{t}{n}
+  \end{Align*}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Terms II}
+
+  \begin{Align*}
+    \mathrm{zero} &∶& \AllE{n}{⋆}{\Nat{n}} \\
+    \mathrm{suc} &∶& \AllE{n}{⋆}{\AllE{m}{n}{\Nat{m} → \Nat{n}}} \\
+    \mathrm{caseNat}[T] &∶& \AllE{n}{⋆}{\Nat{n} → T → (\AllE{m}{n}{\Nat{m} → T}) → T} \\
+    \\
+    \pause
+    \mathrm{fix}[T(∙)]
+      &:& (\AllE{n}{⋆}{(\AllE{m}{n}{T(m)}) → T(n)}) → \AllE{n}{⋆}{T(n)}
+  \end{Align*}
+\end{frame}
+
+
+\begin{frame}[fragile]
+  \frametitle{Example: \texttt{half}}
+
+\begin{code}
+halfₛ : ∀ n → ℕₛ n → ℕₛ n
+halfₛ n zero = zero
+halfₛ n (suc m zero) = zero
+halfₛ n (suc m (suc k i)) = suc k (halfₛ k i)
+\end{code}
+
+\medskip
+
+\begin{verbatim}
+half : ∀ n < ⋆. Nat n → Nat n
+half ≔ fix[Nat ∙ → Nat ∙]
+  (Λ n < ⋆. λ rec : (∀ m < n. Nat m → Nat m).
+    λ i ∶ Nat n. caseNat n i
+      (zero n)
+      (Λ m < n. λ i′ ∶ Nat m.
+        caseNat m i′
+          (zero n)
+          (Λ k < m. λ i″ ∶ Nat k.
+            suc n k (rec k i″))))
+\end{verbatim}
+\end{frame}
+
+
+\section{Reflexive Graph Model}
+
+\begin{frame}
+  \frametitle{Reflexive graphs}
+
+  \begin{block}{Reflexive graph}
+    \begin{itemize}
+      \item $Δ ∶ \Type$
+      \item $≈_Δ : Δ → Δ → \Type$
+      \item $≈_Δ$ is reflexive.
+    \end{itemize}
+  \end{block}
+
+  \pause
+
+  \begin{block}{Propositional reflexive graph (PRGraph)}
+    \begin{itemize}
+      \item $Δ$ is a set.
+      \item $≈_Δ$ is a proposition.
+    \end{itemize}
+  \end{block}
+
+  \pause
+
+  \begin{block}{PRGraph morphism from $Δ$ to $Ω$}
+    \begin{itemize}
+      \item $f ∶ Δ → Ω$
+      \item $∀ δ, δ′ ∶ Δ.\; δ ≈_Δ δ′ ⇒ f(δ) ≈_Ω f(δ′)$
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{PRGraph of semantic sizes}
+  \begin{Align*}
+    \Size &≔& ℕ + "∞" + "⋆" \\
+    n ≈_{\Size} m &≔& ⊤
+  \end{Align*}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Interpretation of size contexts and sizes}
+
+  \begin{Align*}
+    ⟦Δ⟧ &:& \mathrm{PRGraph} \\
+    ⟦()⟧ &≔& ⊤ \\
+    ⟦\ctxE{Δ}{x}{n}⟧ &≔& \Sigma_{δ ∶ ⟦Δ⟧} \Size_{< ⟦n⟧(δ)} \\
+    \\
+    ≈_{⟦Δ⟧}(δ, δ′) &≔& ⊤ \\
+    \\
+    ⟦n⟧ &:& ⟦Δ⟧ → \Size \\
+    \pause
+    ⟦x⟧(δ) &≔& \text{(lookup $x$ in $δ$)} \\
+    ⟦0⟧(δ) &≔& 0 \\
+    ⟦\ssuc{n}⟧(δ) &≔&
+      \begin{cases}
+        ⟦n⟧(δ) + 1 \quad &\text{if ⟦n⟧(δ) ∈ ℕ} \\
+        ⟦n⟧(δ)     \quad &\text{otherwise}
+      \end{cases} \\
+    ⟦∞⟧(δ) &≔& ∞ \\
+    ⟦⋆⟧(δ) &≔& ⋆
+  \end{Align*}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Families of PRGraphs}
+
+  Assume a PRGraph $Δ$.
+  \begin{block}{Family of PRGraphs over $Δ$}
+    \begin{itemize}
+      \item $T : Δ → \Type$
+      \item $≈_{T,p} : T(δ) → T(δ′) → \Type$ (where $p ∶ δ ≈_Δ δ′$)
+      \item $≈_{T,p}$ is reflexive for any $p ∶ δ ≈_Δ δ$
+    \end{itemize}
+  \end{block}
+
+  \pause
+
+  \begin{block}{PRGraph family morphism from $T$ to $U$}
+    \begin{itemize}
+      \item $f_δ ∶ T(δ) → U(δ)$
+      \item $x ≈_{T,p} y ⇒ f_δ(x) ≈_{U,p} f_{δ′}(y)$
+    \end{itemize}
+  \end{block}
+
+  Category of PRGraph families over $Δ$ has products, exponentials and a
+  terminal object.
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Interpretation of types I}
+
+  \begin{Align*}
+    ⟦T⟧ &∶& \PRGraphFam(⟦Δ⟧) \\
+    \\
+    ⟦\Nat{n}⟧(δ) &≔& ℕ_{≤⟦n⟧(δ)} \\
+    i ≈_{⟦\Nat{n}⟧} j &≔& i = j \\
+    \\
+    ⟦T → U⟧(δ) &≔& ⟦T⟧ ↝ ⟦U⟧ \\
+    \multicolumn{3}{l}{\quad \text{(the exponential of PRGraph families over $Δ$)}}
+  \end{Align*}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Interpretation of types II}
+
+  Let $T$ be a PRGraph family over $⟦\ctx{Δ}{n}⟧ = \Sigma_δ \Size_{<⟦n⟧(δ)}$.
+  \begin{block}{Size-parametric function}
+    Let $f ∶ (m < ⟦n⟧(δ)) → T(δ, m)$. f is size-parametric if
+    \begin{displaymath}
+      ∀ m, m′ < ⟦n⟧(δ).\; f(m) ≈_{T} f(m′)
+    \end{displaymath}
+  \end{block}
+
+  \pause
+
+  \begin{block}{Interpretation of size quantification}
+    \begin{align*}
+      &⟦\AllE{x}{n}{T}⟧(δ) \\
+      &\quad ≔ \{ f ∶ (m < ⟦n⟧(δ)) → ⟦T⟧(δ, m) \mid \text{$f$ is size-parametric}\} \\
+      &f ≈_{⟦\AllE{x}{n}{T}⟧} g \\
+      &\quad ≔ ∀ m < ⟦n⟧(δ); m′ < ⟦n⟧(δ′).\; f(m) ≈_{T} g(m′)
+    \end{align*}
+  \end{block}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Interpretation of contexts}
+
+  \begin{Align*}
+    ⟦()⟧ &≔& ⊤ \\
+    ⟦\CtxE{Γ}{x}{T}⟧ &≔& ⟦Γ⟧ × ⟦T⟧
+  \end{Align*}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Interpretation of terms}
+
+  \begin{displaymath}
+    ⟦Δ; Γ ⊢ t ∶ T⟧ : ⟦Γ⟧ → ⟦T⟧ \quad \text{(a PRGraph family morphism)}
+  \end{displaymath}
+
+  \pause
+
+  \begin{block}{Example: size abstraction}
+    \begin{mathpar}
+      \inferrule{\ctxE{Δ}{x}{n}; Γ ⊢ t ∶ T \\ Δ ⊢ Γ}{Δ; Γ ⊢ \slamE{x}{n}{t} ∶ \AllE{x}{n}{T}}
+    \end{mathpar}
+
+    Let $⟦Γ⟧$ a PRGraph family over $⟦Δ⟧$; $⟦T⟧$ a PRGraph family over
+    $⟦\ctxE{Δ}{x}{n}⟧$; $⟦t⟧_{(δ, m)} : ⟦Γ⟧(δ) → ⟦T⟧(δ, m)$.
+    \begin{displaymath}
+      ⟦\slamE{x}{n}{t}⟧_δ(γ, m) ≔ ⟦t⟧_{(δ, m)}(γ)
+    \end{displaymath}
+  \end{block}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{What's the point?}
+
+  \begin{itemize}
+    \item<1-> Model \enquote*{obviously} captures size-irrelevance property
+    \item<2-> \dots but concluding syntactic size irrelevance is hard.
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}
+  \centering
+  kthxbye
+\end{frame}
+
+\end{document}

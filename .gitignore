@@ -12,4 +12,8 @@ _minted-*/
 *.xdv
 *.bbl
 *.blg
+*.nav
+*.snm
+*.vrb
+*.agdai
 auto/
