@@ -62,7 +62,7 @@ This, in turn, makes it hard to prove facts about these terms.
 To avoid this issue, we use a universe of size substitutions, formalised in
 \texttt{Source.\allowbreak Size.\allowbreak Substitution.\allowbreak Universe}.
 We define a data type \icode{Sub} that has a constructor for each of the
-particular substitutions we need ($\Wk$, $\Fill$ etc.). We then define an
+particular substitutions we need ($\Wk$, $\Sing$ etc.). We then define an
 interpretation function which maps each value of this datatype to the
 corresponding \enquote*{canonical} substitution from \secref{source:sub}. The
 application of a substitution in \icode{Sub} to a size/type/context/term is then
@@ -82,11 +82,11 @@ When we discussed the model of the term $\mathrm{fix}$ in
 as simple as it appeared. Recall that the typing rule of $\mathrm{fix}$ lets us
 assume a morphism $⟦t⟧$ with components
 \begin{displaymath}
-  ⟦t⟧_δ ∶ ⟦Γ⟧(δ) → (n ∶ \Size_{<⋆}) → ((m ∶ \Size_{<n}) → ⟦T⟧(δ, m)) → ⟦T⟧(δ, n).
+  ⟦t⟧_δ ∶ ⟦Γ⟧(δ) → (n ∶ \Size_{<ω + 1}) → ((m ∶ \Size_{<n}) → ⟦T⟧(δ, m)) → ⟦T⟧(δ, n).
 \end{displaymath}
 We then defined the following fixpoint of $⟦t⟧$:
 \begin{gather*}
-  f ∶ ⟦Γ⟧(δ) → (n ∶ \Size_{<⋆}) → ⟦T⟧(δ, n) \\
+  f ∶ ⟦Γ⟧(δ) → (n ∶ \Size_{<ω + 1}) → ⟦T⟧(δ, n) \\
   f(γ)(n) ≔ ⟦t⟧(γ)(n)(\fun{m}{f(γ)(m)}).
 \end{gather*}
 

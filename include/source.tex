@@ -1,71 +1,82 @@
 \chapter{Object Language}
 \label{sec:source}
 
-We now define λST, the calculus that will be the object of study for the
-remainder of this thesis.
+This chapter introduces λST, the calculus that will be the object of study for
+the remainder of this thesis.
 
 
 \section{Overview}
 \label{sec:source:overview}
 
-Before we dive into the technicalities of λST, let me give an overview of the
-calculus by example, to show what it is capable of. Those who prefer their
-exposition top-down may skip to \secref{source:sizes} and return later.
+Before we dive into the technicalities of λST, I give an overview of the
+calculus by example. Those who prefer their exposition top-down may skip to
+\secref{source:sizes} and return later.
 
-λST, unlike Agda, does not feature subtyping (though I conjecture that this
-could easily be added). To get around this limitation, we first define a
-helper function that lifts a sized natural number to a larger size:
+λST features two base types: sized natural numbers and sized streams of natural
+numbers. Our first example is the function \icode{half} which divides a natural
+number by two (rounding down if the input is odd). In non-sized Agda, this
+function would be written as follows:
 \begin{code}
-  liftNat : ∀ n < ⋆. ∀ m < n. Nat m → Nat n
-  liftNat ≔ Λ n < ⋆. Λ m < n. λ i : Nat m.
-              caseNat[Nat n] m i
-                (zero n)
-                (λ k < m. λ j : Nat k. suc n k j)
+  half : ℕ → ℕ
+  half zero = zero
+  half (suc zero) = zero
+  half (suc (suc n)) = suc (half n)
 \end{code}
-
-\icode{liftNat} already showcases most of the features of λST. Size variables
-are introduced at the type level by size quantification \icode{∀ n < m} and at
-the term level by the binder \icode{Λ n < m}. Each variable has an upper bound,
-here \icode{m}, corresponding to the Agda type \icode{Size<~m}. However, in λST
-we do not have \icode{∞~<~∞}, so a variable \icode{n < ∞} cannot be instantiated
-with \icode{∞}. Since we do sometimes want to quantify over every size including
-\icode{∞}, we introduce the size \icode{⋆} with \icode{∞~<~⋆} so that we can
-form the type \icode{∀~n~<~⋆.~T}. This is equivalent to Agda's
-\icode{(n~:~Size<~∞) → T}.
-
-λST also features a type of sized natural numbers \icode{Nat~n} with
-constructors \icode{zero} and \icode{suc} and eliminator \icode{caseNat[T]}
-(where \icode{T} is an arbitrary type). The types of the constructors and
-eliminator are those one would get if one were to define sized natural numbers
-in Agda:
+The λST version is broadly similar, only with added size-related information and
+more cumbersome syntax:
 \begin{code}
-  zero     : ∀ n < ⋆. Nat n
-  suc      : ∀ n < ⋆. ∀ m < n. Nat m → Nat n
-  caseℕ[T] : ∀ n < ⋆. Nat n → T → (∀ m < n. Nat m → T) → T
-\end{code}
-The \icode{caseNat[T]} eliminator performs case analysis: If its first non-size
-argument is zero, it returns the second argument; otherwise it applies the
-function given as the third argument to the predecessor of the first argument
-(which has a smaller size). Thus, \icode{liftNat} is the identity function up to
-sizes: If the input is zero, it returns zero; otherwise it returns the successor
-of the input's predecessor.
-
-Using \icode{liftNat}, we define the function \icode{half}, which divides its
-input by two (rounding down if the input is odd):
-\begin{code}
-  half : ∀ n < ⋆. Nat n → Nat n
+  half : ∀ n < ↑ ∞. Nat n → Nat n
   half ≔ fix[Nat ∙ → Nat ∙]
-          (Λ n < ⋆. λ rec ∶ (∀ m < n. Nat m → Nat m). λ i : Nat n.
-            caseNat[Nat n] n i
-              (zero n)
-              (λ m < n. λ j : Nat m. caseNat[Nat n] m j
-                (zero n)
-                (λ o < m. λ k : Nat o. liftNat n o (rec o k))))
+          (Λ n < ↑ ∞. λ rec ∶ (∀ m < n. Nat m → Nat m). λ i : Nat n.
+            case i of
+              (zero n) → zero n
+              (suc m j) →
+                case j of
+                  (zero m) → zero n
+                  (suc o k) → suc n o (rec o k)
 \end{code}
-The definition of \icode{half} is recursive, so we need the centrepiece of λST:
+
+The definition of \icode{half} already showcases most features of λST. The type
+of natural numbers of size \icode{n} is called \icode{Nat~n}. If we think of
+sizes as type-level natural numbers, \icode{Nat~n} is the type of naturals less
+than or equal to \icode{n}. This intuition justifies the types of its
+constructors:
+\begin{code}
+  zero : ∀ n < ↑ ∞. Nat n
+  suc  : ∀ n < ↑ ∞. ∀ m < n. Nat m → Nat n
+\end{code}
+Zero is less than or equal to any \icode{n}, so it is always in \icode{Nat~n}.
+The successor of a natural number \icode{k} of size \icode{m} is less than or
+equal to \icode{n} if and \icode{m~<~n}. If we were to define sized natural
+numbers in Agda, we would get constructors with very similar types. To eliminate
+sized natural numbers, we use Haskell-style pattern matching. (The formal
+definition of λST uses an eliminator instead.) The meaning of \icode{↑~∞} is
+explained below.
+
+λST's size grammar is similar to that of Agda, but for now we only need size
+variables. These are introduced at the type level by a size quantification of
+the form \icode{∀~x~<~m}, where \icode{x} is a size variable and \icode{m}, a
+size, is the upper bound of \icode{x} (meaning that \icode{x} can only be
+instantiated with sizes below \icode{m}). At the term level, size variables are
+introduced by binders of the form \icode{Λ~x~<~m} and terms with a
+size-quantified type can be applied to sizes below the declared bound. All this
+makes size quantification resemble the type quantification of System F: The
+bound of a size variable corresponds to the kind of a type variable, size
+binders correspond to type binders and size application corresponds to type
+application.
+
+As foreshadowed in \secref{background:sized}, λST departs from Agda in its
+handling of the \enquote*{infinite} size \icode{∞}. In Agda, \icode{∞} is less
+than itself, so the type \icode{Size<~∞} contains \icode{∞}. This is convenient,
+but also a likely culprit of size-related inconsistencies. In λST, we therefore
+omit the rule \icode{∞~<~∞}. Where we want to quantify over all sizes up to and
+including \icode{∞}, as in the type of \icode{half}, we use the successor of
+\icode{∞}, \icode{↑~∞}, as a bound.
+
+The last ingredient we need to define \icode{half} is the centrepiece of λST:
 the size-based fixpoint operator \icode{fix} of type
 \begin{code}
-  fix[T ∙] : (∀ n < ⋆. (∀ m < n. T m) → T n) → ∀ n < ⋆. T n
+  fix[T ∙] : (∀ n < ↑ ∞. (∀ m < n. T m) → T n) → ∀ n < ↑ ∞. T n
 \end{code}
 Here, \icode{T} is an arbitrary type with one free size variable denoted by the
 \enquote{hole} \icode{∙}. The type of \icode{fix} corresponds to a recursion
@@ -73,40 +84,29 @@ scheme over sizes: If from an element of \icode{T} with size \icode{m} we can
 construct an element of \icode{T} with a greater size \icode{n} then we can
 construct an element of \icode{T} with any size.
 
-In \icode{half}, we use \icode{fix} to construct a function from \icode{i :
-  Nat~n} to \icode{Nat~n}. If \icode{i} is zero, we return zero. Otherwise, we
-consider the predecessor \icode{j} of \icode{i}, which has some size \icode{m <
-  n}. If \icode{j} is zero, we again return zero. Otherwise, we call the
-function \icode{rec} provided by \icode{fix}, which represents a recursive call
-of \icode{half}, and apply it to the predecessor of \icode{j} (i.e.\ \icode{i -
-  2}). This has size \icode{o}, so we must use \icode{liftNat} to lift it to
-size \icode{n}.
-
-Besides natural numbers, the prototypical inductive type, λST also features
-the prototypical coinductive type: sized streams (of natural numbers). They have
-one constructor, \icode{cons}, which prepends an element to a stream, and two
+Besides natural numbers--the prototypical inductive type--λST also features the
+prototypical coinductive type: sized streams (of natural numbers). They have one
+constructor, \icode{cons}, which prepends an element to a stream, and two
 destructors, \icode{head} and \icode{tail}, which respectively extract the first
-element and the rest of a stream. These have the following types, again analogous
-to those one would obtain in Agda:
+element and the rest of a stream. These have the following types, again
+analogous to those one would obtain in Agda:
 \begin{code}
-  cons : ∀ n < ⋆. Nat ∞ → (∀ m < n. Stream m) → Stream n
-  head : ∀ n < ⋆. Stream n → Nat ∞
-  tail : ∀ n < ⋆. Stream n → ∀ m < n. Stream m
+  cons : ∀ n < ↑ ∞. Nat ∞ → (∀ m < n. Stream m) → Stream n
+  head : ∀ n < ↑ ∞. Stream n → Nat ∞
+  tail : ∀ n < ↑ ∞. Stream n → ∀ m < n. Stream m
 \end{code}
-
 Using these primitives, we can define, for example, the stream of zeros:
 \begin{code}
-  zeros : ∀ n < ⋆. Stream n
+  zeros : ∀ n < ↑ ∞. Stream n
   zeros ≔ fix[Stream ∙]
-            (Λ n < ⋆. λ rec : (∀ m < n. Stream m).
+            (Λ n < ↑ ∞. λ rec : (∀ m < n. Stream m).
               cons (zero ∞) n rec)
 \end{code}
-Slightly more interestingly, λST also admits the standard mapping function for
-streams:
+More interestingly, λST also admits the standard mapping function for streams:
 \begin{code}
-  map : (Nat ∞ → Nat ∞) → ∀ n < ⋆. Stream n → Stream n
+  map : (Nat ∞ → Nat ∞) → ∀ n < ↑ ∞. Stream n → Stream n
   map ≔ λ f : Nat ∞ → Nat ∞. fix[Stream ∙ → Stream ∙]
-          (Λ n < ⋆. λ rec : (Λ m < n. Stream m → Stream m). λ xs : Stream n.
+          (Λ n < ↑ ∞. λ rec : (Λ m < n. Stream m → Stream m). λ xs : Stream n.
             cons (f (head n xs)) n (Λ m < n. rec m (tail n xs m)))
 \end{code}
 Note that according to its type, \icode{map} is size-preserving: If we apply it
@@ -126,8 +126,8 @@ which in \chapref{formalisation}).
 
 \Def{Sizes} and \Def{size contexts} are defined by the grammar in
 \figref{syntax:sizes}. Size variables are de Bruijn indices; we write $v_x$ for
-the x-th variable. The examples in the previous sections instead used named
-variables for clarity.
+the $x$th variable. (The examples in the previous sections instead used named
+variables for convenience.)
 
 \begin{figure}
   \begin{displaymath}
@@ -136,7 +136,6 @@ variables for clarity.
       & & | & 0 & \text{(zero)} \\
       & & | & \ssuc{n} & \text{(successor)} \\
       & & | & ∞ & \text{(infinity)} \\
-      & & | & ⋆ & \text{(star)} \\
 
       \text{size context} & Δ, Ω & \bnfdef & () & \text{(empty context)} \\
       & & | & \ctx{Δ}{n} & \text{(context extension)}
@@ -147,14 +146,15 @@ variables for clarity.
   \label{fig:syntax:sizes}
 \end{figure}
 
-Our size grammar is essentially that of Agda (although of course Agda does not
-have a separate grammatical category for sizes). We only add two sizes that
-could easily be added to Agda as well: $0$ and $⋆$. Both are needed because λST,
-unlike Agda, does not admit the rule $∞ < ∞$. For $⋆$ in particular we will have
-$∞ < ⋆$, so a constraint of the form $x < ⋆$ corresponds to the Agda type
-\icode{Size<~∞}. Contexts are telescopes of size bounds: In the context
-$\ctx{Δ}{n}$, the zeroth variable $v_0$ ranges over sizes less than $n$ and $n$
-may involve variables in $Δ$.
+Our size grammar is essentially that of Agda (although Agda does not have a
+separate grammatical category for sizes). We only add a zero size, which could
+easily be added to Agda as well.\footnote{We need the zero size because we omit
+  Agda's ∞ < ∞ rule. Without this rule, certain Agda constructions, such as a
+  natural number successor that works on \icode{Nat~∞}, do not transfer directly
+  to λST. Adding the zero size allows us to approximate these constructions in
+  λST.} Contexts are telescopes of size bounds: In the context $\ctx{Δ}{n}$, the
+zeroth variable $v_0$ ranges over sizes less than $n$ and $n$ may involve
+variables in $Δ$.
 
 The typing judgments for sizes are mutually inductively generated by the rules
 in \figref{typing:sizes}. The judgment $Δ ⊢ v_x < n$ holds if $v_x$ is a valid
@@ -174,7 +174,7 @@ all variables incremented once.
 
     \inferrule{Δ ⊢ v_x < n}{Δ ⊢ v_x}
 
-    \inferrule{⊢ Δ}{Δ ⊢ 0 \\ Δ ⊢ ∞ \\ Δ ⊢ ⋆}
+    \inferrule{⊢ Δ}{Δ ⊢ 0 \\ Δ ⊢ ∞}
 
     \inferrule{Δ ⊢ n}{Δ ⊢ \ssuc{n}} \\
 
@@ -195,13 +195,13 @@ n$ and $Δ ⊢ n$ implies $⊢ Δ$, as is easily proved by induction on the resp
 derivation. All other judgments we define below are structured similarly, so for
 example $Δ ⊢ T$ (scope-safety of the type $T$) implies $⊢ Δ$ and $Δ; Γ ⊢ t ∶ T$
 (well-typedness of a term $t$ of type $T$ in context $Γ$ and size context $Δ$)
-implies $Δ ⊢ T$. We will henceforth use these lemmas implicitly.
+implies $Δ ⊢ T$. I will henceforth use these lemmas implicitly.
 
 Next, we define a syntactic comparison relation $Δ ⊢ n < m$ between sizes (in
 the same context), which is inductively generated by the rules in
 \figref{typing:order}. The rules of $<$ are all supported by the intuition that
-sizes are like natural numbers, only extended with ∞ and ⋆. The first rule is
-not circular; its premise refers to the judgment $Δ ⊢ v_x < n$ from
+sizes are like natural numbers, only extended with $∞$. The first rule is not
+circular; its premise refers to the judgment $Δ ⊢ v_x < n$ from
 \figref{typing:sizes}.
 
 \begin{figure}
@@ -210,52 +210,40 @@ not circular; its premise refers to the judgment $Δ ⊢ v_x < n$ from
 
     \inferrule{Δ ⊢ v_x < n}{Δ ⊢ v_x < n}
 
-    \inferrule{Δ ⊢ n < ∞}{Δ ⊢ n < \ssuc{n}}
+    \inferrule{Δ ⊢ n}{Δ ⊢ 0 < \ssuc{n}}
 
-    \inferrule{⊢ Δ}{Δ ⊢ 0 < ∞}
+    \inferrule{ }{Δ ⊢ 0 < ∞}
+
+    \inferrule{Δ ⊢ n < m}{Δ ⊢ \ssuc{n} < \ssuc{m}}
 
     \inferrule{Δ ⊢ n < ∞}{Δ ⊢ \ssuc{n} < ∞}
 
-    \inferrule{⊢ Δ}{Δ ⊢ ∞ < ⋆}
-
     \inferrule{Δ ⊢ n < m \\ Δ ⊢ m < o}{Δ ⊢ n < o}
+
+    \inferrule{Δ ⊢ n}{Δ ⊢ n < \ssuc{n}}
   \end{mathpar}
 
   \caption{Size comparison}
   \label{fig:typing:order}
 \end{figure}
 
-Our $<$ differs from Agda's in two significant ways. First, Agda admits the rule
-$∞ < ∞$ while we do not. This deviation is probably necessary considering that
-$∞ < ∞$ seems to be the root cause of multiple inconsistencies in Agda (see
-\secref{background:sized}).
+The rules of $<$ are all supported by the intuition that sizes of the form
+$\ssuc{\dots \ssuc{0}}$ are natural numbers and sizes of the form $\ssuc{\dots
+  \ssuc{∞}}$ are ordinals $ω + i$. Indeed, this will be the interpretation of
+sizes in the model. As mentioned, we do not admit Agda's dubious rule $∞ < ∞$
+(see \secref{background:sized}).
 
-Second, we have $n < \ssuc{n}$ only if $n < ∞$ while Agda does not require this
-premise. So in particular, we do not admit $∞ < \ssuc{∞}$ or $\ssuc{∞} <
-\ssuc{\ssuc{∞}}$. Agda, on the other hand, does admit these rules but also
-identifies $∞$ definitionally with $\ssuc{\dots\ssuc{∞}}$, which leads to
-another proof of $∞ < ∞$.
-
-In λST, we do not identify $∞$ with $\ssuc{∞}$. However, our definition of $<$
-renders sizes of the form $\ssuc{\dots\ssuc{∞}}$ essentially useless: They are
-not less than any other size and therefore cannot be used in most situations.
-(The same goes for $\ssuc{\dots\ssuc{⋆}}$.) This means that we can get away with
-leaving these sizes effectively uninterpreted in the model. We could
-alternatively disallow them via the size typing rules, but that would add much
-tedious code to the formalisation.
-
-Concluding the discussion of sizes, we state a technical lemma about weakening
-that will be needed later:
+Concluding the discussion of sizes, I state a technical lemma about weakening
+that will be needed later.
 \begin{lemma}[Weakening preserves typing and $<$]
   \label{lem:wk-preservation}
   If $Δ ⊢ n$ and $Δ ⊢ m$ then $\ctx{Δ}{m} ⊢ \wk(n)$. If $Δ ⊢ o$ and $Δ ⊢ n < m$
   then $\ctx{Δ}{o} ⊢ \wk(n) < \wk(m)$.
 \end{lemma}
-
 I do not give a proof of this lemma, and indeed most of the following lemmas,
-because both properties are proved by an almost trivial induction. Instead, I
-refer the reader to the formalisation (TODO link), which follows the text
-closely and provides all the details one could ever wish for.
+because both properties are proved by an almost trivial induction. Instead, the
+reader may refer to the formalisation, which closely follows the structure of
+this thesis and provides all the details one could ever wish for.
 
 
 \section{Size Substitutions}
@@ -265,25 +253,24 @@ Having size variables, we must say how to substitute for them. λST uses implici
 substitutions, so substitutions are not part of the calculus' grammar. We do,
 however, define a universe of simultaneous substitutions between given size
 contexts -- this will be helpful when we get to the model, where substitutions
-will correspond to morphisms between (the interpretations of) size contexts.
-Size substitutions and their properties are formalised in
-\texttt{Source.\allowbreak Size.\allowbreak Substitution.\allowbreak Canonical}.
+will correspond to morphisms between (interpretations of) size contexts. Size
+substitutions and their properties are formalised in \texttt{Source.\allowbreak
+  Size.\allowbreak Substitution.\allowbreak Canonical}.
 
 A \Def{size substitution} is a snoc-list of sizes. We write $()$ for the empty
 substitution and $\ssub{σ}{n}$ for the extension of $σ$ with a size $n$. The
 application of a substitution to a size, $\sub{n}{σ}$, is defined by recursion
 on $n$:
 \begin{Align*}
-  \sub{v_x}{()} &≔& v_x \\
   \sub{v_0}{\ssub{σ}{n}} &≔& n \\
   \sub{v_{x + 1}}{\ssub{σ}{n}} &≔& \sub{v_x}{σ} \\
   \sub{0}{σ} &≔& 0 \\
   \sub{(\ssuc{n})}{σ} & ≔ & \ssuc{\sub{n}{σ}} \\
   \sub{∞}{σ} &≔& ∞ \\
-  \sub{⋆}{σ} &≔& ⋆ \\
 \end{Align*}
-\figref{typing:ssub} gives the typing rules for size substitutions. The first
-equation above is impossible if $σ$ and $n$ are well-typed.
+\figref{typing:ssub} gives the typing rules for size substitutions. In the
+previous definition, there is no equation for the case $\sub{v_x}{()}$ because
+this is impossible if $n$ and $σ$ are well-typed.
 
 \begin{figure}
   \begin{mathpar}
@@ -359,10 +346,10 @@ n$ and $Δ ⊢ m$ as well as substitutions $σ ∶ Δ ⇒ Ω$, $τ ∶ Ω ⇒ Ω
        \Wk ∶ \ctx{Δ}{m} ⇒ Δ \\
        \Wk ≔ \Weaken(\Id).
      \end{gather*}
-   \item Assuming that $Δ ⊢ n < m$, the \Def{filling substitution} of $n$ is
+   \item Assuming that $Δ ⊢ n < m$, the \Def{singleton substitution} of $n$ is
      \begin{gather*}
-       \Fill(n) ∶ Δ ⇒ \ctx{Δ}{m} \\
-       \Fill(n) ≔ \ssub{\Id_Δ}{n}.
+       \Sing(n) ∶ Δ ⇒ \ctx{Δ}{m} \\
+       \Sing(n) ≔ \ssub{\Id_Δ}{n}.
      \end{gather*}
    \item The \Def{skipping substitution} is
      \begin{gather*}
@@ -371,8 +358,8 @@ n$ and $Δ ⊢ m$ as well as substitutions $σ ∶ Δ ⇒ Ω$, $τ ∶ Ω ⇒ Ω
      \end{gather*}
 \end{itemize}
 
-The first five of these substitutions are standard. The filling substitution
-$\Fill(n)$ instantiates the zeroth variable with $n$ while leaving everything
+The first five of these substitutions are standard. The singleton substitution
+$\Sing(n)$ instantiates the zeroth variable with $n$ while leaving everything
 else as it is. The skipping substitution is perhaps easier to understand if we
 switch to explicit variables for a moment: Given a size $n$ in the context $Δ,\,
 x < m$, $\sub{n}{\Skip}$ lives in the context $Δ,\, x < m, y < x$ and all
@@ -383,7 +370,7 @@ occurrences of $x$ in $n$ are replaced by $y$. In this sense, $\sub{n}{\Skip}$
 \section{Types}
 \label{sec:source:types}
 
-We move on to the type-level expressions of λST. This section is formalised in
+We move on to the type language of λST. This section is formalised in
 \texttt{Source.\allowbreak Type}.
 
 The types and contexts of λST are generated by the grammar in
@@ -498,13 +485,13 @@ formers to simplify the model (and particularly the formalisation). If they were
 constants, they would have the following types (with explicit variables for
 convenience):
 \begin{Align*}
-  \mathrm{zero} &∶& \AllE{x}{⋆}{\Nat{x}} \\
-  \mathrm{suc} &∶& \AllE{x}{⋆}{\AllE{y}{x}{\Nat{y} → \Nat{x}}} \\
-  \mathrm{caseNat}[T] &∶& \AllE{x}{⋆}{\Nat{x} → T → (\AllE{y}{x}{T}) → T} \\
-  \mathrm{cons} &∶& \Nat{∞} → \AllE{x}{⋆}{(\AllE{y}{x}{\Stream{y}}) → \Stream{x}} \\
-  \mathrm{head} &:& \AllE{x}{⋆}{\Stream{x} → \Nat{∞}} \\
-  \mathrm{tail} &:& \AllE{x}{⋆}{\Stream{x} → \AllE{y}{x}{\Stream{y}}} \\
-  \mathrm{fix}[T(∙)] &:& (\AllE{x}{⋆}{(\AllE{y}{x}{T(y)}) → T(x)}) → \AllE{x}{⋆}{T(x)}
+  \mathrm{zero} &∶& \AllE{x}{\Star}{\Nat{x}} \\
+  \mathrm{suc} &∶& \AllE{x}{\Star}{\AllE{y}{x}{\Nat{y} → \Nat{x}}} \\
+  \mathrm{caseNat}[T] &∶& \AllE{x}{\Star}{\Nat{x} → T → (\AllE{y}{x}{T}) → T} \\
+  \mathrm{cons} &∶& \Nat{∞} → \AllE{x}{\Star}{(\AllE{y}{x}{\Stream{y}}) → \Stream{x}} \\
+  \mathrm{head} &:& \AllE{x}{\Star}{\Stream{x} → \Nat{∞}} \\
+  \mathrm{tail} &:& \AllE{x}{\Star}{\Stream{x} → \AllE{y}{x}{\Stream{y}}} \\
+  \mathrm{fix}[T(∙)] &:& (\AllE{x}{\Star}{(\AllE{y}{x}{T(y)}) → T(x)}) → \AllE{x}{\Star}{T(x)}
 \end{Align*}
 The terms $\mathrm{zero}$ and $\mathrm{suc}$ serve as constructors of $\Nat{n}$.
 The type $\Nat{n}$ may be thought of as the set of natural numbers less than or
@@ -535,7 +522,7 @@ a $\Stream{n}$, returns its tail, which has one less element and is therefore an
 element of $\Stream{m}$ for any $m < n$. The constructor $\mathrm{cons}$ takes a
 function which generates a $\Stream{m}$ for any $m < n$ and prepends an element,
 returning a bigger $\Stream{n}$.\footnote{Another plausible type for
-  $\mathrm{cons}$ would be $\Nat{∞} → \AllE{x}{⋆}{\AllE{y}{x}{\Stream{y} →
+  $\mathrm{cons}$ would be $\Nat{∞} → \AllE{x}{\Star}{\AllE{y}{x}{\Stream{y} →
       \Stream{x}}}$, where the stream argument is a single stream instead of a
   family. I choose not to use this simpler type because if we define sized
   streams in Agda, $\mathrm{cons}$ has the type from the main text.}
@@ -569,30 +556,30 @@ size substitutions.
       {Δ; Γ ⊢ \slam{n}{t} ∶ \All{n}{T}}
 
     \inferrule{Δ; Γ ⊢ t ∶ \All{n}{T} \\ Δ ⊢ m < n}
-      {Δ; Γ ⊢ \sapp{t}{m} ∶ \sub{T}{\Fill(m)}}
+      {Δ; Γ ⊢ \sapp{t}{m} ∶ \sub{T}{\Sing(m)}}
 
-    \inferrule{Δ ⊢ n < ⋆ \\ Δ ⊢ Γ}{Δ; Γ ⊢ \zero{n} ∶ \Nat{n}}
+    \inferrule{Δ ⊢ n < \Star \\ Δ ⊢ Γ}{Δ; Γ ⊢ \zero{n} ∶ \Nat{n}}
 
-    \inferrule{Δ ⊢ n < ⋆ \\ Δ ⊢ m < n \\ Δ; Γ ⊢ i ∶ \Nat{m}}
+    \inferrule{Δ ⊢ n < \Star \\ Δ ⊢ m < n \\ Δ; Γ ⊢ i ∶ \Nat{m}}
       {Δ; Γ ⊢ \suc{n}{m}{i} ∶ \Nat{n}}
 
-    \inferrule{Δ ⊢ T \\ Δ ⊢ n < ⋆ \\ Δ; Γ ⊢ i ∶ \Nat{n} \\ Δ; Γ ⊢ z ∶ T \\
+    \inferrule{Δ ⊢ T \\ Δ ⊢ n < \Star \\ Δ; Γ ⊢ i ∶ \Nat{n} \\ Δ; Γ ⊢ z ∶ T \\
       Δ; Γ ⊢ s ∶ \All{n}{\Nat{v_0} → \sub{T}{\Wk}}}
       {Δ; Γ ⊢ \case{T}{n}{i}{z}{s} ∶ T}
 
-    \inferrule{Δ ⊢ n < ⋆ \\ Δ; Γ ⊢ i ∶ \Nat{∞} \\
+    \inferrule{Δ ⊢ n < \Star \\ Δ; Γ ⊢ i ∶ \Nat{∞} \\
       Δ; Γ ⊢ \V{is} ∶ \All{n}{\Stream{v_0}}}
       {Δ; Γ ⊢ \cons{n}{i}{\V{is}} ∶ \Stream{n}}
 
-    \inferrule{Δ ⊢ n < ⋆ \\ Δ; Γ ⊢ \V{is} ∶ \Stream{n}}
+    \inferrule{Δ ⊢ n < \Star \\ Δ; Γ ⊢ \V{is} ∶ \Stream{n}}
       {Δ; Γ ⊢ \head{n}{\V{is}} ∶ \Nat{∞}}
 
-    \inferrule{Δ ⊢ n < ⋆ \\ Δ; Γ ⊢ \V{is} ∶ \Stream{n} \\ Δ ⊢ m < n}
+    \inferrule{Δ ⊢ n < \Star \\ Δ; Γ ⊢ \V{is} ∶ \Stream{n} \\ Δ ⊢ m < n}
       {Δ; Γ ⊢ \tail{n}{\V{is}}{m} ∶ \Stream{m}}
 
-    \inferrule{\ctx{Δ}{⋆} ⊢ T \\
-      Δ; Γ ⊢ t ∶ \All{⋆}{(\All{v_0}{\sub{T}{\Skip}}) → T} \\ Δ ⊢ n < ⋆}
-      {Δ; Γ ⊢ \fix{T}{t}{n} ∶ \sub{T}{\Fill(n)}}
+    \inferrule{\ctx{Δ}{\Star} ⊢ T \\
+      Δ; Γ ⊢ t ∶ \All{\Star}{(\All{v_0}{\sub{T}{\Skip}}) → T} \\ Δ ⊢ n < \Star}
+      {Δ; Γ ⊢ \fix{T}{t}{n} ∶ \sub{T}{\Sing(n)}}
   \end{mathpar}
 
   \caption{Typing rules for terms}

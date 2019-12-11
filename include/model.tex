@@ -8,8 +8,8 @@ we get a dependent function $⟦f⟧ ∶ (n ∶ \Size) → ⟦T⟧(n)$, but this
 function is parametric in the size -- i.e., the result of $⟦f⟧$ is independent,
 in an appropriate sense, of which $n$ we apply it to.
 
-To develop this model, we first introduce its central structure, (propositional)
-reflexive graphs and their families. We then show how to interpret each
+To develop this model, I first introduce its central structure, (propositional)
+reflexive graphs and their families. I then show how to interpret each
 construct of λST (sizes, types and terms) in turn.
 
 
@@ -95,11 +95,11 @@ Note that our \enquote*{equality up to sizes} is now heterogeneous: We can ask
 whether an inhabitant of $T(δ)$ is equal to an inhabitant of $T(δ′)$, as long as
 $δ$ and $δ′$ are equal up to sizes. In the model, $δ$ and $δ′$ will be
 (interpretations of) size valuations, which are always equal up to sizes. We
-will thus be able to compare, for example, terms of $\Nat{n}$ and $\Nat{m}$ for
-arbitrary $n$ and $m$. This is necessary as well: If λST is indeed
-size-irrelevant and we take a term $t ∶ \All{n}{\Nat{v_0}}$, we should be able
-to conclude that $\sapp{t}{m} ≈ \sapp{t}{m′}$ even though these terms have types
-$\Nat{m}$ and $\Nat{m′}$ respectively.
+will thus be able to compare, for example, (interpretations of) terms in
+$\Nat{n}$ and $\Nat{m}$ for arbitrary $n$ and $m$. This is necessary as well: If
+λST is indeed size-irrelevant and we take a term $t ∶ \All{n}{\Nat{v_0}}$, we
+should be able to conclude that $\sapp{t}{m}$ and $\sapp{t}{m′}$ are equal up to
+sizes even though these terms have types $\Nat{m}$ and $\Nat{m′}$ respectively.
 
 Morphisms of PRGraph families are again relation-preserving functions; we just
 need to carry around some more indices. To be precise, a \Def{morphism between
@@ -112,9 +112,8 @@ such that
 \begin{displaymath}
   x ≈_{T,p} y ⇒ f(x) ≈_{U,p} f(y) \quad ∀ p ∶ δ ≈_Δ δ′;\; x ∶ T(δ);\; y ∶ T(δ′).
 \end{displaymath}
-
-PRGraph families over a given PRGraph $Δ$ and their morphisms again form an
-obvious category which we call $\PRGraphFams(Δ)$.
+PRGraph families over a given PRGraph $Δ$ and their morphisms form an obvious
+category which we call $\PRGraphFams(Δ)$.
 
 The last basic construction on PRGraph families is the interpretation of size
 substitution. Size substitutions $σ ∶ Δ ⇒ Ω$ will be modelled as PRGraph
@@ -220,52 +219,34 @@ $\PRGraphFams(Δ)$.
 With the central notions defined, we can proceed to model λST. We start with
 sizes, whose interpretation is formalised in \texttt{Model.\allowbreak Size}.
 
-A (semantic) \Def{size} is either a natural number or $∞$ or $⋆$. We define a
-strict order $<$ on sizes by
+A \Def{semantic size} is an ordinal below $ω·2$. These ordinals are either
+natural numbers or they have the form $ω + i$ for some $i ∈ ℕ$. They are ordered
+by the usual strict comparison of sizes, meaning
 \begin{displaymath}
-  0 < 1 < \dots < ∞ < ⋆.
+  0 < 1 < \dots < ω < ω + 1 < \dots
 \end{displaymath}
 The reflexive closure of $<$ is called $≤$. We write $\Size$ for the type of
 sizes and $\Size_{<n}$ for the type of sizes $m$ such that $m < n$.
 
-The orders $<$ and $≤$ are straightforward \enquote*{extensions} of $<_ℕ$ and
-$≤_ℕ$ (the usual orders on natural numbers) and so largely behave as expected.
-In particular, we will need the following properties, which are all easy to
-prove.
+% The orders $<$ and $≤$ largely behave as expected. In particular, we will need
+% the following properties, which are all easy to prove.
 
-\begin{lemma}[Properties of $<$ and $≤$]
-  \label{lem:<-props}
-  For arbitrary sizes $n$, $m$, $o$, we have:
-  \begin{enumerate}
-    \item $<$ and $≤$ are transitive.
-    \item If $n ≤ m$ and $m < o$ then $n < o$. If $n < m$ and $m ≤ o$ then $n < o$.
-    \item If $n, m ∈ ℕ$ and $n ≤_ℕ m$ then $n ≤ m$.
-    \item $0 ≤ n$.
-    \item If $n ∈ ℕ$ and $n < m$ then $n + 1 ≤ m$.
-    \item If $n ∈ ℕ$ and $n + 1 ≤ m$ then $n < m$.
-    \item $<$ is irreflexive, $≤$ is antisymmetric.
-    \item $<$ is well-founded, i.e.\ there is no infinite descending chain $n₀ >
-      n₁ > \dots$.
-  \end{enumerate}
-\end{lemma}
+% \begin{lemma}[Properties of $<$ and $≤$]
+%   \label{lem:<-props}
+%   For arbitrary sizes $n$, $m$, $o$, we have:
+%   \begin{enumerate}
+%     \item $<$ and $≤$ are transitive.
+%     \item If $n ≤ m$ and $m < o$ then $n < o$. If $n < m$ and $m ≤ o$ then $n < o$.
+%     \item $0 ≤ n$.
+%     \item If $n < m$ then $n + 1 ≤ m$.
+%     \item If $n + 1 ≤ m$ then $n < m$.
+%     \item $<$ is irreflexive, $≤$ is antisymmetric.
+%     \item $<$ is well-founded, i.e.\ there is no infinite descending chain $n₀ >
+%       n₁ > \dots$.
+%   \end{enumerate}
+% \end{lemma}
 
-To interpret the successor of a size $n$, $\ssuc{n}$, we need an appropriate
-semantic successor. We thus define the \Def{successor} of a size $n$ as
-\begin{displaymath}
-  \mssuc(n) ≔
-    \begin{cases}
-      n + 1 & \qquad \text{if $n ∈ ℕ$} \\
-      n & \qquad \text{otherwise}
-    \end{cases}
-\end{displaymath}
-This successor is not quite well-behaved with respect to the strict order: we
-have $\mssuc(∞) = ∞$ and thus not necessarily $n < \mssuc(n)$. However, we do
-have $n < \mssuc(n)$ if $n < ∞$ (which is equivalent to $n ∈ ℕ$), so we can
-interpret the successor rule of the syntactic $<$ relation from
-\figref{typing:order}. Our size successor also preserves the relations $<$ and
-$≤$.
-
-This is all the infrastructure we need to model sizes. A size context $Δ$ is
+Syntactic sizes are now modelled by semantic sizes. A size context $Δ$ is
 interpreted as an iterated product of sizes. A well-typed size in $Δ$ is
 interpreted as a function from $Δ$ to $\Size$. These interpretations are
 mutually recursively defined:
@@ -276,9 +257,8 @@ mutually recursively defined:
   ⟦v_0⟧(δ, n) &≔& n \\
   ⟦v_{x+1}⟧(δ, n) &≔& ⟦v_x⟧(δ) \\
   ⟦0⟧(δ) &≔& 0 \\
-  ⟦\ssuc{n}⟧(δ) &≔& \mssuc(⟦n⟧(δ)) \\
-  ⟦∞⟧(δ) &≔& ∞ \\
-  ⟦⋆⟧(δ) &≔& ⋆ \\
+  ⟦\ssuc{n}⟧(δ) &≔& ⟦n⟧(δ) + 1 \\
+  ⟦∞⟧(δ) &≔& ω \\
 \end{AlignAnnot*}
 
 We will also consider $⟦Δ⟧$ as a PRGraph whose underlying type is $⟦Δ⟧$ and
@@ -295,14 +275,7 @@ type $\Size$ as a trivial PRGraph).
   interesting features).
 \end{remark}
 
-An important property of our interpretation of sizes is that the syntactic $<$
-relation implies the semantic one. To prove this, we need a helper lemma about
-weakening.
-
-\begin{lemma}[Interpretation of $\wk$]
-  \label{lem:⟦wk⟧}
-  If $Δ ⊢ n$, $Δ ⊢ m$ and $(δ, o) ∶ ⟦\ctx{Δ}{n}⟧$ then $⟦\wk(m)⟧(δ, o) = ⟦m⟧(δ)$.
-\end{lemma}
+Our interpretation of sizes is well-behaved with respect to size comparison:
 
 \begin{lemma}[Interpretation of $<$]
   \label{lem:⟦<⟧}
@@ -310,15 +283,15 @@ weakening.
 \end{lemma}
 
 \begin{proof}
-  By induction on the derivation of $Δ ⊢ n < m$. In the variable case, we need
-  to use Lemma \ref{lem:⟦wk⟧}. The other cases follow either directly from the
-  definition of $<$ or from the properties of $<$ from Lemma \ref{lem:<-props}.
+  By induction on the derivation of $Δ ⊢ n < m$. In the case where $n$ is a
+  variable, we need to use the following fact: given $Δ ⊢ n$, $Δ ⊢ m$ and $(δ,
+  o) ∶ ⟦\ctx{Δ}{n}⟧$, we have $⟦\wk(m)⟧(δ, o) = ⟦m⟧(δ)$.
 \end{proof}
 
 This concludes the interpretation of sizes. Next, we interpret size
-substitutions as functions between interpretations of size contexts. For
-reasons explained in \secref{formalisation:sub}, the results presented here are
-not exactly those formalised.
+substitutions as functions between interpretations of size contexts. As
+explained in \secref{formalisation:sub}, the results presented here are not
+exactly those formalised.
 
 Let $σ ∶ Δ ⇒ Ω$ be a well-typed substitution. The interpretation of $σ$ is a
 function from $⟦Δ⟧$ to $⟦Ω⟧$ defined by recursion on the derivation of $σ ∶ Δ ⇒
@@ -347,14 +320,14 @@ behave when applied to a size valuation.
 
 \begin{lemma}[Interpretation of specific size substitutions]
   \label{lem:sub-app}
-  Assume $(ω, m, k) ∶ ⟦\ctx{\ctx{Ω}{n}}{v_0}⟧$, $σ ∶ Δ → Ω$ and $τ ∶ Ω → Ω′$. Then we have
+  Assume $(δ, m, k) ∶ ⟦\ctx{\ctx{Ω}{n}}{v_0}⟧$, $σ ∶ Δ → Ω$ and $τ ∶ Ω → Ω′$. Then we have
   \begin{AlignAnnot*}
-    ⟦\Id⟧(ω) &=& ω \\
-    ⟦σ \fcomp τ⟧(ω) &=& ⟦τ⟧(⟦σ⟧(ω)) \\
-    ⟦\Wk⟧(ω, m) &=& ω \\
-    ⟦\Fill(o)⟧(ω) &=& (ω, ⟦o⟧(ω)) & \quad (o < ⟦n⟧(ω)) \\
-    ⟦\Lift(σ)⟧(ω, m) &=& (⟦σ⟧(ω), m) \\
-    ⟦\Skip⟧(ω, m, k) &=& (ω, k)
+    ⟦\Id⟧(δ) &=& δ \\
+    ⟦σ \fcomp τ⟧(δ) &=& ⟦τ⟧(⟦σ⟧(δ)) \\
+    ⟦\Wk⟧(δ, m) &=& δ \\
+    ⟦\Sing(o)⟧(δ) &=& (ω, ⟦o⟧(δ)) & \quad (o < ⟦n⟧(δ)) \\
+    ⟦\Lift(σ)⟧(δ, m) &=& (⟦σ⟧(δ), m) \\
+    ⟦\Skip⟧(δ, m, k) &=& (δ, k)
   \end{AlignAnnot*}
 \end{lemma}
 
@@ -381,11 +354,11 @@ family of PRGraphs:
 
 Streams are interpreted in a similar fashion. The interpretation of $Δ ⊢
 \Stream{n}$ is the following family of PRGraphs:
-\begin{Align*}
+\begin{AlignAnnot*}
   ⟦\Stream{n}⟧(δ) &≔& ℕ_{≤ ⟦n⟧(δ)} → ℕ \\
-  f ≈_{⟦\Stream{n}⟧,p} g &≔& f = g.
-\end{Align*}
-Here, $=$ means extensional equality of functions.
+  f ≈_{⟦\Stream{n}⟧,p} g &≔& \all{m ≤ \min(⟦n⟧(δ), ⟦n⟧(δ′))}{f(m) = g(m)} &\quad
+    (p ∶ δ ≈_{Δ} δ′)
+\end{AlignAnnot*}
 
 The function space is interpreted by the exponential of PRGraph families from
 \secref{model:exponential}:
@@ -416,7 +389,7 @@ is the PRGraph family $Π(⟦n⟧, ⟦T⟧)$ with
   f ≈_{Π(n, T)} g &≔& ∀ m, m′.\; f(m) ≈_T g(m′).
 \end{AlignAnnot*}
 If we think of $≈_T$ as equality up to sizes, $⟦\All{n}{T}⟧$ reflects
-the intuition that when we apply a term of $\All{n}{T}$ to a size $m$, it does
+the intuition that when we apply a term in $\All{n}{T}$ to a size $m$, it does
 not matter -- up to sizes -- which $m$ we choose.
 
 Having interpreted all types, we can now move to type contexts. These are mere
@@ -432,7 +405,7 @@ both defined in \secref{model:product}.
 With this, we have interpreted all type-level constructs of λST. What remains is
 to prove a lemma about the correspondence between syntactic and semantic
 substitution. To do that, we need some additional lemmas about semantic
-substitution first.
+substitution first:
 
 \begin{lemma}[Substitution in exponentials]
   Let $T$, $U$ be PRGraph families over $Ω$ and $σ ∶ Δ → Ω$ a PRGraph morphism. Then
@@ -440,15 +413,6 @@ substitution first.
     \sub{(T ↝ U)}{σ} = \sub{T}{σ} ↝ \sub{U}{σ}.
   \end{displaymath}
 \end{lemma}
-
-(TODO maybe prove this)
-
-\begin{remark}
-  The correct equality for PRGraph families is isomorphism in $\PRGraphFams(Δ)$,
-  so the $=$ above really means $≅$. This abuse of notation is justified because
-  in the formalisation, we can prove that isomorphic PRGraph families are in
-  fact propositionally equal (by univalence).
-\end{remark}
 
 \begin{lemma}[Substitution in quantifications]
   Let $T$ be a PRGraph family over $⟦\ctx{Ω}{n}⟧$ and $σ ∶ Δ ⇒ Ω$ a well-typed
@@ -458,10 +422,15 @@ substitution first.
   \end{displaymath}
 \end{lemma}
 
-(TODO maybe prove this)
+\begin{remark}
+  The correct equality for PRGraph families is isomorphism in $\PRGraphFams(Δ)$,
+  so the $=$ above really means $≅$. This abuse of notation is justified because
+  in the formalisation, isomorphic PRGraph families are in fact propositionally
+  equal (by univalence).
+\end{remark}
 
 From the previous two lemmas follows the main substitution lemma for types and
-contexts.
+contexts:
 
 \begin{lemma}[Interpretation of substitution in types and contexts is correct]
   \label{lem:⟦subT⟧}
@@ -476,10 +445,10 @@ contexts.
 \section{Terms}
 \label{sec:model:terms}
 
-Well-typed terms (or, more precisely, judgments $Δ;Γ ⊢ t ∶ T$) are interpreted
-as morphisms between the PRGraph families $⟦Γ⟧$ and $⟦T⟧$. In this section, we
-show a natural interpretation of each of the terms of λST. Formalisations of
-these definitions can be found in \texttt{Model.\allowbreak Term}.
+Well-typed terms (more precisely, judgments $Δ;Γ ⊢ t ∶ T$) are interpreted as
+morphisms between the PRGraph families $⟦Γ⟧$ and $⟦T⟧$. In this section, we show
+a natural interpretation of each of the terms of λST. Formalisations of these
+definitions can be found in \texttt{Model.\allowbreak Term}.
 
 \subsection{Functions}
 \label{sec:model:terms:functions}
@@ -522,7 +491,7 @@ applications. Their typing rules are reproduced in
       {Δ; Γ ⊢ \slam{n}{t} ∶ \All{n}{T}}
 
     \inferrule{Δ; Γ ⊢ t ∶ \All{n}{T} \\ Δ ⊢ m < n}
-      {Δ; Γ ⊢ \sapp{t}{m} ∶ \sub{T}{\Fill(m)}}
+      {Δ; Γ ⊢ \sapp{t}{m} ∶ \sub{T}{\Sing(m)}}
   \end{mathpar}
 
   \caption{Typing rules for terms related to size quantification}
@@ -559,13 +528,13 @@ Moving to size application, we may assume a morphism
 \end{displaymath}
 and we construct the morphism
 \begin{AlignAnnot*}
-  ⟦\sapp{t}{m}⟧_δ &∶& ⟦Γ⟧(δ) → ⟦\sub{T}{\Fill(m)}⟧ \\
-    &=& ⟦Γ⟧(δ) → ⟦T⟧(δ, ⟦m⟧(δ)) &\quad \text{(by Lemmas \ref{lem:⟦subT⟧},
+  ⟦\sapp{t}{m}⟧_δ &∶& ⟦Γ⟧(δ) → ⟦\sub{T}{\Sing(m)}⟧ \\
+    &=& ⟦Γ⟧(δ) → ⟦T⟧(δ, ⟦m⟧(δ)) &\quad \text{(by Lemmas \ref{lem:⟦subT⟧} and
       \ref{lem:sub-app})} \\
   ⟦\sapp{t}{m}⟧_δ(γ) &≔& ⟦t⟧_δ(γ, ⟦m⟧(δ)).
 \end{AlignAnnot*}
 The size $⟦m⟧(δ)$ is a valid argument to $⟦t⟧_δ(γ)$ because we have $Δ ⊢ m < n$
-and thus by Lemma \ref{lem:⟦<⟧} $⟦m⟧(δ) < ⟦n⟧(δ)$ for all $δ$. $⟦\sapp{t}{m}⟧$
+and thus (by Lemma \ref{lem:⟦<⟧}) $⟦m⟧(δ) < ⟦n⟧(δ)$ for all $δ$. $⟦\sapp{t}{m}⟧$
 is a morphism of PRGraph families because $⟦t⟧$ is.
 
 
@@ -573,18 +542,18 @@ is a morphism of PRGraph families because $⟦t⟧$ is.
 \label{sec:model:terms:nat}
 
 The sized natural number type $\Nat{n}$ has two constructors, zero and
-successor, and the eliminator $\mathrm{caseNat}$. Their typing rules are
+successor, and an eliminator $\mathrm{caseNat}$. Their typing rules are
 reproduced in \figref{typing:nat} for reference. Recall that $\Nat{n}$ is
 modelled by the type of natural numbers less than or equal to a size $n$.
 
 \begin{figure}
   \begin{mathpar}
-    \inferrule{Δ ⊢ n < ⋆ \\ Δ ⊢ Γ}{Δ; Γ ⊢ \zero{n} ∶ \Nat{n}}
+    \inferrule{Δ ⊢ n < \Star \\ Δ ⊢ Γ}{Δ; Γ ⊢ \zero{n} ∶ \Nat{n}}
 
-    \inferrule{Δ ⊢ n < ⋆ \\ Δ ⊢ m < n \\ Δ; Γ ⊢ i ∶ \Nat{m}}
+    \inferrule{Δ ⊢ n < \Star \\ Δ ⊢ m < n \\ Δ; Γ ⊢ i ∶ \Nat{m}}
     {Δ; Γ ⊢ \suc{n}{m}{i} ∶ \Nat{n}}
 
-    \inferrule{Δ ⊢ T \\ Δ ⊢ n < ⋆ \\ Δ; Γ ⊢ i ∶ \Nat{n} \\ Δ; Γ ⊢ z ∶ T \\
+    \inferrule{Δ ⊢ T \\ Δ ⊢ n < \Star \\ Δ; Γ ⊢ i ∶ \Nat{n} \\ Δ; Γ ⊢ z ∶ T \\
       Δ; Γ ⊢ s ∶ \All{n}{\Nat{v_0} → \sub{T}{\Wk}}}
     {Δ; Γ ⊢ \case{T}{n}{i}{z}{s} ∶ T}
   \end{mathpar}
@@ -596,7 +565,7 @@ The term $\zero{n}$ is interpreted by
 \begin{displaymath}
   ⟦\zero{n}⟧_δ(γ) ≔ 0.
 \end{displaymath}
-This is valid since $0 ≤ n$ for all $n$ (by Lemma \ref{lem:<-props}).
+This is valid since $0 ≤ n$ for all $n$.
 
 To interpret the successor, given a morphism $⟦i⟧ ∶ ⟦Γ⟧ → ⟦\Nat{n}⟧$, we define
 \begin{displaymath}
@@ -630,14 +599,14 @@ the type of functions $ℕ_{≤n} → ℕ$.
 
 \begin{figure}
   \begin{mathpar}
-    \inferrule{Δ ⊢ n < ⋆ \\ Δ; Γ ⊢ i ∶ \Nat{∞} \\
+    \inferrule{Δ ⊢ n < \Star \\ Δ; Γ ⊢ i ∶ \Nat{∞} \\
       Δ; Γ ⊢ \V{is} ∶ \All{n}{\Stream{v_0}}}
       {Δ; Γ ⊢ \cons{n}{i}{\V{is}} ∶ \Stream{n}}
 
-    \inferrule{Δ ⊢ n < ⋆ \\ Δ; Γ ⊢ \V{is} ∶ \Stream{n}}
+    \inferrule{Δ ⊢ n < \Star \\ Δ; Γ ⊢ \V{is} ∶ \Stream{n}}
       {Δ; Γ ⊢ \head{n}{\V{is}} ∶ \Nat{∞}}
 
-    \inferrule{Δ ⊢ n < ⋆ \\ Δ; Γ ⊢ \V{is} ∶ \Stream{n} \\ Δ ⊢ m < n}
+    \inferrule{Δ ⊢ n < \Star \\ Δ; Γ ⊢ \V{is} ∶ \Stream{n} \\ Δ ⊢ m < n}
       {Δ; Γ ⊢ \tail{n}{\V{is}}{m} ∶ \Stream{m}}
   \end{mathpar}
   \caption{Typing rules for terms related to $\Stream{n}$}
@@ -649,12 +618,12 @@ components
 \begin{Align*}
   ⟦i⟧_δ
   &∶& ⟦Γ⟧(δ) → ⟦\Nat{∞}⟧(δ) \\
-  &=& ⟦Γ⟧(δ) → ℕ_{<∞} \\
+  &=& ⟦Γ⟧(δ) → ℕ_{<ω} \\
   &=& ⟦Γ⟧(δ) → ℕ \\
   ⟦\V{is}⟧_δ
   &∶& ⟦Γ⟧(δ) → ⟦\All{n}{\Stream{v_0}}⟧(δ) \\
   &=& ⟦Γ⟧(δ) → \Param(⟦\Stream{v_0}⟧, δ) \\
-  &≈& ⟦Γ⟧(δ) → (m ∶ \Size_{<⟦n⟧(δ)}) → ⟦\Stream{v_0}⟧(δ, n) \\
+  &≈& ⟦Γ⟧(δ) → (m ∶ \Size_{<⟦n⟧(δ)}) → ⟦\Stream{v_0}⟧(δ, m) \\
   &=& ⟦Γ⟧(δ) → (m ∶ \Size_{<⟦n⟧(δ)}) → ℕ_{≤m} → ℕ.
 \end{Align*}
 The $≈$ on the penultimate line indicates that we are ignoring the parametricity
@@ -688,24 +657,23 @@ The application of $k + 1$ is well-typed because $k ≤ ⟦m⟧(δ)$ and $⟦m�
 \subsection{Fixpoint}
 \label{sec:model:terms:fixpoint}
 
-The sized fixpoint combinator is at the heart of λST, being the sole means of
-recursion. As such, its interpretation is also recursive but otherwise
-straightforward.
+The sized fixpoint combinator is the sole means of recursion in λST. As such,
+its interpretation is also recursive but otherwise mostly straightforward.
 
 Recall the typing rule of $\mathrm{fix}$:
 \begin{displaymath}
   \centering
-  \inferrule{\ctx{Δ}{⋆} ⊢ T \\
-    Δ; Γ ⊢ t ∶ \All{⋆}{(\All{v_0}{\sub{T}{\Skip}}) → T} \\ Δ ⊢ n < ⋆}
-  {Δ; Γ ⊢ \fix{T}{t}{n} ∶ \sub{T}{\Fill(n)}}
+  \inferrule{\ctx{Δ}{\Star} ⊢ T \\
+    Δ; Γ ⊢ t ∶ \All{\Star}{(\All{v_0}{\sub{T}{\Skip}}) → T} \\ Δ ⊢ n < \Star}
+  {Δ; Γ ⊢ \fix{T}{t}{n} ∶ \sub{T}{\Sing(n)}}
 \end{displaymath}
 According to this rule, we may assume a morphism $⟦t⟧$ with components
 \begin{Align*}
   ⟦t⟧_δ
-    &∶& ⟦Γ⟧(δ) → ⟦\All{⋆}{(\All{v_0}{\sub{T}{\Skip}}) → T}⟧(δ) \\
-    &=& ⟦Γ⟧(δ) → (n ∶ \Size_{<⋆}) → ((m ∶ \Size_{<n}) → ⟦T⟧(⟦\Skip⟧(δ, n, m))) →
+    &∶& ⟦Γ⟧(δ) → ⟦\All{\Star}{(\All{v_0}{\sub{T}{\Skip}}) → T}⟧(δ) \\
+    &=& ⟦Γ⟧(δ) → (n ∶ \Size_{< ω + 1}) → ((m ∶ \Size_{<n}) → ⟦T⟧(⟦\Skip⟧(δ, n, m))) →
     ⟦T⟧(δ, n) \\
-    &=& ⟦Γ⟧(δ) → (n ∶ \Size_{<⋆}) → ((m ∶ \Size_{<n}) → ⟦T⟧(δ, m)) → ⟦T⟧(δ, n)
+    &=& ⟦Γ⟧(δ) → (n ∶ \Size_{< ω + 1}) → ((m ∶ \Size_{<n}) → ⟦T⟧(δ, m)) → ⟦T⟧(δ, n)
 \end{Align*}
 The first step in this chain uses the fact that $⟦\sub{T}{\Skip}⟧ =
 \sub{⟦T⟧}{⟦\Skip⟧}$ (Lemma \ref{lem:⟦subT⟧}). In the second step, we simplify
@@ -713,7 +681,7 @@ $⟦\Skip⟧(δ, n, m)$ to $(δ, m)$ according to Lemma \ref{lem:sub-app}.
 
 Given such a $⟦t⟧$, we first define the following auxiliary function:
 \begin{gather*}
-  f_δ ∶ ⟦Γ⟧(δ) → (n ∶ \Size_{<⋆}) → ⟦T⟧(δ, n) \\
+  f_δ ∶ ⟦Γ⟧(δ) → (n ∶ \Size_{< ω + 1}) → ⟦T⟧(δ, n) \\
   f_δ(γ, n) ≔ ⟦t⟧_δ(γ, n, \fun{m}{f_δ(γ, m)})
 \end{gather*}
 This function is a standard fixpoint combinator. It terminates because the
@@ -723,7 +691,7 @@ decreases the size argument must eventually stop. Interpreting $\mathrm{fix}$ is
 then just a matter of applying $f$:
 \begin{Align*}
   ⟦\fix{T}{t}{n}⟧_δ
-    &∶& ⟦Γ⟧(δ) → ⟦\sub{T}{\Fill{n}}⟧(δ) \\
+    &∶& ⟦Γ⟧(δ) → ⟦\sub{T}{\Sing(n)}⟧(δ) \\
     &=& ⟦Γ⟧(δ) → ⟦T⟧(δ, ⟦n⟧(δ)) \\
   ⟦\fix{T}{t}{n}⟧_δ(γ) &≔& f_δ(γ, ⟦n⟧(δ)).
 \end{Align*}
@@ -753,7 +721,6 @@ fully would be significant additional work; I briefly return to them in
 
 What we do get from the model, however, is a denotational semantics of λST which
 gives some \enquote*{evidence} that the calculus is size-irrelevant. Our model
-construction can be read as an interpreter from λST into Agda and this
+construction can be read as an interpreter from λST into Agda, and this
 interpreter must, due to the parametricity requirement in our interpretation of
-size quantification, produce size-irrelevant functions. That at least inspires
-some confidence that syntactic size irrelevance should also hold.
+size quantification, produce size-irrelevant functions.

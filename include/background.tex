@@ -19,7 +19,7 @@ usual definition of addition for natural numbers:
 \end{code}
 
 In the recursive call in the second equation, \icode{n} is a subterm of the
-original input, \icode{suc n}. Since this is the only recursive call, the
+original input, \icode{suc~n}. Since this is the only recursive call, the
 definition as a whole is structurally recursive and is accepted by Agda's
 termination checker. This is justified because the natural numbers are
 inductively defined, so any closed term of type \icode{ℕ} consists of finitely
@@ -36,12 +36,12 @@ First, structural recursion is based on the syntactic notion of a subterm. This
 makes termination checking non-compositional: We cannot, in general, replace a
 term with another term of the same type in a recursive definition and still
 expect the definition to typecheck. For a contrived example, take our previous
-definition of \icode{plus} and replace the \icode{n} by \icode{id n} in the
+definition of \icode{plus} and replace the \icode{n} by \icode{id~n} in the
 recursive call. The identity function \icode{id} just returns its argument, so
 the two terms are obviously equivalent, but a naive termination checker would
-not accept the modified definition -- after all, \icode{id n} is not a syntactic
-subterm of \icode{suc n}. (Agda's termination checker is smart enough to
-evaluate \icode{id n} to \icode{n} and therefore accepts the modified
+not accept the modified definition -- after all, \icode{id~n} is not a syntactic
+subterm of \icode{suc~n}. (Agda's termination checker is smart enough to
+evaluate \icode{id~n} to \icode{n} and therefore accepts the modified
 definition.)
 
 Unfortunately, this non-compositionality bites not only in such contrived
@@ -75,10 +75,10 @@ specialised version of \icode{mapList}.)
 
 A second problem of termination checkers based on structural recursion is that
 it is tempting to extend them with various heuristics to deal with more
-complicated variants of structural recursion: Mutually recursive definitions,
-lexicographic termination measures, nested inductive datatypes like our rose
-trees and so on. As a result, the termination checkers of both Coq and Agda have
-become quite complex, and with complexity come bugs: Both Coq and Agda have
+complicated variants of structural recursion such as mutually recursive
+definitions, lexicographic termination measures and nested inductive datatypes
+like our rose trees. As a result, the termination checkers of both Coq and Agda
+have become quite complex, and with complexity come bugs: Both Coq and Agda have
 shipped versions with errors in their termination checkers that made the systems
 inconsistent \cite{coqbug2013,agdabug2013}.
 
@@ -91,8 +91,8 @@ Instead, we must demand that the function is \emph{productive}, meaning that it
 generates any finite prefix of its output in finite time. In other words, any
 finite observation of an infinite stream must terminate. There are syntactic
 methods, analogous to structural recursion, to ensure productivity, but they are
-highly inflexible. Sized types, on the other hand, when combined with
-copatterns, yield a practical productivity checker mostly for free.
+very inflexible. Sized types, on the other hand, when combined with copatterns,
+yield a practical productivity checker mostly for free.
 
 To address these problems of structural termination checkers, we look to
 alternative approaches to termination checking and in particular to sized types.
@@ -175,14 +175,13 @@ the termination checker needs is encoded at the type level, so we can freely
 abstract over terms. Sized types are also mostly straightforward to implement,
 being just an extension of the type system.\footnote{I say \enquote{mostly}
   because Agda's current implementation includes some subtle checks to prevent
-  inconsistent size assumptions, which is necessary to prevent nonterminating
-  programs from getting through. Agda also has a sophisticated size inference
-  engine (so we could actually leave all the sizes in our example code
-  implicit), but this engine is not part of the trusted computing base.} And
-sized types, when combined with copatterns \cite{abel2016}, yield an elegant
-productivity checking mechanism for corecursive definitions. Thus, we have
-addressed all the problems with structural termination checking that we had
-identified in \secref{background:termination}.
+  inconsistent size assumptions, which is necessary to preserve decidability of
+  type checking. Agda also has a sophisticated size inference engine (so we
+  could have left all sizes in our example code implicit), but this engine is
+  not part of the trusted computing base.} And sized types, when combined with
+copatterns \cite{abel2016}, yield an elegant productivity checking mechanism for
+corecursive definitions. Thus, we have addressed all the problems with
+structural termination checking from \secref{background:termination}.
 
 Unfortunately, such convenience currently comes at the ultimate price: Agda's
 implementation of sized types is, and has been for some time, inconsistent. The
