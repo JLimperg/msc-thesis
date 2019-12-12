@@ -9,8 +9,8 @@ the task at hand. They are both based on the idea of interpreting size contexts
 as preorder categories, types as functors from a size context category into the
 category of sets and terms as natural transformation between such functors. A
 model like this would yield a sort of size irrelevance in the form of the
-naturality of term interpretations: If the interpretation of a term in size
-context $Δ$ is natural in $⟦Δ⟧$ then $⟦Δ⟧$ must be essentially irrelevant. In
+naturality of term interpretations: if the interpretation of a term in size
+context $Δ$ is natural in $⟦Δ⟧$, then $⟦Δ⟧$ must be essentially irrelevant. In
 the next two sections, I briefly describe these potential models and why they do
 not, in fact, model λST.
 
@@ -42,13 +42,13 @@ as functors from $⟦Δ⟧$ to $\Sets$, the category of sets (or rather, since w
 in type theory, types). These are \enquote*{covariant presheaves}, meaning
 presheaves over the opposite category of $⟦Δ⟧$, $\Op{⟦Δ⟧}$.
 
-One problem with this approach becomes apparent already at this stage: The type
+One problem with this approach becomes apparent already at this stage: the type
 $\Stream{n}$ of sized streams has no natural interpretation as a covariant
 functor from $⟦Δ⟧$ to $\Sets$. We would like to define, as before,
 \begin{displaymath}
   ⟦\Stream{n}⟧(δ) ≔ \Size_{<⟦n⟧(δ)} → ℕ
 \end{displaymath}
-but this is no functor: For $δ ≤ δ′$ we have $⟦n⟧(δ) ≤ ⟦n⟧(δ′)$ by functoriality
+but this is no functor: for $δ ≤ δ′$ we have $⟦n⟧(δ) ≤ ⟦n⟧(δ′)$ by functoriality
 of $⟦n⟧$, but there is no appropriate function from $\Size_{<⟦n⟧(δ)} → ℕ$ to
 $\Size_{<⟦n⟧(δ′)} → ℕ$. (TODO is this correct?) The root cause of this issue is
 ⟦\Stream{n}⟧(δ) is naturally contravariant in $δ$.
@@ -63,7 +63,7 @@ issues. The other types of λST have more or less natural interpretations:
 Sized natural numbers $\Nat{n}$ are interpreted as before. The function space $T
 → U$ is modelled by the exponential of presheaves, which ensures that we can
 also model abstractions and applications. The exponential is defined using a
-monotonisation \enquote*{trick}: The function space $⟦T⟧(δ) → ⟦U⟧(δ)$ would not
+monotonisation \enquote*{trick}: the function space $⟦T⟧(δ) → ⟦U⟧(δ)$ would not
 be functorial due to the negative occurrence of $δ$, but we can force
 functoriality by quantifying over $δ′ ≥ δ$. The same approach also allows us to
 interpret size quantification, where again the natural interpretation without
@@ -71,7 +71,7 @@ monotonisation would not be functorial.
 
 Unfortunately, while this monotonisation trick works for the exponential, it
 does not yield an appropriate model of size quantification. This is not very
-surprising: In the above interpretation of $\All{n}{T}$, the size that we
+surprising: in the above interpretation of $\All{n}{T}$, the size that we
 introduce in the model, $m$, is not, in general, smaller than $⟦n⟧(δ)$. The
 bound $m < ⟦n⟧(δ′)$ does not actually restrict the domain of $m$ since $δ′ ≥ δ$
 and thus $⟦n⟧(δ′) ≥ ⟦n⟧(δ)$. The reader is invited to check that this prevents
@@ -83,7 +83,7 @@ us from interpreting the fixpoint term $\mathrm{fix}$.
 
 Seeing that the major problem with the previous model was the need to
 force-monotonise the interpretation of size quantification, we now consider a
-model based on \emph{contravariant} presheaves (i.e., just presheaves). Size
+model based on \emph{contravariant} presheaves (i.e.\ just presheaves). Size
 quantification is naturally contravariant, so no trickery is necessary to
 interpret it. Indeed, this approach leads to a more satisfactory interpretation
 of types (sizes, size contexts etc.\ are modelled as before):
@@ -94,17 +94,17 @@ of types (sizes, size contexts etc.\ are modelled as before):
 \end{Align*}
 
 With the switch to contravariant functors, we lose the ability to model sized
-natural numbers, but gain the ability to model sized streams. The function space
-is interpreted as an exponential of presheaves, as before. Size quantification
-does not require monotonisation any more, and indeed this approach appears, on
-the surface, to support natural interpretations of all terms including
-$\mathrm{fix}$.\footnote{The above interpretation of size quantification is not quite
-  accurate: To successfully model λST, we would need to restrict it to allow only
-  size-parametric functions, as in the reflexive graph model. However, this is
-  unimportant for the rest of the discussion.}
+natural numbers, but gain the ability to model sized streams. As before, the
+function space is interpreted as an exponential of presheaves. Size
+quantification does not require monotonisation any more, and indeed this
+approach appears, on the surface, to support natural interpretations of all
+terms including $\mathrm{fix}$.\footnote{The above interpretation of size
+  quantification is not quite accurate: to successfully model λST, we would need
+  to restrict it to allow only size-parametric functions, as in the reflexive
+  graph model. However, this is unimportant for the rest of the discussion.}
 
 Alas, the contravariant presheaf approach still fails, this time due to a more
-subtle problem: The substitution lemma for size substitution in types does not
+subtle problem: the substitution lemma for size substitution in types does not
 hold. This means that in general we have
 \begin{displaymath}
   ⟦\sub{T}{σ}⟧ ≠ \sub{⟦T⟧}{⟦σ⟧}.
@@ -115,7 +115,7 @@ in the reflexive graph model, a well-typed substitution $σ ∶ Δ ⇒ Ω$ was
 interpreted as a function between the types $⟦Δ⟧$ and $⟦Ω⟧$. Here, we upgrade
 this interpretation to a functor between the categories $⟦Δ⟧$ and $⟦Ω⟧$, but the
 underlying function remains the same. Semantic substitution is composition:
-Given a type $T$ in size context $Ω$, whose interpretation is a functor from
+given a type $T$ in size context $Ω$, whose interpretation is a functor from
 $⟦Ω⟧$ to $\Sizes$, we define
 \begin{displaymath}
   \sub{⟦T⟧}{⟦σ⟧} ≔ ⟦T⟧ ∘ ⟦σ⟧.

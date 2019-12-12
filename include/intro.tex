@@ -11,15 +11,14 @@ of structural recursion.
 
 Despite its simplicity, structural recursion is surprisingly powerful in
 practice. Still, it suffers from some flaws that are directly related to its
-syntactic nature. It makes type checking non-compositional: We cannot always
+syntactic nature. It makes type checking non-compositional: we cannot always
 replace a term by another term of the same type because some terms have special
 meaning to the termination checker. It does not play well with more complex data
 types such as the nested inductive type of rose trees. It does not easily
 accommodate corecursive definitions, which require a separate productivity
 check. And when structural checkers are extended to handle more complex
 scenarios, such as mutual and nested recursion, they tend to become complex and
-therefore hard to implement correctly. For more details on structural recursion
-and its shortcomings, see \secref{background:termination}.
+therefore hard to implement correctly.
 
 To address the problems with structural recursion, several other termination
 checking regimes have been proposed. One of these is \emph{sized types}, an
@@ -28,7 +27,7 @@ annotations to ensure termination. In these systems, inductive types are
 annotated with a size: $\Nat{n}$, for example, is the type of natural numbers
 with size $n$. For the moment, we can view $n$ as a natural number and say that
 $\Nat{n}$ contains only natural numbers $m ≤ n$. This interpretation suggests a
-simple termination criterion: If, in a recursive definition, we receive an input
+simple termination criterion: if, in a recursive definition, we receive an input
 in $\Nat{n}$ and only recurse on terms in $\Nat{m}$ for some $m < n$, then the
 recursion must stop when it reaches the size zero (at the latest).
 
@@ -37,33 +36,35 @@ avoids the non-compositionality of syntactic approaches. It also handles nested
 inductive data types well and, when combined with copatterns \cite{abel2016},
 can be used to check productivity of corecursive definitions in a similarly
 natural way. The dependently typed language Agda features an implementation of
-sized types that demonstrates these advantages (though see
-\secref{background:sized} for some problems of this implementation, as well as
-more details on Agda's sized types).
+sized types that demonstrates these advantages. \chapref{background} gives a
+brief comparison between structural termination checking and Agda's sized types.
 
 Motivated by the desirable properties of sized types, this thesis investigates a
 custom lambda calculus with sized types called λST, defined in \chapref{source}.
 The calculus extends the simply-typed lambda calculus with sized types that
 closely resemble Agda's. As such, it provides a setting for
-\enquote*{experiments} with Agda's sized types: Investigations of the properties
+\enquote*{experiments} with Agda's sized types: investigations of the properties
 of sized types without the surrounding complexity of a full dependently-typed
 language.
 
 Of these properties, two are of special interest. The first is normalisation:
-The type system should ensure that all programs do actually terminate. This is
-the raison d'être of sized types and thus the focus of existing work . The
-second property we are interested in is size irrelevance: Sizes should only be
+the type system should ensure that all programs do actually terminate. This is
+the raison d'être of sized types and thus the focus of existing work. The
+second property we are interested in is size irrelevance: sizes should only be
 used during type checking to ensure termination/productivity and should not
 affect the runtime behaviour of programs. This means that sizes can be erased at
 runtime, which is good for performance.
 
-In \chapref{model}, I focus on size irrelevance as the less-studied of the two
-properties. I demonstrate that λST is size-irrelevant using a reflexive graph
-model. This is a technique which is usually used to establish parametricity
-results, which fits the problem well: Size irrelevance just means that any term
-which depends on a size is parametric in that size. The model is fully
-formalised in Agda (without sized types); \chapref{formalisation} discusses the
-formalisation and some of its technical challenges.
+In \chapref{model}, I give a denotational semantics of λST that incorporates a
+notion of size irrelevance. In the semantics, types are interpreted as reflexive
+graphs. This technique is usually used to establish parametricity properties,
+for example of type quantification in System F or pi types in dependent type
+theories. It is not surprising that reflexive graphs also yield a model of λST
+since size irrelevance can be viewed as a parametricity property: size
+irrelevance just means that any term which depends on a size is parametric in
+that size. The model is fully formalised in Agda (without sized types);
+\chapref{formalisation} discusses the formalisation and some of its technical
+challenges.
 
 Before I settled on the reflexive graph approach, I also investigated two
 category-theoretical modelling approaches which looked promising, but turned out

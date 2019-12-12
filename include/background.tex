@@ -9,7 +9,7 @@ Proof assistants based on dependently typed languages must, if they are to be
 consistent, ensure that all recursive programs terminate. The usual solution to
 this problem, used by Coq, Agda, Idris, Lean and others, is to augment the type
 checker with a separate termination checker based on the principle of structural
-recursion. That principle says roughly: A program terminates if the input to any
+recursion. That principle says roughly: a program terminates if the input to any
 recursive call is a subterm of the original input. For example, consider the
 usual definition of addition for natural numbers:
 \begin{code}
@@ -29,11 +29,11 @@ case and the recursion ends.
 
 Structural recursion as a basis for termination checking has many advantages. It
 is conceptually simple, relatively easy to implement and surprisingly versatile:
-Many interesting definitions are naturally structurally recursive. However,
+many interesting definitions are naturally structurally recursive. However,
 structural termination checkers are also inadequate in some important ways.
 
 First, structural recursion is based on the syntactic notion of a subterm. This
-makes termination checking non-compositional: We cannot, in general, replace a
+makes termination checking non-compositional: we cannot, in general, replace a
 term with another term of the same type in a recursive definition and still
 expect the definition to typecheck. For a contrived example, take our previous
 definition of \icode{plus} and replace the \icode{n} by \icode{id~n} in the
@@ -65,7 +65,7 @@ which we also need the standard list type and its mapping function):
   mapTree f (node xs) = node (mapList (mapTree f) xs)
 \end{code}
 Agda's termination checker does not accept \icode{mapTree}, and with good
-reason: The recursive call in the second equation does not involve a subterm of
+reason: the recursive call in the second equation does not involve a subterm of
 any input. We can argue that when we unfold \icode{mapList}, it becomes apparent
 that \icode{mapTree} is always applied to an element of the list \icode{xs} and
 these elements are obviously subterms of \icode{xs}. But Agda's syntactic check
@@ -78,7 +78,7 @@ it is tempting to extend them with various heuristics to deal with more
 complicated variants of structural recursion such as mutually recursive
 definitions, lexicographic termination measures and nested inductive datatypes
 like our rose trees. As a result, the termination checkers of both Coq and Agda
-have become quite complex, and with complexity come bugs: Both Coq and Agda have
+have become quite complex, and with complexity come bugs: both Coq and Agda have
 shipped versions with errors in their termination checkers that made the systems
 inconsistent \cite{coqbug2013,agdabug2013}.
 
@@ -95,7 +95,8 @@ very inflexible. Sized types, on the other hand, when combined with copatterns,
 yield a practical productivity checker mostly for free.
 
 To address these problems of structural termination checkers, we look to
-alternative approaches to termination checking and in particular to sized types.
+alternative approaches to termination checking, and in particular to sized
+types.
 
 
 \section{Sized Types}
@@ -107,7 +108,7 @@ annotated at the type level with a size. For terms of inductive types, this size
 may be thought of as an upper bound on the height of the term, viewed as a
 constructor tree. For coinductive types, the size denotes the maximum depth to
 which the term may be inspected. With this setup, checking a recursive
-definition becomes easy: A recursive call is justified if the size of its
+definition becomes easy: a recursive call is justified if the size of its
 argument decreases. A corecursive call is justified if it increases the maximum
 observation depth of its result.
 
@@ -117,20 +118,20 @@ whose sized types closely resemble Agda's, so the remainder of this section
 gives a brief overview of Agda's system. More details and examples can be found
 in Agda's manual \cite{agdamanual} and in \cite{abel2016}.
 
-A size is a term of type \icode{Size< n}, where \icode{n} is also a size.
-Primitive sizes are variables, the successor of a size \icode{↑ n} and
-\enquote*{infinity}, \icode{∞}. The size \icode{∞} plays a special role: It
+A size is a term of type \icode{Size<~n}, where \icode{n} is also a size.
+Primitive sizes are variables, the successor of a size \icode{↑~n} and
+\enquote*{infinity}, \icode{∞}. The size \icode{∞} plays a special role: it
 designates \enquote*{fully defined} types, i.e.\ those whose values could have any
 size.
 
-For a size \icode{m} to have type \icode{Size< n} it must be less than
+For a size \icode{m} to have type \icode{Size<~n} it must be less than
 \icode{n} according to an order \icode{<}. This order is mostly straightforward;
-for example, we have \icode{n < ↑ n} for all \icode{n}. However, we also have
-\icode{n < ∞} for all \icode{n} and in particular \icode{∞ < ∞}. As we will see,
+for example, we have \icode{n~<~↑~n} for all \icode{n}. However, we also have
+\icode{n~<~∞} for all \icode{n} and in particular \icode{∞~<~∞}. As we will see,
 this rule creates significant problems.
 
 A sized inductive type is simply an inductive type with a parameter of type
-\icode{Size} (which is the same as \icode{Size< ∞}). Continuing our rose tree
+\icode{Size} (which is the same as \icode{Size<~∞}). Continuing our rose tree
 example, we define sized lists and a mapping function:
 \begin{code}
   data Listₛ (A : Set) (n : Size) : Set where
@@ -142,14 +143,18 @@ example, we define sized lists and a mapping function:
   mapListₛ n f (cons m x xs) = cons m (f x) (mapListₛ m f xs)
 \end{code}
 The typing of the \icode{cons} constructor reflects the intuition that the
-height of \icode{cons m x xs}, \icode{m}, is strictly greater than the height of
-\icode{xs}, \icode{n}. We can then exploit this in \icode{mapListₛ}: In the
-recursive call, \icode{mapListₛ} is applied to \icode{m}, which we know from the
-type of \icode{cons} is less than \icode{n}. Thus, each recursive call decreases
-in size and the recursion is justified. The definition also demonstrates that
-the order on sizes induces a subtyping relation: The right-hand side of the
-second equation has type \icode{Listₛ A m}, which is a subtype of \icode{Listₛ A
-n} for \icode{m < n}.
+height of \icode{cons~m~x~xs}, \icode{n}, is strictly greater than the height of
+\icode{xs}, \icode{m}.\footnote{Agda also supports a different style of using
+  sized types where \icode{cons} takes a \icode{Listₛ~A~n} as input and returns
+  a \icode{Listₛ~A~↑~n} (making \icode{n} an index rather than a parameter of
+  \icode{Listₛ}). This mostly works just as well, but there are technical
+  reasons to prefer our \enquote*{quantifier style}.} We can then exploit this
+in \icode{mapListₛ}: in the recursive call, \icode{mapListₛ} is applied to
+\icode{m}, which we know from the type of \icode{cons} is less than \icode{n}.
+Thus, each recursive call decreases in size and the recursion is justified. The
+definition also demonstrates that the order on sizes induces a subtyping
+relation: the right-hand side of the second equation has type \icode{Listₛ~A~m},
+which is a subtype of \icode{Listₛ~A~n} for \icode{m~<~n}.
 
 So far, we could have just as well used a structural termination checker. The
 benefits of sized types become obvious when we turn to rose trees:
@@ -162,15 +167,15 @@ benefits of sized types become obvious when we turn to rose trees:
   mapTreeₛ n f (leaf x)    = leaf (f x)
   mapTreeₛ n f (node m xs) = node m (mapListₛ ∞ (mapTreeₛ m f) xs)
 \end{code}
-The definition of \icode{Treeₛ} demonstrates the utility of \icode{∞}: We can
+The definition of \icode{Treeₛ} demonstrates the utility of \icode{∞}: we can
 say that a \icode{node} should have a list of children without caring about the
 size of that list. But more importantly, the termination checker now accepts
-\icode{mapTreeₛ}: the recursive call is now at size \icode{m < n} and thus
+\icode{mapTreeₛ}: the recursive call is now at size \icode{m~<~n} and thus
 justified. In effect, we have encoded in the type of \icode{node} our intuition
-that the height of \icode{node xs} is strictly greater than the height of any of
+that the height of \icode{node~xs} is strictly greater than the height of any of
 the elements of \icode{xs}.
 
-Agda's sized types thus deliver on the compositionality promise: All information
+Agda's sized types thus deliver on the compositionality promise: all information
 the termination checker needs is encoded at the type level, so we can freely
 abstract over terms. Sized types are also mostly straightforward to implement,
 being just an extension of the type system.\footnote{I say \enquote{mostly}
@@ -185,9 +190,32 @@ structural termination checking from \secref{background:termination}.
 
 Unfortunately, such convenience currently comes at the ultimate price: Agda's
 implementation of sized types is, and has been for some time, inconsistent. The
-culprit seems to be the highly dubious rule \icode{n < ∞}, in particular
-\icode{∞ < ∞}. This rule makes the \icode{<} relation obviously non-well-founded
-(meaning there is an infinite descending chain \icode{∞ < ∞ < ...}) but Agda
+culprit seems to be the highly dubious rule \icode{n~<~∞}, in particular
+\icode{∞~<~∞}. This rule makes the \icode{<} relation obviously non-well-founded
+(meaning there is an infinite descending chain \icode{∞~<~∞~<~\dots}) but Agda
 assumes that \icode{<} is well-founded. This assumption can be exploited in
 different ways \cite{agdabug2015,agdabug2016,agdabug2017,agdabug2018} to sneak
 non-terminating programs past the termination checker.
+
+It is currently unclear how to resolve these issues with Agda's design
+satisfactorily. In this thesis, I adopt the obvious solution: changing the
+\icode{<} relation so that \icode{∞~≮~∞}. Doing the same in Agda would, however,
+lead to issues with the constructors and fields of sized data types. For
+example, we would like to use the \icode{cons} constructor for sized lists at
+type
+\begin{code}
+  A → Listₛ A ∞ → Listₛ A ∞
+\end{code}
+but this is impossible with \icode{∞~≮~∞}. As a workaround, we can define a
+consing operation for lists at \icode{∞} that is extensionally equal to
+\icode{cons}, but this requires a pattern match on the input list -- an
+inefficiency that should not be necessary. How best to \enquote*{rescue} Agda's
+sized types thus remains an open question for now.
+
+Another possible criticism of Agda's sized types concerns expressivity. Agda's
+size arithmetic is restricted to the successor; we cannot add or multiply sizes.
+This means that we cannot give a precise type to, for example, the list
+appending function, whose output size should be the sum of its input sizes. This
+lack of expressivity, however, is a conscious design decision. In return, we get
+a size inference algorithm that can infer almost all sizes in a typical program.
+This significantly lowers the cost of adopting sized types.

@@ -4,7 +4,7 @@
 All results from the previous sections are formalised in the dependently typed
 proof assistant Agda. The formalisation is freely available online (TODO link)
 and closely follows the informal discussion in this thesis, so in this chapter I
-only discuss the major design decision that shape it.
+only discuss the major design decisions that shape it.
 
 
 \section{Metatheory}
@@ -51,7 +51,7 @@ Escardó's implementation of Homotopy Type Theory in Agda \cite{escardo2019}.
 
 The one instance where the formalisation departs somewhat from the account in
 this thesis concerns size substitutions. If we were to stick exactly to the
-text, we would face the following problem: When we apply the interpretation of
+text, we would face the following problem: when we apply the interpretation of
 the weakening substitution $\Wk$ to a size valuation $(δ, n)$, we would get
 $⟦\Wk⟧(δ, n) = δ$ as a \emph{propositional} equality, but not as a
 \emph{definitional} equality (and similar for the other substitutions). This
@@ -68,7 +68,7 @@ corresponding \enquote*{canonical} substitution from \secref{source:sub}. The
 application of a substitution in \icode{Sub} to a size/type/context/term is then
 defined simply as the application of its canonical interpretation.
 
-This setup gives us the best of both worlds: All lemmas about canonical
+This setup gives us the best of both worlds: all lemmas about canonical
 substitutions are easily transferred to the universe construction, but when we
 model substitutions in \icode{Sub} as PRGraph morphisms, we can \emph{define}
 $⟦\Wk⟧(δ, n) ≔ n$. This is exactly the definitional equality we wanted.
@@ -99,9 +99,9 @@ Well-founded recursion encodes the idea that given a well-founded relation $<$,
 a recursive definition which decreases this relation with every recursive call
 must terminate -- for if it did not, we would have an infinite descending chain
 $n₀ > n₁ > \dots$ and \enquote{well-founded} means precisely that no such chain
-exists. Our definition of $f$ above follows this scheme: The recursive call is
-applied to $m < n$, so if $<$ is well-founded (which it is), the recursion must
-eventually stop.
+exists. Our definition of $f$ above follows this scheme: the recursive call is
+applied to $m < n$ and since $<$ is well-founded, the recursion must eventually
+stop.
 
 To represent this idea in Agda, we first define what it means for a relation to
 be well-founded. To that end, we introduce the auxiliary concept of
@@ -118,7 +118,7 @@ relation $<$ if every $y < x$ is also accessible. \icode{Acc} is inductively
 defined, which means that a proof of accessibility can \enquote*{stack} only
 finitely many \icode{acc} constructors. Therefore, when a term is accessible,
 any descending chain starting from that term must eventually end. This justifies
-the following definition of well-foundedness: A relation $<$ on some type $A$ is
+the following definition of well-foundedness: a relation $<$ on some type $A$ is
 well-founded if every element of $A$ is accessible with respect to $<$.
 \begin{code}
 WellFounded : (A → A → Set) → Set
@@ -207,12 +207,12 @@ following ways:
     are constructing, \icode{P}. In our use case, \icode{Q} will be instantiated
     with equality up to sizes.
   \item The function \icode{f}, which defines the computational behaviour of the
-    fixpoint, still receives as an argument a function \icode{g} which stands
-    for a recursive call on a smaller argument. Additionally, \icode{f} now
-    receives a proof that for any two smaller sizes \icode{y} and \icode{z}, the
-    recursive calls \icode{g~y} and \icode{g~z} are related by \icode{Q}. In our
-    case, this means that \icode{g} is size-parametric. This is precisely the
-    ingredient we were previously missing.
+    fixpoint, still receives as an argument a function \icode{g} which
+    represents a recursive call on a smaller argument. Additionally, \icode{f}
+    now receives a proof that for any two smaller sizes \icode{y} and \icode{z},
+    the recursive calls \icode{g~y} and \icode{g~z} are related by \icode{Q}. In
+    our case, this means that \icode{g} is size-parametric. This is precisely
+    the ingredient we were previously missing.
   \item The next argument to \icode{wfIndΣ-acc} is new. It demands a proof that
     \icode{f} preserves the relation \icode{Q}.
 \end{itemize}
@@ -225,6 +225,6 @@ Mutually with \icode{wfIndΣ-acc}, we define a lemma about it,
 \icode{wfIndΣ-acc-resp} are straightforward.
 
 It is now easy to define the fixpoint combinator \icode{wfIndΣ} based on
-\icode{wfIndΣ-acc}. Defining $f$ in terms of it is also conceptually simple, but
+\icode{wfIndΣ-acc}. Defining $f$ in terms of it is also conceptually simple but
 the details are a bit gnarly. For the full picture, see the module
 \icode{Model.\allowbreak Term}.

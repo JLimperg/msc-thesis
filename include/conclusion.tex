@@ -57,28 +57,27 @@ with a syntactic notion of size irrelevance, one might proceed as follows:
 \begin{enumerate}
   \item Give an operational semantics for λST.
   \item Prove that if two terms are β-equal, their models are equal. (This is
-    almost trivial informally but surprisingly difficult formally.)
+    almost trivial informally but difficult to formalise.)
   \item Give a notion of syntactic equality up to sizes.
   \item Prove a lemma that allows us to conclude syntactic equality up to sizes
     from semantic equality.
 \end{enumerate}
 
-I have done much of the work for steps 1--3 already, but did not have time to
-complete this line of inquiry. For step 4, it is not clear to me exactly what
-lemma we need to connect the model back to the syntax. One candidate is the
-following conjecture: For $u ∶ \Nat{m}$ and $u′ ∶ \Nat{m′}$ (in an empty
-context), if $u$ and $u′$ are normal and $⟦u⟧ = ⟦u′⟧$ then $u$ and $u′$ are
+Steps 1--3 are not hard, at least conceptually. For step 4, it is not clear to
+me exactly how to connect the model back to the syntax. One candidate is the
+following conjecture: for $u ∶ \Nat{m}$ and $u′ ∶ \Nat{m′}$ (in an empty
+context), if $u$ and $u′$ are normal and $⟦u⟧ = ⟦u′⟧$, then $u$ and $u′$ are
 syntactically equal up to sizes. This, together with the conjecture that
-β-equality implies equality in the model, would gives us a relatively weak form
-of size irrelevance: If we have $t ∶ \All{n}{\Nat{v_0}}$ and $\sapp{t}{m}$
-normalises to $u$ and $\sapp{t}{m′}$ normalises to $u′$ then $u$ and $u′$ are
-equal up to sizes.
+β-equality implies equality in the model, would give us a weak form of size
+irrelevance restricted to base types and normal forms: if we have $t ∶
+\All{n}{\Nat{v_0}}$ and $\sapp{t}{m}$ normalises to $u$ and $\sapp{t}{m′}$
+normalises to $u′$, then $u$ and $u′$ are equal up to sizes.
 
 
 \paragraph{Infinitely Branching Data Types}
 
 Natural numbers and streams, viewed as constructor trees, are finitely
-branching: Each constructor has a finite number of subterms (one or zero in the
+branching: each constructor has a finite number of subterms (one or zero in the
 case of natural numbers; one in the case of streams). However, Agda and other
 dependently typed languages also feature infinitely branching types such as this
 one:
@@ -91,29 +90,32 @@ one:
 \icode{node} has countably infinite children.
 
 Such infinitely branching types complicate the interpretation of sizes. Recall
-that we interpreted sizes as the height of a constructor tree, a natural number.
-For infinitely branching types, however, the height is not computable: The
-height of a \icode{node} is one plus the maximum height of its infinite
-collection of child trees. This means that we must stop thinking of sizes as
-natural numbers and instead think of them as ordinals.
+that we interpreted sizes as the height of a constructor tree. For finitely
+branching types, this height is always a (computable) natural number. For
+infinitely branching types such as \icode{ℕTree}, however, it is a noncomputable
+ordinal: the height of a \icode{node} is one plus the maximum height of its
+infinite collection of child trees. This means that in the model, $∞$ could no
+longer be interpreted as $ω$; instead it would have to be an ordinal that is
+greater than the height of any possible value of an infinitely branching data
+type.
 
 Ordinals present some technical challenges since they are not trivially encoded
 in type theory. As part of the work for this thesis, I investigated a particular
 subclass of ordinals, the plump ordinals \cite{taylor1996} as presented by
 Shulman \cite{shulman2014}, as candidates for a model of sizes. A formalisation
-of these ordinals can be found in \icode{Ordinal.\allowbreak Shulman}. However,
-the investigation was inconclusive: While the formalisation shows that the plump
+of these ordinals can be found in \texttt{Ordinal.\allowbreak Shulman}. However,
+the investigation was inconclusive: while the formalisation shows that the plump
 ordinals have most of the properties we expect of a model of sizes, they do not
 admit the seemingly straightforward lemma that for ordinals $n < m$ and $n′ <
 m$, their supremum $n ⊔ n′$ is also less than $m$. More precisely, this lemma is
 equivalent to classical logic -- but then again, it is not clear that we need it
-to interpret a hypothetical $λST∞$ with infinitely branching types.
+to interpret a hypothetical extension of λST with infinitely branching types.
 
 
 \section{Conclusion}
 \label{sec:conclusion:conclusion}
 
-We have seen a calculus, λST, which approximates Agda's sized types in a
-simply-typed setting. This calculus has a model in terms of reflexive graphs
-which demonstrates, in an informal sense, that the sizes of λST are irrelevant.
-Both λST and the model are fully formalised.
+I have presented a calculus, λST, which approximates Agda's sized types in a
+simply-typed setting. This calculus has a reflexive graph model which gives a
+size-irrelevant denotational semantics. Both λST and the model are fully
+formalised.
