@@ -50,8 +50,8 @@ functor from $⟦Δ⟧$ to $\Sets$. We would like to define, as before,
 \end{displaymath}
 but this is no functor: for $δ ≤ δ′$ we have $⟦n⟧(δ) ≤ ⟦n⟧(δ′)$ by functoriality
 of $⟦n⟧$, but there is no appropriate function from $\Size_{<⟦n⟧(δ)} → ℕ$ to
-$\Size_{<⟦n⟧(δ′)} → ℕ$. (TODO is this correct?) The root cause of this issue is
-⟦\Stream{n}⟧(δ) is naturally contravariant in $δ$.
+$\Size_{<⟦n⟧(δ′)} → ℕ$. This is not surprising -- after all, ⟦\Stream{n}⟧(δ) is
+naturally contravariant in $δ$.
 
 Still, let us ignore this problem and move on to discover more fundamental
 issues. The other types of λST have more or less natural interpretations:
@@ -146,5 +146,5 @@ Then we have
     &= \All{m ≤ 1}{⟦\Stream{v_0}⟧((), m) → ⟦U⟧((), m)} \\
     &= \All{m ≤ 1}{(\All{k ≤ m}{ℕ}) → ⟦U⟧(())}.
 \end{align*}
-These two types are not isomorphic (TODO double-check), so substitutions do not
-have the desired semantics.
+These two types are not isomorphic, so substitutions do not have the desired
+semantics.
