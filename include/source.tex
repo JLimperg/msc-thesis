@@ -24,7 +24,7 @@ function would be written as follows:
 \end{code}
 The λST version is broadly similar, only with added size-related information and
 more cumbersome syntax:
-\begin{code}
+\begin{verbatim}
   half : ∀ n < ↑ ∞. Nat n → Nat n
   half ≔ fix[Nat ∙ → Nat ∙]
           (Λ n < ↑ ∞. λ rec ∶ (∀ m < n. Nat m → Nat m). λ i : Nat n.
@@ -34,16 +34,16 @@ more cumbersome syntax:
                 case j of
                   (zero m)  → zero n
                   (suc o k) → suc n o (rec o k)
-\end{code}
+\end{verbatim}
 
 The definition of \icode{half} already showcases most features of λST. The type
 of natural numbers of size \icode{n} is called \icode{Nat~n}. If we think of
 sizes as ordinals, \icode{Nat~n} is the type of naturals less than or equal to
 \icode{n}. This intuition justifies the types of its constructors:
-\begin{code}
+\begin{verbatim}
   zero : ∀ n < ↑ ∞. Nat n
   suc  : ∀ n < ↑ ∞. ∀ m < n. Nat m → Nat n
-\end{code}
+\end{verbatim}
 Zero is less than or equal to any \icode{n}, so it is always in \icode{Nat~n}.
 The successor of a natural number \icode{k} of size \icode{m} is less than or
 equal to \icode{n} if \icode{m~<~n}. If we were to define sized natural numbers
@@ -74,9 +74,9 @@ including \icode{∞}, as in the type of \icode{half}, we use the successor of
 
 The last ingredient we need to define \icode{half} is the centrepiece of λST:
 the size-based fixpoint operator \icode{fix} of type
-\begin{code}
+\begin{verbatim}
   fix[T ∙] : (∀ n < ↑ ∞. (∀ m < n. T m) → T n) → ∀ n < ↑ ∞. T n
-\end{code}
+\end{verbatim}
 Here, \icode{T} is an arbitrary type with one free size variable denoted by the
 \enquote{hole} \icode{∙}. The type of \icode{fix} corresponds to a recursion
 scheme over sizes: if from an element of \icode{T} with size \icode{m} we can
@@ -89,25 +89,25 @@ one constructor, \icode{cons}, which prepends an element to a stream, and two
 destructors, \icode{head} and \icode{tail}, which respectively extract the first
 element and the rest of a stream. These have the following types, again
 analogous to those one would obtain in Agda:
-\begin{code}
+\begin{verbatim}
   cons : ∀ n < ↑ ∞. Nat ∞ → (∀ m < n. Stream m) → Stream n
   head : ∀ n < ↑ ∞. Stream n → Nat ∞
   tail : ∀ n < ↑ ∞. Stream n → ∀ m < n. Stream m
-\end{code}
+\end{verbatim}
 Using these primitives, we can define, for example, the stream of zeros:
-\begin{code}
+\begin{verbatim}
   zeros : ∀ n < ↑ ∞. Stream n
   zeros ≔ fix[Stream ∙]
             (Λ n < ↑ ∞. λ rec : (∀ m < n. Stream m).
               cons (zero ∞) n rec)
-\end{code}
+\end{verbatim}
 More interestingly, λST also admits the standard mapping function for streams:
-\begin{code}
+\begin{verbatim}
   map : (Nat ∞ → Nat ∞) → ∀ n < ↑ ∞. Stream n → Stream n
   map ≔ λ f : Nat ∞ → Nat ∞. fix[Stream ∙ → Stream ∙]
           (Λ n < ↑ ∞. λ rec : (Λ m < n. Stream m → Stream m). λ xs : Stream n.
             cons (f (head n xs)) n (Λ m < n. rec m (tail n xs m)))
-\end{code}
+\end{verbatim}
 Note that according to its type, \icode{map} is size-preserving: if we apply it
 to a stream with at least \icode{n} defined elements, its result also has at
 least \icode{n} defined elements. The same applies to \icode{half}, whose type
