@@ -91,12 +91,11 @@ Instead, we must demand that the function is \emph{productive}, meaning that it
 generates any finite prefix of its output in finite time. In other words, any
 finite observation of an infinite stream must terminate. There are syntactic
 methods, analogous to structural recursion, to ensure productivity, but they are
-very inflexible. Sized types, on the other hand, when combined with copatterns,
-yield a practical productivity checker mostly for free.
+very inflexible. Sized types, on the other hand, when combined with copatterns
+\cite{abel2016}, yield a practical productivity checker mostly for free.
 
-To address these problems of structural termination checkers, we look to
-alternative approaches to termination checking, and in particular to sized
-types.
+To address these problems of structural termination checkers, we look to sized
+types as a type-based termination checking mechanism.
 
 
 \section{Sized Types}
@@ -183,10 +182,7 @@ being just an extension of the type system.\footnote{I say \enquote{mostly}
   inconsistent size assumptions, which is necessary to preserve decidability of
   type checking. Agda also has a sophisticated size inference engine (so we
   could have left all sizes in our example code implicit), but this engine is
-  not part of the trusted computing base.} And sized types, when combined with
-copatterns \cite{abel2016}, yield an elegant productivity checking mechanism for
-corecursive definitions. Thus, we have addressed all the problems with
-structural termination checking from \secref{background:termination}.
+  not part of the trusted computing base.}
 
 Unfortunately, such convenience currently comes at the ultimate price: Agda's
 implementation of sized types is, and has been for some time, inconsistent. The

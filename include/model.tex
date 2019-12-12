@@ -45,11 +45,12 @@ context should be considered equal up to sizes.
   elementary, I make the constructions explicit.
 \end{remark}
 
-A reflexive graph $Δ$ is \Def{propositional} if $≈_Δ$ is a proposition (i.e.\ for
-any $δ, δ′ ∶ Δ$ and $p, q ∶ δ ≈_Δ δ′$, $p = q$) and the underlying type $Δ$ is a
-set (i.e.\ equality on $Δ$ is a proposition). We call such a graph a
-\Def{PRGraph}. These conditions are trivially fulfilled for all the PRGraphs we
-consider, so I will silently omit their proofs.
+A reflexive graph $Δ$ is \Def{propositional} if $≈_Δ$ is a proposition in the
+sense of Homotopy Type Theory \cite{hottbook} (i.e.\ for any $δ, δ′ ∶ Δ$ and $p,
+q ∶ δ ≈_Δ δ′$, $p = q$) and the underlying type $Δ$ is a set (i.e.\ equality on
+$Δ$ is a proposition). We call such a graph a \Def{PRGraph}. These conditions
+are trivially fulfilled for all the PRGraphs we consider, so I will silently
+omit their proofs.
 
 PRGraphs are simpler than general reflexive graphs because the proofs
 $\refl_Δ(δ)$ are irrelevant. This saves us a lot of effort, particularly in the
@@ -70,7 +71,7 @@ particular $σ(\refl_Δ(δ)) = \refl_Ω(σ(δ))$; for non-propositional RGraphs,
 would have to add this condition to the definition of morphisms.
 
 PRGraphs and their morphisms form a category in the obvious way. We call this
-category $\mathit{PRGraphs}$.
+category $\PRGraphs$.
 
 
 \section{Families of Propositional Reflexive Graphs}
@@ -226,11 +227,12 @@ by the usual strict comparison of sizes, meaning
   0 < 1 < \dots < ω < ω + 1 < \dots
 \end{displaymath}
 The reflexive closure of $<$ is called $≤$. We write $\Size$ for the type of
-sizes and $\Size_{<n}$ for the type of sizes $m$ such that $m < n$.
+semantic sizes and $\Size_{<n}$ for the type of semantic sizes $m$ such that $m
+< n$.
 
 Syntactic sizes are now modelled by semantic sizes. A size context $Δ$ is
 interpreted as a set of size tuples. A well-typed size in $Δ$ is interpreted as
-a function from $Δ$ to $\Size$. These interpretations are mutually recursively
+a function from $⟦Δ⟧$ to $\Size$. These interpretations are mutually recursively
 defined:
 \begin{AlignAnnot*}
   ⟦()⟧ &≔& ⊤ &\qquad \text{($⊤$ is the unit type)} \\
@@ -261,7 +263,7 @@ Our interpretation of sizes is well-behaved with respect to size comparison:
 
 \begin{lemma}[Interpretation of $<$]
   \label{lem:⟦<⟧}
-  If $Δ ⊢ n < m$ and $δ ∶ ⟦Δ⟧$, then $⟦n⟧ δ < ⟦m⟧ δ$.
+  If $Δ ⊢ n < m$ and $δ ∶ ⟦Δ⟧$, then $⟦n⟧(δ) < ⟦m⟧(δ)$.
 \end{lemma}
 
 \begin{proof}
@@ -302,15 +304,15 @@ behave when applied to a size valuation.
 
 \begin{lemma}[Interpretation of specific size substitutions]
   \label{lem:sub-app}
-  Assume $(δ, m, k) ∶ ⟦\ctx{\ctx{Ω}{n}}{v_0}⟧$, $σ ∶ Δ → Ω$ and $τ ∶ Ω → Ω′$. Then we have
-  \begin{AlignAnnot*}
-    ⟦\Id⟧(δ) &=& δ \\
-    ⟦σ \fcomp τ⟧(δ) &=& ⟦τ⟧(⟦σ⟧(δ)) \\
-    ⟦\Wk⟧(δ, m) &=& δ \\
-    ⟦\Sing(o)⟧(δ) &=& (ω, ⟦o⟧(δ)) & \quad (o < ⟦n⟧(δ)) \\
-    ⟦\Lift(σ)⟧(δ, m) &=& (⟦σ⟧(δ), m) \\
-    ⟦\Skip⟧(δ, m, k) &=& (δ, k).
-  \end{AlignAnnot*}
+  Assume $(ω, m, k) ∶ ⟦\ctx{\ctx{Ω}{n}}{v_0}⟧$, $σ ∶ Δ → Ω$ and $τ ∶ Ω → Ω′$. Then we have
+  \begin{Align*}
+    ⟦\Id⟧(ω) &=& ω \\
+    ⟦σ \fcomp τ⟧(ω) &=& ⟦τ⟧(⟦σ⟧(ω)) \\
+    ⟦\Wk⟧(ω, m) &=& ω \\
+    ⟦\Sing(o)⟧(ω) &=& (ω, ⟦o⟧(ω)) \\
+    ⟦\Lift(σ)⟧(ω, m) &=& (⟦σ⟧(ω), m) \\
+    ⟦\Skip⟧(ω, m, k) &=& (ω, k).
+  \end{Align*}
 \end{lemma}
 
 
@@ -333,15 +335,12 @@ family of PRGraphs:
   ⟦\Nat{n}⟧(δ) &≔& ℕ_{≤ ⟦n⟧(δ)} \\
   i ≈_{⟦\Nat{n}⟧,p} j &≔& i = j.
 \end{Align*}
-
-Streams are interpreted in a similar fashion. The interpretation of $Δ ⊢
-\Stream{n}$ is the following family of PRGraphs:
+Streams are interpreted in a similar fashion:
 \begin{AlignAnnot*}
   ⟦\Stream{n}⟧(δ) &≔& ℕ_{≤ ⟦n⟧(δ)} → ℕ \\
   f ≈_{⟦\Stream{n}⟧,p} g &≔& \all{m ≤ \min(⟦n⟧(δ), ⟦n⟧(δ′))}{f(m) = g(m)} &\quad
     (p ∶ δ ≈_{Δ} δ′).
 \end{AlignAnnot*}
-
 The function space is interpreted by the exponential of PRGraph families from
 \secref{model:exponential}:
 \begin{displaymath}
@@ -361,7 +360,7 @@ is \Def{size-parametric} if
   f(m) ≈_T f(m′) \quad ∀ m, m′ ∶ \Size_{<⟦n⟧(δ)}.
 \end{displaymath}
 This equation is well-typed because $≈_{⟦\ctx{Δ}{n}⟧}$ is trivial, so in
-particular $(δ, m) ≈_{\ctx{Δ}{n}} (δ, m′)$. We write $\Param(T,δ)$ for the type
+particular $(δ, m) ≈_{⟦\ctx{Δ}{n}⟧} (δ, m′)$. We write $\Param(T,δ)$ for the type
 of size-parametric functions into $T(δ, ∙)$.
 
 Now we can interpret size quantification: the interpretation of $Δ ⊢ \All{n}{T}$
@@ -375,8 +374,7 @@ the intuition that when we apply a term in $\All{n}{T}$ to a size $m$, it does
 not matter -- up to sizes -- which $m$ we choose.
 
 Having interpreted all types, we can now move to type contexts. These are mere
-lists of types, so they are modelled by finite products. The interpretation of
-$Δ ⊢ Γ$ is defined by recursion over the derivation:
+lists of types, so they are, as usual, modelled by finite products:
 \begin{Align*}
   ⟦()⟧ &≔& ⊤ \\
   ⟦\Ctx{Γ}{T}⟧ &≔& ⟦Γ⟧ × ⟦T⟧.
@@ -504,7 +502,7 @@ This definition is valid due to the following observations:
 
 Moving to size application, we may assume a morphism
 \begin{displaymath}
-  ⟦t⟧ ∶ ⟦Γ⟧ → ⟦\All{n}{T}⟧.
+  ⟦t⟧ ∶ ⟦Γ⟧ → ⟦\All{n}{T}⟧
 \end{displaymath}
 and we construct the morphism
 \begin{AlignAnnot*}
@@ -615,8 +613,7 @@ requirement of $\Param$ to unfold it. We then define
     ⟦\V{is}⟧_δ(γ, k - 1, k - 1) &\quad \text{otherwise}.
   \end{cases}
 \end{displaymath}
-Note that $k ≤ ⟦n⟧(δ)$, so in the second equation we have $k - 1 < ⟦n⟧(δ)$ and
-obviously $k - 1 ≤ m - 1$.
+Note that $k ≤ ⟦n⟧(δ)$, so in the second equation we have $k - 1 < ⟦n⟧(δ)$.
 
 The destructors of $\Stream{n}$ have less complex interpretations. For
 $\mathrm{head}$, we assume a morphism $⟦\V{is}⟧ ∶ ⟦Γ⟧ → ⟦\Stream{n}⟧$ and define
@@ -630,8 +627,8 @@ Similarly, for $\mathrm{tail}$, we assume $⟦\V{is}⟧ ∶ ⟦Γ⟧ → ⟦\Str
   ⟦\tail{n}{\V{is}}{m}⟧ ∶ ⟦\Stream{m}⟧ \\
   ⟦\tail{n}{\V{is}}{m}⟧_δ(γ, k) ≔ ⟦\V{is}⟧_δ(γ, k + 1).
 \end{gather*}
-The application of $k + 1$ is well-typed because $k ≤ ⟦m⟧(δ)$ and $⟦m⟧(δ) <
-⟦n⟧(δ)$ (by Lemma \ref{lem:⟦<⟧}).
+The application of $⟦\V{is}⟧$ to $k + 1$ is well-typed because $k ≤ ⟦m⟧(δ)$ and
+$⟦m⟧(δ) < ⟦n⟧(δ)$ (by Lemma \ref{lem:⟦<⟧}).
 
 
 \subsection{Fixpoint}
