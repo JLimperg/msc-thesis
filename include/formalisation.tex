@@ -2,9 +2,10 @@
 \label{sec:formalisation}
 
 All results from the previous sections are formalised in the dependently typed
-proof assistant Agda. The formalisation is freely available online (TODO link)
-and closely follows the informal discussion in this thesis, so in this chapter I
-only discuss the major design decisions that shape it.
+proof assistant Agda. The formalisation is freely available online
+\cite{limperg2019code} and closely follows the informal discussion in this
+thesis, so in this chapter I only discuss the major design decisions that shape
+it.
 
 
 \section{Metatheory}
@@ -60,13 +61,14 @@ have to use the transport operator \icode{subst} to define terms of these types.
 This, in turn, makes it hard to prove facts about these terms.
 
 To avoid this issue, we use a universe of size substitutions, formalised in
-\texttt{Source.\allowbreak Size.\allowbreak Substitution.\allowbreak Universe}.
-We define a data type \icode{Sub} that has a constructor for each of the
-particular substitutions we need ($\Wk$, $\Sing$ etc.). We then define an
-interpretation function which maps each value of this datatype to the
-corresponding \enquote*{canonical} substitution from \secref{source:sub}. The
-application of a substitution in \icode{Sub} to a size/type/context/term is then
-defined simply as the application of its canonical interpretation.
+\module{Source.\allowbreak Size.\allowbreak Substitution.\allowbreak
+  Universe}{Source.Size.Substitution.Universe}. We define a data type
+\icode{Sub} that has a constructor for each of the particular substitutions we
+need ($\Wk$, $\Sing$ etc.). We then define an interpretation function which maps
+each value of this datatype to the corresponding \enquote*{canonical}
+substitution from \secref{source:sub}. The application of a substitution in
+\icode{Sub} to a size/type/context/term is then defined simply as the
+application of its canonical interpretation.
 
 This setup gives us the best of both worlds: all lemmas about canonical
 substitutions are easily transferred to the universe construction, but when we
@@ -106,9 +108,11 @@ stop.
 To represent this idea in Agda, we first define what it means for a relation to
 be well-founded. To that end, we introduce the auxiliary concept of
 \Def{accessibility} in the form of the \icode{Acc} data type. This type can be
-found in the module \texttt{Induction.\allowbreak WellFounded} from Agda's
-standard library; the remainder of this section is located either in the same
-module or in my \texttt{Util.\allowbreak Induction.\allowbreak WellFounded}.
+found in the module \module{Induction.\allowbreak
+  WellFounded}{Induction.WellFounded} from Agda's standard library; the
+remainder of this section is located either in the same module or in my
+\module{Util.\allowbreak Induction.\allowbreak
+  WellFounded}{Util.Induction.WellFounded}.
 \begin{code}
 data Acc (_<_ : A → A → Set) (x : A) : Set where
   acc : (∀ y → y < x → Acc _<_ y) → Acc _<_ x
@@ -227,4 +231,4 @@ Mutually with \icode{wfIndΣ-acc}, we define a lemma about it,
 It is now easy to define the fixpoint combinator \icode{wfIndΣ} based on
 \icode{wfIndΣ-acc}. Defining $f$ in terms of it is also conceptually simple but
 the details are a bit gnarly. For the full picture, see the module
-\icode{Model.\allowbreak Term}.
+\module{Model.\allowbreak Term}{Model.Term}.

@@ -18,7 +18,7 @@ construct of λST (sizes, types and terms) in turn.
 
 This section introduces the category of reflexive graphs which will be used
 to interpret sizes and size contexts. The results are formalised in
-\texttt{Model.\allowbreak RGraph}.
+\module{Model.\allowbreak RGraph}{Model.RGraph}.
 
 A \Def{reflexive graph} is a tuple $(Δ, ≈_Δ, \refl_Δ)$ where
 \begin{AlignAnnot*}
@@ -80,7 +80,7 @@ category $\PRGraphs$.
 To interpret types and type contexts, which are indexed by some size context, we
 need to move from PRGraphs to families of PRGraphs. These may be thought of as
 PRGraphs indexed by PRGraphs. The results in this section are formalised in
-\texttt{Model.\allowbreak Type.\allowbreak Core}.
+\module{Model.\allowbreak Type.\allowbreak Core}{Model.Type.Core}.
 
 A \Def{family of PRGraphs} over a given PRGraph $Δ$ is a tuple $(T, ≈_{T,p},
 \refl_T)$ where
@@ -145,8 +145,9 @@ arbitrary PRGraph.
 \subsection{Finite Products}
 \label{sec:model:product}
 
-The following results are formalised in \texttt{Model.\allowbreak Terminal} and
-\texttt{Model.\allowbreak Product}.
+The following results are formalised in \module{Model.\allowbreak
+  Terminal}{Model.Terminal} and \module{Model.\allowbreak
+  Product}{Model.Product}.
 
 Let $T, U$ be two RGraph families over $Δ$. The \Def{product of $T$ and $U$}, $T
 × U$, is defined pointwise. Explicitly, it is the following RGraph family:
@@ -161,8 +162,7 @@ projections out of the product type. It is easy to check that this defines a
 product in $\PRGraphFams(Δ)$.
 
 To interpret all finite products, we additionally need a \Def{terminal object}.
-This is the PRGraph family $⊤$ (formalised in \texttt{Model.\allowbreak
-  Terminal}) with
+This is the PRGraph family $⊤$ with
 \begin{Align*}
   ⊤(δ) &≔& ⊤ \\
   x ≈_{⊤,p} y &≔& ⊤.
@@ -173,7 +173,8 @@ $≈_⊤$ is trivial and so obviously reflexive.
 \subsection{Exponentials}
 \label{sec:model:exponential}
 
-The following results are formalised in \texttt{Model.\allowbreak Exponential}.
+The following results are formalised in \module{Model.\allowbreak
+  Exponential}{Model.Exponential}.
 
 Before we can construct exponentials, we need an auxiliary definition: given a
 family of PRGraphs $T$ over $Δ$ and an object $δ$ of $Δ$, the \Def{application
@@ -218,7 +219,8 @@ $\PRGraphFams(Δ)$.
 \label{sec:model:sizes}
 
 With the central notions defined, we can proceed to model λST. We start with
-sizes, whose interpretation is formalised in \texttt{Model.\allowbreak Size}.
+sizes, whose interpretation is formalised in \module{Model.\allowbreak
+  Size}{Model.Size}.
 
 A \Def{semantic size} is an ordinal below $ω·2$. These ordinals are either
 natural numbers or they have the form $ω + i$ for some $i ∈ ℕ$. They are ordered
@@ -320,8 +322,9 @@ behave when applied to a size valuation.
 \label{sec:model:types}
 
 In this section, we model the types of λST. The following results are formalised
-in \texttt{Model.\allowbreak Nat}, \texttt{Model.\allowbreak Stream} and
-\texttt{Model.\allowbreak Quantification}.
+in \module{Model.\allowbreak Nat}{Model.Nat}, \module{Model.\allowbreak
+  Stream}{Model.Stream} and \module{Model.\allowbreak
+  Quantification}{Model.Quantification}.
 
 As foreshadowed, we interpret well-scoped types $T$ in a size context $Δ$ as
 families of PRGraphs $⟦T⟧$ over the PRGraph $⟦Δ⟧$. The interpretations of sized
@@ -428,7 +431,7 @@ contexts:
 Well-typed terms (more precisely, judgments $Δ;Γ ⊢ t ∶ T$) are interpreted as
 morphisms between the PRGraph families $⟦Γ⟧$ and $⟦T⟧$. In this section, we show
 a natural interpretation of each of the terms of λST. Formalisations of these
-definitions can be found in \texttt{Model.\allowbreak Term}.
+definitions can be found in \module{Model.\allowbreak Term}{Model.Term}.
 
 \subsection{Functions}
 \label{sec:model:terms:functions}
