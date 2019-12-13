@@ -145,7 +145,7 @@ The typing of the \icode{cons} constructor reflects the intuition that the
 height of \icode{cons~m~x~xs}, \icode{n}, is strictly greater than the height of
 \icode{xs}, \icode{m}.\footnote{Agda also supports a different style of using
   sized types where \icode{cons} takes a \icode{Listₛ~A~n} as input and returns
-  a \icode{Listₛ~A~↑~n} (making \icode{n} an index rather than a parameter of
+  a \icode{Listₛ~A~(↑~n)} (making \icode{n} an index rather than a parameter of
   \icode{Listₛ}). This mostly works just as well, but there are technical
   reasons to prefer our \enquote*{quantifier style}.} We can then exploit this
 in \icode{mapListₛ}: in the recursive call, \icode{mapListₛ} is applied to
