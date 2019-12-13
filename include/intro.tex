@@ -29,7 +29,7 @@ with size $n$. For the moment, we can view $n$ as a natural number and say that
 $\Nat{n}$ contains only natural numbers $m ≤ n$. This interpretation suggests a
 simple termination criterion: if, in a recursive definition, we receive an input
 in $\Nat{n}$ and only recurse on terms in $\Nat{m}$ for some $m < n$, then the
-recursion must stop when it reaches the size zero (at the latest).
+recursion must stop (at the latest) when it reaches the size zero.
 
 Since this termination check is based entirely on type-level information, it
 avoids the non-compositionality of syntactic approaches. It also handles nested
@@ -58,13 +58,12 @@ runtime, which is good for performance.
 In \chapref{model}, I give a denotational semantics of λST that incorporates a
 notion of size irrelevance. In the semantics, types are interpreted as reflexive
 graphs. This technique is usually used to establish parametricity properties,
-for example of type quantification in System F or pi types in dependent type
+for example of type quantification in System F or Π-types in dependent type
 theories. It is not surprising that reflexive graphs also yield a model of λST
-since size irrelevance can be viewed as a parametricity property: size
-irrelevance just means that any term which depends on a size is parametric in
-that size. The model is fully formalised in Agda (without sized types);
-\chapref{formalisation} discusses the formalisation and some of its technical
-challenges.
+since size irrelevance can be viewed as a parametricity property: it just means
+that any term which depends on a size is parametric in that size. The model is
+fully formalised in Agda (without sized types); \chapref{formalisation}
+discusses the formalisation and some of its technical challenges.
 
 Before I settled on the reflexive graph approach, I also investigated two
 category-theoretical modelling approaches which looked promising, but turned out

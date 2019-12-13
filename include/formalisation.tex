@@ -64,7 +64,7 @@ To avoid this issue, we use a universe of size substitutions, formalised in
 \module{Source.\allowbreak Size.\allowbreak Substitution.\allowbreak
   Universe}{Source.Size.Substitution.Universe}. We define a data type
 \icode{Sub} that has a constructor for each of the particular substitutions we
-need ($\Wk$, $\Sing$ etc.). We then define an interpretation function which maps
+need (e.g.\ $\Wk$, $\Sing$). We then define an interpretation function which maps
 each value of this datatype to the corresponding \enquote*{canonical}
 substitution from \secref{source:sub}. The application of a substitution in
 \icode{Sub} to a size/type/context/term is then defined simply as the
@@ -79,10 +79,9 @@ $⟦\Wk⟧(δ, n) ≔ n$. This is exactly the definitional equality we wanted.
 \section{Interpretation of the Fixpoint}
 \label{sec:formalisation:fixpoint}
 
-When we discussed the model of the term $\mathrm{fix}$ in
-\secref{model:terms:fixpoint}, I mentioned that its interpretation is not quite
-as simple as it appeared. Recall that the typing rule of $\mathrm{fix}$ lets us
-assume a morphism $⟦t⟧$ with components
+In \secref{model:terms:fixpoint}, I mentioned that the interpretation of the
+term $\mathrm{fix}$ is not quite as simple as I made it appear. Recall that the
+typing rule of $\mathrm{fix}$ lets us assume a morphism $⟦t⟧$ with components
 \begin{displaymath}
   ⟦t⟧_δ ∶ ⟦Γ⟧(δ) → (n ∶ \Size_{<ω + 1}) → ((m ∶ \Size_{<n}) → ⟦T⟧(δ, m)) → ⟦T⟧(δ, n).
 \end{displaymath}
@@ -207,8 +206,8 @@ mutual
 Compared to \icode{wfInd-acc}, the type of \icode{wfIndΣ-acc} has changed in the
 following ways:
 \begin{itemize}
-  \item \icode{Q} is a heterogeneous relation on the (dependent) type that we
-    are constructing, \icode{P}. In our use case, \icode{Q} will be instantiated
+  \item \icode{Q} is a heterogeneous relation on \icode{P}, the (dependent) type
+    which we are constructing. In our use case, \icode{Q} will be instantiated
     with equality up to sizes.
   \item The function \icode{f}, which defines the computational behaviour of the
     fixpoint, still receives as an argument a function \icode{g} which
@@ -223,7 +222,7 @@ following ways:
 
 Mutually with \icode{wfIndΣ-acc}, we define a lemma about it,
 \icode{wfIndΣ-acc-resp}. This just says that any two terms constructed by
-\icode{wfIndΣ-acc} are related by \icode{Q} -- which in our case means that
+\icode{wfIndΣ-acc} are related by \icode{Q} -- so in our case,
 \icode{wfIndΣ-acc} constructs a size-parametric function. As with
 \icode{wfInd-acc}, the implementations of \icode{wfIndΣ-acc} and
 \icode{wfIndΣ-acc-resp} are straightforward.

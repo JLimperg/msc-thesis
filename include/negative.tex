@@ -31,12 +31,12 @@ terminal category (whose object type is $⊤$) and $⟦\ctx{Δ}{n}⟧$ is the
 Grothendieck category of the functor $F ∶ ⟦Δ⟧ → \Cats$ with $F(δ) ≔
 \Sizes_{<⟦n⟧(δ)}$. ($\Cats$ is the category of small categories.) Sizes are
 modelled as functors $⟦n⟧ ∶ ⟦Δ⟧ → \Sizes$ where $\Sizes$ is the category of
-sizes ordered by the preorder $≤$; $\Sizes_{<n}$ is the subcategory of
-$\Sizes$ which contains only sizes less than $n$. The objects of $⟦Δ⟧$ are then
+sizes ordered by the preorder $≤$; $\Sizes_{<n}$ is the subcategory of $\Sizes$
+which contains only sizes less than $n$. The objects of $⟦Δ⟧$ are then
 telescopes of sizes, as before, and an arrow $f ∶ δ → δ′$ in $⟦Δ⟧$ is a proof
-that the sizes in $δ$ are pointwise less than or equal to the sizes in $δ′$.
-The judgment $⟦Δ ⊢ n < m⟧$ is modelled by a proof that $⟦n⟧(δ) < ⟦m⟧(δ)$ for
-arbitrary $δ ∶ ⟦Δ⟧$.
+that the sizes in $δ$ are pointwise less than or equal to the sizes in $δ′$. The
+judgment $Δ ⊢ n < m$ is modelled by a proof that $⟦n⟧(δ) < ⟦m⟧(δ)$ for arbitrary
+$δ ∶ ⟦Δ⟧$.
 
 Continuing the categorical interpretation, we model types in a size context $Δ$
 as functors from $⟦Δ⟧$ to $\Sets$, the category of sets (or rather, since we work
@@ -47,11 +47,11 @@ One problem with this approach becomes apparent already at this stage: the type
 $\Stream{n}$ of sized streams has no natural interpretation as a covariant
 functor from $⟦Δ⟧$ to $\Sets$. We would like to define, as before,
 \begin{displaymath}
-  ⟦\Stream{n}⟧(δ) ≔ \Size_{<⟦n⟧(δ)} → ℕ
+  ⟦\Stream{n}⟧(δ) ≔ ℕ_{<⟦n⟧(δ)} → ℕ
 \end{displaymath}
 but this is no functor: for $δ ≤ δ′$ we have $⟦n⟧(δ) ≤ ⟦n⟧(δ′)$ by functoriality
-of $⟦n⟧$, but there is no appropriate function from $\Size_{<⟦n⟧(δ)} → ℕ$ to
-$\Size_{<⟦n⟧(δ′)} → ℕ$. This is not surprising -- after all, ⟦\Stream{n}⟧(δ) is
+of $⟦n⟧$, but there is no appropriate function from $ℕ_{<⟦n⟧(δ)} → ℕ$ to
+$ℕ_{<⟦n⟧(δ′)} → ℕ$. This is not surprising -- after all, ⟦\Stream{n}⟧(δ) is
 naturally contravariant in $δ$.
 
 Still, let us ignore this problem and move on to discover more fundamental
@@ -76,7 +76,7 @@ surprising: in the above interpretation of $\All{n}{T}$, the size that we
 introduce in the model, $m$, is not, in general, smaller than $⟦n⟧(δ)$. The
 bound $m < ⟦n⟧(δ′)$ does not actually restrict the domain of $m$ since $δ′ ≥ δ$
 and thus $⟦n⟧(δ′) ≥ ⟦n⟧(δ)$. The reader is invited to check that this prevents
-us from interpreting the fixpoint term $\mathrm{fix}$.
+us from interpreting $\mathrm{fix}$.
 
 
 \section{Contravariant Presheaf Model}

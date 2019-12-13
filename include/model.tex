@@ -4,20 +4,23 @@
 I now present a reflexive graph model of λST. The model is very similar to the
 standard set-theoretic models of (dependent) type theories, but it additionally
 captures a parametricity property: when we interpret a term $f ∶ \All{n}{T}$,
-we get a dependent function $⟦f⟧ ∶ (n ∶ \Size) → ⟦T⟧(n)$, but this
-function is parametric in the size -- i.e.\ the result of $⟦f⟧$ is independent,
-in an appropriate sense, of which $n$ we apply it to.
+we get a dependent function
+\begin{displaymath}
+  ⟦f⟧ ∶ (m ∶ \Size_{<⟦n⟧}) → ⟦T⟧(m)
+\end{displaymath}
+such that $⟦f⟧(m)$ is independent, in an appropriate sense, of $m$. In other
+words, $⟦f⟧$ is size-parametric.
 
 To develop this model, I first introduce its central structure, (propositional)
 reflexive graphs and their families. I then show how to interpret each
-construct of λST (sizes, types and terms) in turn.
+construct of λST -- sizes, types and terms -- in turn.
 
 
 \section{Propositional Reflexive Graphs}
 \label{sec:model:rgraph}
 
-This section introduces the category of reflexive graphs which will be used
-to interpret sizes and size contexts. The results are formalised in
+This section introduces the category of reflexive graphs, which will be used to
+interpret sizes and size contexts. The following results are formalised in
 \module{Model.\allowbreak RGraph}{Model.RGraph}.
 
 A \Def{reflexive graph} is a tuple $(Δ, ≈_Δ, \refl_Δ)$ where
@@ -26,15 +29,17 @@ A \Def{reflexive graph} is a tuple $(Δ, ≈_Δ, \refl_Δ)$ where
   ≈_Δ &∶& Δ → Δ → \Type \\
   \refl_Δ(δ) &∶& δ ≈_Δ δ &\quad ∀ δ ∶ Δ.
 \end{AlignAnnot*}
-We will identify a reflexive graph with its underlying type where this is
-unambiguous.
+I will generally identify a reflexive graph with its underlying type.
 
 The relation $≈_Δ$ is what distinguishes this model from the standard
 set-theoretical model of type theory. As we interpret the constructions of λST
 in the next sections, we will define $≈_Δ$ to be \enquote*{equality up to
   sizes}. For example, the interpretation $⟦Δ⟧$ of a size context $Δ$ will have
 $δ ≈_{⟦Δ⟧} δ′$ for all $δ$ and $δ′$ because any two interpretations of a size
-context should be considered equal up to sizes.
+context should be considered equal up to sizes. This means that we can use
+interpretations of sizes internally -- particularly to construct a terminating
+interpretation of fixpoints -- but only in such a way that they do not affect
+the overall result of a computation.
 
 \begin{remark}
   Each reflexive graph is isomorphic to a presheaf over a particular category.
@@ -52,7 +57,7 @@ $Δ$ is a proposition). We call such a graph a \Def{PRGraph}. These conditions
 are trivially fulfilled for all the PRGraphs we consider, so I will silently
 omit their proofs.
 
-PRGraphs are simpler than general reflexive graphs because the proofs
+PRGraphs are simpler than non-propositional reflexive graphs since the proofs
 $\refl_Δ(δ)$ are irrelevant. This saves us a lot of effort, particularly in the
 formalisation. However, it means that the model probably would not accommodate
 theories where the identity type is non-propositional, such as cubical type
@@ -67,17 +72,17 @@ their underlying types such that
 Given a proof $p ∶ δ ≈_Δ δ′$, I will occasionally write $σ(p) ∶ σ(δ) ≈_Ω σ(δ′)$.
 Not very often, though, since by propositionality of $Ω$ it does not matter
 which specific proof of $σ(δ) ≈_Ω σ(δ′)$ we consider. This also means that in
-particular $σ(\refl_Δ(δ)) = \refl_Ω(σ(δ))$; for non-propositional RGraphs, we
-would have to add this condition to the definition of morphisms.
+particular $σ(\refl_Δ(δ)) = \refl_Ω(σ(δ))$; for non-propositional reflexive
+graphs, we would have to add this condition to the definition of morphisms.
 
-PRGraphs and their morphisms form a category in the obvious way. We call this
-category $\PRGraphs$.
+PRGraphs and their morphisms obviously form a category, which we call
+$\PRGraphs$.
 
 
 \section{Families of Propositional Reflexive Graphs}
 \label{sec:model:rgraphfam}
 
-To interpret types and type contexts, which are indexed by some size context, we
+To interpret types and type contexts, which are indexed by size contexts, we
 need to move from PRGraphs to families of PRGraphs. These may be thought of as
 PRGraphs indexed by PRGraphs. The results in this section are formalised in
 \module{Model.\allowbreak Type.\allowbreak Core}{Model.Type.Core}.
@@ -137,10 +142,10 @@ and $σ(\refl_Δ(δ))$ are, in fact, the same.
 \section{Properties of PRGraphFams}
 \label{sec:model:prgraphfam-properties}
 
-As usual, we will interpret the contexts of λST as iterated products of types
-and the function space as an exponential. We therefore prove that
-$\PRGraphFams(Δ)$ admits these constructions. Throughout this section, $Δ$ is an
-arbitrary PRGraph.
+As usual, we will interpret the contexts of λST as finite products of types and
+the function space as an exponential. We therefore prove that $\PRGraphFams(Δ)$
+admits these constructions. Throughout this section, $Δ$ is an arbitrary
+PRGraph.
 
 \subsection{Finite Products}
 \label{sec:model:product}
@@ -196,19 +201,18 @@ $\Ap(T, δ) → \Ap(U, δ)$ is the type of PRGraph morphisms from $\Ap(T, δ)$ t
 $\Ap(U, δ)$. The relation of $T ↝ U$ is reflexive because for any such RGraph
 morphism $f$, $x ≈_{T,\refl_Δ(δ)} y$ implies $f(x) ≈_{U,\refl_Δ(δ)} f(y)$.
 
-To prove that $T ↝ U$ is indeed an exponential, we still need currying and
-evaluation morphisms. Given a morphism of PRGraph families $f ∶ T × U → V$, we
-define
+To show that $T ↝ U$ is indeed an exponential, we need currying and evaluation
+morphisms. Given a morphism of PRGraph families $f ∶ T × U → V$, we define
 \begin{gather*}
   \curry(f) ∶ T → U ↝ V \\
-  \curry(f)_δ(t) ≔ \fun{u}{f(t, u)}.
+  \curry(f)_δ(t) ≔ \fun{u}{f_δ(t, u)}.
 \end{gather*}
 It is easy to check that $\curry(f)_δ(t)$ is a PRGraph morphism from
 $\Ap(U, δ)$ to $\Ap(V, δ)$ and that $\curry(f)$ is a morphism of PRGraph
 families. We also define an evaluation morphism:
 \begin{gather*}
   \eval ∶ (T ↝ U) × T → U \\
-  \eval(f, t) ≔ f(t).
+  \eval_δ(f, t) ≔ f(t).
 \end{gather*}
 Again, it is easy to check that $\eval$ is a morphism of PRGraph families and
 that $T ↝ U$ together with $\curry$ and $\eval$ is an exponential in
@@ -224,15 +228,14 @@ sizes, whose interpretation is formalised in \module{Model.\allowbreak
 
 A \Def{semantic size} is an ordinal below $ω·2$. These ordinals are either
 natural numbers or they have the form $ω + i$ for some $i ∈ ℕ$. They are ordered
-by the usual strict comparison of sizes, meaning
+by the usual strict order on ordinals, meaning
 \begin{displaymath}
   0 < 1 < \dots < ω < ω + 1 < \dots
 \end{displaymath}
-The reflexive closure of $<$ is called $≤$. We write $\Size$ for the type of
-semantic sizes and $\Size_{<n}$ for the type of semantic sizes $m$ such that $m
-< n$.
+We write $≤$ for the reflexive closure of $<$, $\Size$ for the type of semantic
+sizes and $\Size_{<n}$ for the type of semantic sizes $m$ such that $m < n$.
 
-Syntactic sizes are now modelled by semantic sizes. A size context $Δ$ is
+Syntactic sizes are modelled by semantic sizes as follows. A size context $Δ$ is
 interpreted as a set of size tuples. A well-typed size in $Δ$ is interpreted as
 a function from $⟦Δ⟧$ to $\Size$. These interpretations are mutually recursively
 defined:
@@ -280,8 +283,8 @@ explained in \secref{formalisation:sub}, the results presented here are not
 exactly those formalised.
 
 Let $σ ∶ Δ ⇒ Ω$ be a well-typed substitution. The interpretation of $σ$ is a
-function from $⟦Δ⟧$ to $⟦Ω⟧$ defined by recursion on the derivation of $σ ∶ Δ ⇒
-Ω$:
+function from $⟦Δ⟧$ to $⟦Ω⟧$ defined by recursion over the derivation of $σ ∶ Δ
+⇒ Ω$:
 \begin{gather*}
   ⟦()⟧ ∶ ⟦Δ⟧ → ⟦()⟧ \\
   ⟦()⟧(δ) ≔ \mathord{tt} \qquad \text{($\mathord{tt}$ is the unique value of $⊤$)} \\
@@ -306,7 +309,8 @@ behave when applied to a size valuation.
 
 \begin{lemma}[Interpretation of specific size substitutions]
   \label{lem:sub-app}
-  Assume $(ω, m, k) ∶ ⟦\ctx{\ctx{Ω}{n}}{v_0}⟧$, $σ ∶ Δ → Ω$ and $τ ∶ Ω → Ω′$. Then we have
+  Let $(ω, m, k) ∶ ⟦\ctx{\ctx{Ω}{n}}{v_0}⟧$, $σ ∶ Δ → Ω$ and $τ ∶ Ω → Ω′$. Then
+  we have
   \begin{Align*}
     ⟦\Id⟧(ω) &=& ω \\
     ⟦σ \fcomp τ⟧(ω) &=& ⟦τ⟧(⟦σ⟧(ω)) \\
@@ -321,8 +325,8 @@ behave when applied to a size valuation.
 \section{Types}
 \label{sec:model:types}
 
-In this section, we model the types of λST. The following results are formalised
-in \module{Model.\allowbreak Nat}{Model.Nat}, \module{Model.\allowbreak
+In this section, we model the types of λST. Our results are formalised in
+\module{Model.\allowbreak Nat}{Model.Nat}, \module{Model.\allowbreak
   Stream}{Model.Stream} and \module{Model.\allowbreak
   Quantification}{Model.Quantification}.
 
@@ -387,7 +391,7 @@ both defined in \secref{model:product}.
 
 With this, we have interpreted all type-level constructs of λST. What remains is
 to prove a lemma about the correspondence between syntactic and semantic
-substitution. To do that, we need some additional lemmas about semantic
+substitution. To do that, we need some technical lemmas about semantic
 substitution first:
 
 \begin{lemma}[Substitution in exponentials]
@@ -494,10 +498,10 @@ We then define
 \end{gather*}
 This definition is valid due to the following observations:
 \begin{itemize}
-\item The right-hand side of the equation is a size-parametric function.
-  Recall that $(δ, m) ≈_{⟦\ctx{Δ}{n}⟧} (δ, m′)$ for all $m, m′$. We also have
-  $γ ≈_{⟦Γ⟧} γ$ by reflexivity and this implies $⟦t⟧_{(δ, m)}(γ) ≈_{⟦T⟧}
-  ⟦t⟧_{(δ, m′)}(γ)$ because $⟦t⟧$ is a morphism of PRGraph families.
+\item The right-hand side of the equation is a size-parametric function. Recall
+  that for all $m$ and $m′$, $(δ, m) ≈_{⟦\ctx{Δ}{n}⟧} (δ, m′)$. We also have $γ
+  ≈_{⟦Γ⟧} γ$ by reflexivity and this implies $⟦t⟧_{(δ, m)}(γ) ≈_{⟦T⟧} ⟦t⟧_{(δ,
+    m′)}(γ)$ because $⟦t⟧$ is a morphism of PRGraph families.
 \item $⟦\slam{n}{t}⟧$ is a morphism of PRGraph families. This follows from
   essentially the same argument, only replacing the fact $γ ≈_{⟦Γ⟧} γ$ with an
   assumption $γ ≈_{⟦Γ⟧} γ′$ for some arbitrary $γ′$.
@@ -523,9 +527,9 @@ is a morphism of PRGraph families because $⟦t⟧$ is.
 \label{sec:model:terms:nat}
 
 The sized natural number type $\Nat{n}$ has two constructors, zero and
-successor, and an eliminator $\mathrm{caseNat}$. Their typing rules are
-reproduced in \figref{typing:nat} for reference. Recall that $\Nat{n}$ is
-modelled by the type of natural numbers less than or equal to a size $n$.
+successor, and an eliminator, $\mathrm{caseNat}$. Their typing rules are
+reproduced in \figref{typing:nat}. Recall that $\Nat{n}$ is modelled by the type
+of natural numbers less than or equal to a size $n$.
 
 \begin{figure}
   \begin{mathpar}
@@ -656,15 +660,15 @@ According to this rule, we may assume a morphism $⟦t⟧$ with components
     &=& ⟦Γ⟧(δ) → (n ∶ \Size_{< ω + 1}) → ((m ∶ \Size_{<n}) → ⟦T⟧(δ, m)) → ⟦T⟧(δ, n).
 \end{Align*}
 The first step in this chain uses the fact that $⟦\sub{T}{\Skip}⟧ =
-\sub{⟦T⟧}{⟦\Skip⟧}$ (Lemma \ref{lem:⟦subT⟧}). In the second step, we simplify
-$⟦\Skip⟧(δ, n, m)$ to $(δ, m)$ according to Lemma \ref{lem:sub-app}.
+\sub{⟦T⟧}{⟦\Skip⟧}$ (by Lemma \ref{lem:⟦subT⟧}). In the second step, we simplify
+$⟦\Skip⟧(δ, n, m)$ to $(δ, m)$ (by Lemma \ref{lem:sub-app}).
 
 Given such a $⟦t⟧$, we first define the following auxiliary function:
 \begin{gather*}
   f_δ ∶ ⟦Γ⟧(δ) → (n ∶ \Size_{< ω + 1}) → ⟦T⟧(δ, n) \\
   f_δ(γ, n) ≔ ⟦t⟧_δ(γ, n, \fun{m}{f_δ(γ, m)}).
 \end{gather*}
-This function is a standard fixpoint combinator. It terminates because the
+This function is a standard fixpoint of $⟦t⟧_δ$. It terminates because the
 recursive call is on a size $m < n$ and $<$ is well-founded: there is no
 infinite descending chain $n₀ > n₁ > \dots$ and so a recursion which always
 decreases the size argument must eventually stop. Interpreting $\mathrm{fix}$ is
@@ -694,13 +698,13 @@ results, which would mean, for example, that for any term $t ∶ \All{n}{T}$ and
 sizes $m$, $m′$ the applications $\sapp{t}{m}$ and $\sapp{t}{m′}$ normalise to
 the same value up to sizes. (Indeed, I have not even given an operational
 semantics for λST.) Ideally, we would like to prove the even stronger claim that
-the entire reduction sequences of $m$ and $m′$ are equal up to sizes. This would
-allow us to fully erase sizes at runtime. Answering these syntactic questions
-fully would be significant additional work; I briefly return to them in
-\secref{conclusion:future}.
+the entire reduction sequences of $\sapp{t}{m}$ and $\sapp{t}{m′}$ are equal up
+to sizes. This would allow us to fully erase sizes at runtime. Deriving answers
+to these questions from the model is significant additional work; I briefly
+return to them in \secref{conclusion:future}.
 
-What we do get from the model, however, is a denotational semantics of λST which
-gives some \enquote*{evidence} that the calculus is size-irrelevant. Our model
-construction can be read as an interpreter from λST into Agda, and this
-interpreter must, due to the parametricity requirement in our interpretation of
-size quantification, produce size-irrelevant functions.
+What we do get from the model, however, is a denotational semantics of λST with
+\enquote*{baked-in} size irrelevance. Our model construction can be read as an
+interpreter from λST into Agda, and this interpreter must, due to the
+parametricity requirement in our interpretation of size quantification, produce
+size-irrelevant functions.

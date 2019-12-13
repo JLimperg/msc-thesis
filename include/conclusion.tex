@@ -13,7 +13,7 @@ Giménez, Pinto and Uustalu \cite{barthe2004}; Blanqui \cite{blanqui2004}; and
 Sacchini \cite{sacchiniphd, sacchini2013}. These works all use slightly
 different notions of sizes on top of different base calculi (simply typed or
 dependently typed, with inductive or coinductive types, etc.), but none of them
-address the question of size irrelevance. Agda's particular notion of sized
+addresses the question of size irrelevance. Agda's particular notion of sized
 types, which λST emulates, is due to Abel and Pientka \cite{abel2016}.
 
 \paragraph{Reflexive Graph Models} Reynolds \cite{reynolds1983} first
@@ -92,12 +92,11 @@ one:
 Such infinitely branching types complicate the interpretation of sizes. Recall
 that we interpreted sizes as the height of a constructor tree. For finitely
 branching types, this height is always a (computable) natural number. For
-infinitely branching types such as \icode{ℕTree}, however, it is a noncomputable
-ordinal: the height of a \icode{node} is one plus the maximum height of its
-infinite collection of child trees. This means that in the model, $∞$ could no
-longer be interpreted as $ω$; instead it would have to be an ordinal that is
-greater than the height of any possible value of an infinitely branching data
-type.
+infinitely branching types such as \icode{ℕTree}, however, it is an ordinal: the
+height of a \icode{node} is one plus the maximum height of its infinite
+collection of child trees. This means that in the model, $∞$ could no longer be
+interpreted as $ω$; instead it would have to be an ordinal that is greater than
+the height of any possible value of an infinitely branching data type.
 
 Ordinals present some technical challenges since they are not trivially encoded
 in type theory. As part of the work for this thesis, I investigated a particular
@@ -107,9 +106,9 @@ of these ordinals can be found in \module{Ordinal.\allowbreak
   Shulman}{Ordinal.Shulman}. However, the investigation was inconclusive: while
 the formalisation shows that the plump ordinals have most of the properties we
 expect of a model of sizes, they do not admit the seemingly straightforward
-lemma that for ordinals $n < m$ and $n′ < m$, their supremum $n ⊔ n′$ is also
-less than $m$. More precisely, this lemma is equivalent to classical logic --
-but then again, it is not clear that we need it to interpret a hypothetical
+lemma that for ordinals $n < m$ and $n′ < m$, the supremum $n ⊔ n′$ is also less
+than $m$. More precisely, this lemma is equivalent to classical logic -- but
+then again, it is not clear that we need it to interpret a hypothetical
 extension of λST with infinitely branching types.
 
 
