@@ -156,12 +156,12 @@
 
 \begin{code}
 data ℕₛ (n : Size) : Set where
-  zero : ℕₛ n
-  suc : (m : Size< n) → ℕₛ m → ℕₛ n
+  zero :                        ℕₛ n
+  suc  : (m : Size< n) → ℕₛ m → ℕₛ n
 
 halfₛ : ∀ n → ℕₛ n → ℕₛ n
-halfₛ n zero = zero
-halfₛ n (suc m zero) = zero
+halfₛ n zero              = zero
+halfₛ n (suc m zero)      = zero
 halfₛ n (suc m (suc k i)) = suc k (halfₛ k i)
 \end{code}
 \end{frame}
@@ -195,14 +195,19 @@ halfₛ n (suc m (suc k i)) = suc k (halfₛ k i)
     n & \bnfdef & x \\
       & |       & 0 \\
       & |       & \ssuc{n} \\
-      & |       & ∞ \\
-      & |       & ⋆
+      & |       & ∞
   \end{Align*}
 
   \pause
 
   \begin{displaymath}
-    0 < \ssuc{0} < \dots < ∞ < ⋆
+    0 < \ssuc{0} < \dots < ∞ < \ssuc{∞} < \dots
+  \end{displaymath}
+
+  \pause
+
+  \begin{displaymath}
+    ⋆ ≔ \ssuc{∞}
   \end{displaymath}
 \end{frame}
 
@@ -263,8 +268,8 @@ halfₛ n (suc m (suc k i)) = suc k (halfₛ k i)
 
 \begin{code}
 halfₛ : ∀ n → ℕₛ n → ℕₛ n
-halfₛ n zero = zero
-halfₛ n (suc m zero) = zero
+halfₛ n zero              = zero
+halfₛ n (suc m zero)      = zero
 halfₛ n (suc m (suc k i)) = suc k (halfₛ k i)
 \end{code}
 
@@ -321,7 +326,7 @@ half ≔ fix[Nat ∙ → Nat ∙]
 \begin{frame}
   \frametitle{PRGraph of semantic sizes}
   \begin{Align*}
-    \Size &≔& ℕ + "∞" + "⋆" \\
+    \Size &≔& ℕ ⊎ \{ ω + i \mid i ∈ ℕ \} \quad \text{(ordinals below ω·2)}\\
     n ≈_{\Size} m &≔& ⊤
   \end{Align*}
 \end{frame}
@@ -341,13 +346,8 @@ half ≔ fix[Nat ∙ → Nat ∙]
     \pause
     ⟦x⟧(δ) &≔& \text{(lookup $x$ in $δ$)} \\
     ⟦0⟧(δ) &≔& 0 \\
-    ⟦\ssuc{n}⟧(δ) &≔&
-      \begin{cases}
-        ⟦n⟧(δ) + 1 \quad &\text{if ⟦n⟧(δ) ∈ ℕ} \\
-        ⟦n⟧(δ)     \quad &\text{otherwise}
-      \end{cases} \\
-    ⟦∞⟧(δ) &≔& ∞ \\
-    ⟦⋆⟧(δ) &≔& ⋆
+    ⟦\ssuc{n}⟧(δ) &≔& ⟦n⟧(δ) + 1 \\
+    ⟦∞⟧(δ) &≔& ω \\
   \end{Align*}
 \end{frame}
 
@@ -387,7 +387,7 @@ half ≔ fix[Nat ∙ → Nat ∙]
     ⟦\Nat{n}⟧(δ) &≔& ℕ_{≤⟦n⟧(δ)} \\
     i ≈_{⟦\Nat{n}⟧} j &≔& i = j \\
     \\
-    ⟦T → U⟧(δ) &≔& ⟦T⟧ ↝ ⟦U⟧ \\
+    ⟦T → U⟧(δ) &≔& ⟦T⟧(δ) ↝ ⟦U⟧(δ) \\
     \multicolumn{3}{l}{\quad \text{(the exponential of PRGraph families over $Δ$)}}
   \end{Align*}
 \end{frame}
